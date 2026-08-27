@@ -63,6 +63,68 @@ pub struct CameraChange {
     pub after: Camera,
 }
 
+/// A coalesced camera drag built from incremental pointer movement.
+///
+/// Presentation integrations report drag movement one frame at a time. This
+/// session accumulates those deltas, while always deriving the preview from the
+/// exact starting cameras so linked previews and undo retain their original
+/// values without floating-point drift from repeated camera mutation.
+#[derive(Clone, Debug, PartialEq)]
+pub struct CameraDragSession {
+    source: PaneId,
+    before: Vec<CameraState>,
+    preview: Vec<CameraState>,
+    total_delta: ViewportPoint,
+}
+
+impl CameraDragSession {
+    pub fn new(source: PaneId, before: Vec<CameraState>) -> Option<Self> {
+        before
+            .iter()
+            .any(|state| state.pane == source)
+            .then(|| Self {
+                source,
+                preview: before.clone(),
+                before,
+                total_delta: ViewportPoint::default(),
+            })
+    }
+
+    pub fn update_incremental(&mut self, delta: ViewportPoint) -> &[CameraState] {
+        self.total_delta.x += delta.x;
+        self.total_delta.y += delta.y;
+        let mut after = self
+            .before
+            .iter()
+            .find(|state| state.pane == self.source)
+            .expect("camera drag source was validated at construction")
+            .camera;
+        after.pan(self.total_delta);
+        let changes = linked_camera_changes(&self.before, self.source, after);
+        self.preview.clone_from(&self.before);
+        apply_camera_changes(&mut self.preview, &changes, true);
+        &self.preview
+    }
+
+    pub fn preview(&self) -> &[CameraState] {
+        &self.preview
+    }
+
+    pub fn total_delta(&self) -> ViewportPoint {
+        self.total_delta
+    }
+
+    pub fn finish(self) -> Vec<CameraChange> {
+        let after = self
+            .preview
+            .iter()
+            .find(|state| state.pane == self.source)
+            .expect("camera drag source was validated at construction")
+            .camera;
+        linked_camera_changes(&self.before, self.source, after)
+    }
+}
+
 pub fn linked_camera_changes(
     cameras: &[CameraState],
     source: PaneId,
@@ -160,5 +222,53 @@ mod tests {
         assert_eq!(changes[0].before, Camera::default());
         assert_eq!(changes[1].before, second);
         assert!(changes.iter().all(|change| change.after == updated));
+    }
+
+    #[test]
+    fn camera_drag_accumulates_frame_deltas_and_preserves_exact_linked_undo() {
+        let group = Some(LinkGroupId(1));
+        let first = Camera::default();
+        let mut second = first;
+        second.centre = ImagePoint::new(12.0, 34.0);
+        let before = vec![
+            CameraState {
+                pane: PaneId(1),
+                camera: first,
+                link: group,
+            },
+            CameraState {
+                pane: PaneId(2),
+                camera: second,
+                link: group,
+            },
+        ];
+        let mut drag = CameraDragSession::new(PaneId(1), before.clone()).unwrap();
+
+        drag.update_incremental(ViewportPoint::new(30.0, 10.0));
+        drag.update_incremental(ViewportPoint::new(25.0, 15.0));
+        let preview = drag
+            .update_incremental(ViewportPoint::new(35.0, 25.0))
+            .to_vec();
+
+        let expected = Camera {
+            centre: ImagePoint::new(
+                first.centre.x - 90.0 * first.pixels_per_screen_point,
+                first.centre.y - 50.0 * first.pixels_per_screen_point,
+            ),
+            ..first
+        };
+        assert_eq!(drag.total_delta(), ViewportPoint::new(90.0, 50.0));
+        assert!(preview.iter().all(|state| state.camera == expected));
+
+        let changes = drag.finish();
+        assert_eq!(changes[0].before, first);
+        assert_eq!(changes[1].before, second);
+        assert!(changes.iter().all(|change| change.after == expected));
+
+        let mut restored = before.clone();
+        apply_camera_changes(&mut restored, &changes, true);
+        assert!(restored.iter().all(|state| state.camera == expected));
+        apply_camera_changes(&mut restored, &changes, false);
+        assert_eq!(restored, before);
     }
 }
