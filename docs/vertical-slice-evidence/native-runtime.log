@@ -1,12 +1,12 @@
-2026-08-27T10:23:28.296351Z  WARN winit::platform_impl::linux::x11::xdisplay: error setting XSETTINGS; Xft options won't reload automatically
-2026-08-27T10:23:28.302415Z  WARN winit::platform_impl::linux::x11::util::randr: XRandR reported that the display's 0mm in size, which is certifiably insane
-2026-08-27T10:23:28.302443Z  INFO winit::platform_impl::linux::x11::window: Guessed window scale factor: 1
+2026-08-27T13:21:47.824547Z  WARN winit::platform_impl::linux::x11::xdisplay: error setting XSETTINGS; Xft options won't reload automatically
+2026-08-27T13:21:47.829551Z  WARN winit::platform_impl::linux::x11::util::randr: XRandR reported that the display's 0mm in size, which is certifiably insane
+2026-08-27T13:21:47.829583Z  INFO winit::platform_impl::linux::x11::window: Guessed window scale factor: 1
 libEGL warning: DRI3 error: Could not get DRI3 device
 libEGL warning: Ensure your X server supports DRI3 to get accelerated rendering
-2026-08-27T10:23:28.333953Z  WARN egui_wgpu: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: "llvmpipe (LLVM 22.1.6, 256 bits)", driver_info: "4.6 (Core Profile) Mesa 26.1.4-arch1.1", vendor: Mesa (0x10005), subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None
-2026-08-27T10:23:52.209890Z  WARN winit::platform_impl::linux::x11::xdisplay: error setting XSETTINGS; Xft options won't reload automatically
-2026-08-27T10:23:52.215927Z  WARN winit::platform_impl::linux::x11::util::randr: XRandR reported that the display's 0mm in size, which is certifiably insane
-2026-08-27T10:23:52.215955Z  INFO winit::platform_impl::linux::x11::window: Guessed window scale factor: 1
+2026-08-27T13:21:47.871730Z  WARN egui_wgpu: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: "llvmpipe (LLVM 22.1.6, 256 bits)", driver_info: "4.6 (Core Profile) Mesa 26.1.4-arch1.1", vendor: Mesa (0x10005), subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None
+2026-08-27T13:22:13.897265Z  WARN winit::platform_impl::linux::x11::xdisplay: error setting XSETTINGS; Xft options won't reload automatically
+2026-08-27T13:22:13.903346Z  WARN winit::platform_impl::linux::x11::util::randr: XRandR reported that the display's 0mm in size, which is certifiably insane
+2026-08-27T13:22:13.903370Z  INFO winit::platform_impl::linux::x11::window: Guessed window scale factor: 1
 libEGL warning: DRI3 error: Could not get DRI3 device
 libEGL warning: Ensure your X server supports DRI3 to get accelerated rendering
-2026-08-27T10:23:52.245232Z  WARN egui_wgpu: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: "llvmpipe (LLVM 22.1.6, 256 bits)", driver_info: "4.6 (Core Profile) Mesa 26.1.4-arch1.1", vendor: Mesa (0x10005), subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None
+2026-08-27T13:22:13.952562Z  WARN egui_wgpu: Software rasterizer detected - loss of performance expected. backend: Gl, device_type: Cpu, name: "llvmpipe (LLVM 22.1.6, 256 bits)", driver_info: "4.6 (Core Profile) Mesa 26.1.4-arch1.1", vendor: Mesa (0x10005), subgroup_size: 4..=128, transient_saves_memory: None, limit_bucket: None
