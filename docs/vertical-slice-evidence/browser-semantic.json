@@ -1,0 +1,367 @@
+{
+  "initial": {
+    "visible_tile_keys": [
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 9,
+        "x": 0,
+        "y": 0
+      }
+    ],
+    "worker_health": "Running",
+    "worker_failures": 0,
+    "scheduler_high_water": 5,
+    "scheduler_capacity": 64,
+    "external_queue_high_water": 4,
+    "external_queue_capacity": 16,
+    "browser_credits_in_use": 0,
+    "browser_credit_capacity": 4
+  },
+  "linked_camera_and_render_plan": {
+    "cameras": [
+      {
+        "pane": 1,
+        "camera": {
+          "centre": {
+            "x": 32768,
+            "y": 24576
+          },
+          "pixels_per_screen_point": 8
+        },
+        "link": 1
+      },
+      {
+        "pane": 2,
+        "camera": {
+          "centre": {
+            "x": 32768,
+            "y": 24576
+          },
+          "pixels_per_screen_point": 8
+        },
+        "link": 1
+      }
+    ],
+    "render_cameras": [
+      {
+        "pane": 1,
+        "camera": {
+          "centre": {
+            "x": 32768,
+            "y": 24576
+          },
+          "pixels_per_screen_point": 8
+        },
+        "link": 1
+      },
+      {
+        "pane": 2,
+        "camera": {
+          "centre": {
+            "x": 32768,
+            "y": 24576
+          },
+          "pixels_per_screen_point": 8
+        },
+        "link": 1
+      }
+    ],
+    "visible_tile_keys": [
+      {
+        "source": 1,
+        "level": 3,
+        "x": 14,
+        "y": 11
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 14,
+        "y": 12
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 14,
+        "y": 13
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 15,
+        "y": 11
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 15,
+        "y": 12
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 15,
+        "y": 13
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 16,
+        "y": 11
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 16,
+        "y": 12
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 16,
+        "y": 13
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 17,
+        "y": 11
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 17,
+        "y": 12
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 17,
+        "y": 13
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 18,
+        "y": 11
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 18,
+        "y": 12
+      },
+      {
+        "source": 1,
+        "level": 3,
+        "x": 18,
+        "y": 13
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 9,
+        "x": 0,
+        "y": 0
+      }
+    ],
+    "demand_changed": true
+  },
+  "polygon": {
+    "before_count": 0,
+    "committed_count": 1,
+    "selected_annotation": 0,
+    "undo_depth_before": 0,
+    "undo_depth_after_commit": 1,
+    "count_after_undo": 0
+  },
+  "dock": {
+    "before_hash": "40f5bb36d8d13921",
+    "resized_hash": "05245d0961a7e7b1",
+    "hash_after_undo": "40f5bb36d8d13921"
+  },
+  "thumbnail_cache": {
+    "resident_keys": [
+      {
+        "source": 2,
+        "level": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 2,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 3,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 4,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 5,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 6,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 7,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 8,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 9,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 10,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 11,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 12,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 13,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 14,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 15,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 16,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 17,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 18,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 19,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 20,
+        "y": 0
+      }
+    ],
+    "resident_count": 21,
+    "configured_item_bound": 256
+  },
+  "warmed_idle": {
+    "frame_before": 179,
+    "frame_after": 179,
+    "deliberate_continuous_repaint": false
+  }
+}

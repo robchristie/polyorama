@@ -1,5 +1,5 @@
 {
-  "application_version": "0.1.0",
+  "application_version": "0.1.1",
   "dependency_versions": {
     "eframe": "0.36.1",
     "egui": "0.36.1",
@@ -11,27 +11,26 @@
   "backend": "BrowserWebGpu",
   "adapter": "",
   "frame": {
-    "frame_number": 8,
-    "cpu_frame_ms": 0.5,
+    "frame_number": 6,
+    "cpu_frame_ms": 0.6,
     "cpu_frame_history_ms": [
-      21.7,
-      19.7,
-      0.3,
-      0.9,
+      3.6,
+      0.8,
+      0.5,
       0.4,
       0.7,
-      0.5,
-      0.5
+      0.6
     ],
     "runtime_poll_ms": 0,
     "ui_ms": 0.2,
-    "demand_ms": 0.2,
-    "render_prepare_ms": 0.1,
-    "repaint_requests": 3,
+    "demand_ms": 0.1,
+    "render_prepare_ms": 0.30000000000000004,
+    "repaint_requests": 4,
     "repaint_reason": "None",
     "recent_reasons": [
+      "PendingUpload",
       "WorkerCompletion",
-      "WorkerCompletion",
+      "PendingUpload",
       "WorkerCompletion"
     ],
     "interaction_active": false
@@ -46,23 +45,24 @@
   "render": {
     "gpu_viewports": 4,
     "render_jobs": 4,
-    "render_passes": 1,
-    "draw_calls": 12,
-    "command_buffers": 1,
+    "render_passes": 4,
+    "draw_calls": 20,
+    "command_buffers": 0,
     "uploaded_bytes": 0,
     "pending_upload_bytes": 0,
     "resident_texture_bytes": 655360,
     "cache_evictions": 0,
-    "prepare_ms": 0.1,
+    "prepare_ms": 0.30000000000000004,
     "capability_profile": "WebGPU/WGPU; scalar=R16Uint; target=Rgba8Unorm; timestamps=unavailable",
     "gpu_timestamp_ms": null
   },
   "runtime": {
-    "total_demands": 14,
+    "total_demands": 20,
     "visible_demands": 5,
     "prefetch_demands": 0,
-    "duplicate_demands_removed": 9,
-    "cache_hits": 35,
+    "duplicate_demands_removed": 15,
+    "stale_demands_rejected": 0,
+    "cache_hits": 0,
     "cache_misses": 5,
     "evictions": 0,
     "queued": 0,
@@ -71,17 +71,59 @@
     "failed": 0,
     "stale_discarded": 0,
     "decode_latency_ms_median": 0,
-    "worker_queue_depth": 0
+    "worker_queue_depth": 0,
+    "desired": 5,
+    "decoded": 0,
+    "decoded_bytes": 0,
+    "scheduler_capacity": 64,
+    "external_queue_capacity": 16,
+    "browser_credit_capacity": 4,
+    "browser_credits_in_use": 0,
+    "native_queue_depth": 0,
+    "scheduler_high_water": 5,
+    "external_queue_high_water": 4,
+    "native_queue_high_water": 0,
+    "deferred_dispatches": 6,
+    "deferred_completions": 0,
+    "completion_unknown": 0,
+    "completion_obsolete": 0,
+    "completion_superseded": 0,
+    "completion_duplicate": 0,
+    "residency_rejected": 0,
+    "worker_health": "Running",
+    "worker_failures": 0,
+    "last_worker_error": "",
+    "preparation_latency_ms": {
+      "samples": 5,
+      "min": 2.6,
+      "p50": 2.8,
+      "p95": 3.6,
+      "max": 3.6
+    },
+    "decode_latency_ms": {
+      "samples": 5,
+      "min": 0,
+      "p50": 0,
+      "p95": 0,
+      "max": 0
+    },
+    "end_to_end_latency_ms": {
+      "samples": 5,
+      "min": 27,
+      "p50": 41.6,
+      "p95": 41.6,
+      "max": 41.6
+    }
   },
   "cameras": [
     {
       "pane": 1,
       "camera": {
         "centre": {
-          "x": -203939.12418971222,
-          "y": 130215.72503847408
+          "x": 65536,
+          "y": 65536
         },
-        "pixels_per_screen_point": 1024
+        "pixels_per_screen_point": 195.60248099612926
       },
       "link": 1
     },
@@ -89,10 +131,10 @@
       "pane": 2,
       "camera": {
         "centre": {
-          "x": -203939.12418971222,
-          "y": 130215.72503847408
+          "x": 65536,
+          "y": 65536
         },
-        "pixels_per_screen_point": 1024
+        "pixels_per_screen_point": 195.60248099612926
       },
       "link": 1
     },
@@ -132,7 +174,9 @@
       0,
       0
     ],
-    "materialised_thumbnails": 0
+    "materialised_thumbnails": 0,
+    "resident_thumbnails": 0,
+    "thumbnail_cache_bytes": 0
   },
   "tile_cache_budget_bytes": 67108864,
   "upload_budget_bytes": 4194304
