@@ -1,0 +1,93 @@
+{
+  "application_version": "0.1.0",
+  "dependency_versions": {
+    "eframe": "0.36.1",
+    "egui": "0.36.1",
+    "egui-wgpu": "0.36.1",
+    "wasm-bindgen": "0.2.127",
+    "wgpu": "30.0.1"
+  },
+  "platform": "wasm32/WebGPU",
+  "backend": "BrowserWebGpu",
+  "adapter": "",
+  "frame": {
+    "frame_number": 8,
+    "cpu_frame_ms": 0.3,
+    "cpu_frame_history_ms": [
+      18.700000000000003,
+      16.299999999999997,
+      0.3,
+      0.6,
+      0.5,
+      0.4,
+      0.6,
+      0.3
+    ],
+    "runtime_poll_ms": 0,
+    "ui_ms": 0.1,
+    "demand_ms": 0.1,
+    "render_prepare_ms": 0.1,
+    "repaint_requests": 3,
+    "repaint_reason": "None",
+    "recent_reasons": [
+      "WorkerCompletion",
+      "WorkerCompletion",
+      "WorkerCompletion"
+    ],
+    "interaction_active": false
+  },
+  "workspace": {
+    "registered_panes": 8,
+    "visible_panes": 5,
+    "active_pane": 4,
+    "dock_nodes": 9,
+    "serialised_bytes": 496
+  },
+  "render": {
+    "gpu_viewports": 4,
+    "render_jobs": 4,
+    "render_passes": 1,
+    "draw_calls": 14,
+    "command_buffers": 1,
+    "uploaded_bytes": 0,
+    "pending_upload_bytes": 0,
+    "resident_texture_bytes": 655360,
+    "cache_evictions": 0,
+    "prepare_ms": 0.1,
+    "capability_profile": "WebGPU/WGPU; scalar=R16Uint; target=Rgba8Unorm; timestamps=unavailable",
+    "gpu_timestamp_ms": null
+  },
+  "runtime": {
+    "total_demands": 14,
+    "visible_demands": 5,
+    "prefetch_demands": 0,
+    "duplicate_demands_removed": 9,
+    "cache_hits": 35,
+    "cache_misses": 5,
+    "evictions": 0,
+    "queued": 0,
+    "in_flight": 0,
+    "completed": 5,
+    "failed": 0,
+    "stale_discarded": 0,
+    "decode_latency_ms_median": 0.1,
+    "worker_queue_depth": 0
+  },
+  "virtualisation": {
+    "result_count": 1000000,
+    "visible_rows": [
+      0,
+      0
+    ],
+    "materialised_rows": 0,
+    "row_overscan": 8,
+    "thumbnail_count": 100000,
+    "visible_thumbnails": [
+      0,
+      0
+    ],
+    "materialised_thumbnails": 0
+  },
+  "tile_cache_budget_bytes": 67108864,
+  "upload_budget_bytes": 4194304
+}
