@@ -148,6 +148,13 @@ xdo mousemove 1170 53 click 1
 sleep 0.5
 snapshot
 THUMBNAILS_BEFORE="$(jq -c '.virtualisation' "$SNAPSHOT")"
+THUMBNAIL_RESIDENT_BEFORE="$(jq -c '.thumbnail_resident_keys' "$SNAPSHOT")"
+THUMBNAIL_FRONTIER_BEFORE="$(jq '
+  [
+    (.virtualisation.materialised_thumbnail_range[1] - 1),
+    ([.thumbnail_resident_keys[] | select(.source == 2) | .x] | max // -1)
+  ] | max
+' "$SNAPSHOT")"
 THUMBNAIL_OFFSET_BEFORE="$(jq -r '.virtualisation.thumbnail_scroll_offset_y' "$SNAPSHOT")"
 THUMBNAIL_START_BEFORE="$(jq -r '.virtualisation.visible_thumbnails[0]' "$SNAPSHOT")"
 WHEEL_EVENTS_BEFORE="$(jq -r '.physical_wheel_events' "$SNAPSHOT")"
@@ -158,14 +165,16 @@ snapshot
 THUMBNAILS_AFTER="$(jq -c '.virtualisation' "$SNAPSHOT")"
 WHEEL_EVENTS_AFTER="$(jq -r '.physical_wheel_events' "$SNAPSHOT")"
 THUMBNAIL_RESIDENT_KEYS="$(jq -c '.thumbnail_resident_keys' "$SNAPSHOT")"
-jq -e --argjson offset "$THUMBNAIL_OFFSET_BEFORE" --argjson start "$THUMBNAIL_START_BEFORE" --argjson wheel "$WHEEL_EVENTS_BEFORE" '
+VISIBLE_KEYS_AFTER="$(jq -c '.visible_tile_keys' "$SNAPSHOT")"
+jq -e --argjson offset "$THUMBNAIL_OFFSET_BEFORE" --argjson start "$THUMBNAIL_START_BEFORE" --argjson wheel "$WHEEL_EVENTS_BEFORE" --argjson frontier "$THUMBNAIL_FRONTIER_BEFORE" '
   .virtualisation as $v
   | ($v.thumbnail_scroll_offset_y > $offset)
     and ($v.visible_thumbnails[0] > $start)
     and (.physical_wheel_events > $wheel)
     and ($v.materialised_thumbnails <= (($v.visible_thumbnails[1] - $v.visible_thumbnails[0]) + 4 * $v.thumbnail_columns))
     and ($v.thumbnail_cache_bytes <= (4 * 1024 * 1024))
-    and (any(.thumbnail_resident_keys[]; .source == 2 and .x >= $v.visible_thumbnails[0]))
+    and (any(.visible_tile_keys[]; .source == 2 and .x >= $v.visible_thumbnails[0] and .x < $v.visible_thumbnails[1]))
+    and (any(.thumbnail_resident_keys[]; .source == 2 and .x > $frontier))
 ' "$SNAPSHOT" >/dev/null
 jq -n \
   --argjson pan_before "$PAN_BEFORE" \
@@ -178,8 +187,11 @@ jq -n \
   --argjson undo_after "$UNDO_AFTER" \
   --argjson thumbnails_before "$THUMBNAILS_BEFORE" \
   --argjson thumbnails_after "$THUMBNAILS_AFTER" \
+  --argjson resident_keys_before "$THUMBNAIL_RESIDENT_BEFORE" \
+  --argjson prior_frontier "$THUMBNAIL_FRONTIER_BEFORE" \
   --argjson wheel_before "$WHEEL_EVENTS_BEFORE" \
   --argjson wheel_after "$WHEEL_EVENTS_AFTER" \
+  --argjson visible_keys_after "$VISIBLE_KEYS_AFTER" \
   --argjson resident_keys "$THUMBNAIL_RESIDENT_KEYS" '
   {
     physical_pan: {
@@ -193,8 +205,11 @@ jq -n \
     thumbnail_scroll: {
       before: $thumbnails_before,
       after: $thumbnails_after,
+      resident_keys_before: $resident_keys_before,
+      prior_resident_or_materialised_frontier: $prior_frontier,
       physical_wheel_events_before: $wheel_before,
       physical_wheel_events_after: $wheel_after,
+      visible_keys_after: $visible_keys_after,
       resident_keys: $resident_keys
     }
   }

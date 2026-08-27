@@ -28,6 +28,13 @@ pub(super) struct ImageFrame {
 
 pub(super) const WHEEL_GESTURE_IDLE: Duration = Duration::from_millis(140);
 
+pub(super) fn drag_pointer_sample(response: &egui::Response) -> Option<ViewportPoint> {
+    (response.dragged() || response.drag_stopped())
+        .then(|| response.interact_pointer_pos())
+        .flatten()
+        .map(|pointer| ViewportPoint::new(pointer.x as f64, pointer.y as f64))
+}
+
 impl UiBehaviour {
     #[cfg(test)]
     pub(super) fn wheel_gesture_count(&self) -> usize {
@@ -202,28 +209,21 @@ impl PaneSurface<'_> {
                 .ui_behaviour
                 .finish_wheel_key(key, self.outputs)
                 .unwrap_or_else(|| self.ui_behaviour.camera_states(self.cameras));
-            if let Some(drag) = CameraDragSession::new(pane, before) {
+            let pointer_origin = ui
+                .input(|input| input.pointer.press_origin())
+                .or_else(|| response.interact_pointer_pos())
+                .map(|pointer| ViewportPoint::new(pointer.x as f64, pointer.y as f64));
+            let drag = match pointer_origin {
+                Some(origin) => CameraDragSession::new_at(pane, before, origin),
+                None => CameraDragSession::new(pane, before),
+            };
+            if let Some(drag) = drag {
                 self.ui_behaviour.camera_drags.insert(pane, drag);
             }
         }
-        if response.dragged() {
+        if let Some(pointer) = drag_pointer_sample(response) {
             if let Some(drag) = self.ui_behaviour.camera_drags.get_mut(&pane) {
-                let total_delta = ui.input(|input| {
-                    input.pointer.press_origin().and_then(|origin| {
-                        input.pointer.interact_pos().map(|current| current - origin)
-                    })
-                });
-                let preview = drag
-                    .update_total(total_delta.map_or_else(
-                        || {
-                            ViewportPoint::new(
-                                response.drag_delta().x as f64,
-                                response.drag_delta().y as f64,
-                            )
-                        },
-                        |delta| ViewportPoint::new(delta.x as f64, delta.y as f64),
-                    ))
-                    .to_vec();
+                let preview = drag.update_pointer(pointer).to_vec();
                 self.ui_behaviour.expose_preview(&preview);
                 self.outputs.interaction_active = true;
             }

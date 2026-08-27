@@ -181,9 +181,7 @@ pub struct AnalyticalWorkspaceApp {
     status: String,
     #[cfg(target_arch = "wasm32")]
     egui_context: egui::Context,
-    #[cfg(target_arch = "wasm32")]
     last_render_cameras: Vec<CameraState>,
-    #[cfg(target_arch = "wasm32")]
     last_visible_tile_keys: Vec<TileKey>,
     #[cfg(target_arch = "wasm32")]
     browser_worker: Option<crate::web_worker::BrowserWorker>,
@@ -284,9 +282,7 @@ impl AnalyticalWorkspaceApp {
             status: "Initialising progressive data…".into(),
             #[cfg(target_arch = "wasm32")]
             egui_context: cc.egui_ctx.clone(),
-            #[cfg(target_arch = "wasm32")]
             last_render_cameras: Vec::new(),
-            #[cfg(target_arch = "wasm32")]
             last_visible_tile_keys: Vec::new(),
             #[cfg(target_arch = "wasm32")]
             browser_worker,
@@ -443,14 +439,8 @@ impl AnalyticalWorkspaceApp {
     pub(crate) fn test_snapshot(&self) -> TestSnapshot {
         let mut visible_panes = Vec::new();
         self.workspace.root.active_panes(&mut visible_panes);
-        #[cfg(target_arch = "wasm32")]
         let render_cameras = self.last_render_cameras.clone();
-        #[cfg(not(target_arch = "wasm32"))]
-        let render_cameras = Vec::new();
-        #[cfg(target_arch = "wasm32")]
         let visible_tile_keys = self.last_visible_tile_keys.clone();
-        #[cfg(not(target_arch = "wasm32"))]
-        let visible_tile_keys = Vec::new();
         TestSnapshot {
             cameras: self.session.cameras.clone(),
             render_cameras,
@@ -821,32 +811,29 @@ impl eframe::App for AnalyticalWorkspaceApp {
             self.status = format!("Render plan rejected: {error}");
             outputs.render_plan.images.clear();
         }
-        #[cfg(target_arch = "wasm32")]
-        {
-            self.last_render_cameras = outputs
-                .render_plan
-                .images
-                .iter()
-                .map(|request| CameraState {
-                    pane: request.pane,
-                    camera: request.camera,
-                    link: self
-                        .session
-                        .cameras
-                        .iter()
-                        .find(|state| state.pane == request.pane)
-                        .and_then(|state| state.link),
-                })
-                .collect();
-            self.last_visible_tile_keys = outputs
-                .demands
-                .iter()
-                .filter(|demand| demand.priority == DemandPriority::Visible)
-                .map(|demand| demand.key)
-                .collect();
-            self.last_visible_tile_keys.sort();
-            self.last_visible_tile_keys.dedup();
-        }
+        self.last_render_cameras = outputs
+            .render_plan
+            .images
+            .iter()
+            .map(|request| CameraState {
+                pane: request.pane,
+                camera: request.camera,
+                link: self
+                    .session
+                    .cameras
+                    .iter()
+                    .find(|state| state.pane == request.pane)
+                    .and_then(|state| state.link),
+            })
+            .collect();
+        self.last_visible_tile_keys = outputs
+            .demands
+            .iter()
+            .filter(|demand| demand.priority == DemandPriority::Visible)
+            .map(|demand| demand.key)
+            .collect();
+        self.last_visible_tile_keys.sort();
+        self.last_visible_tile_keys.dedup();
         self.diagnostics.frame.ui_ms = ui_started.elapsed().as_secs_f64() * 1000.0;
         self.apply_outputs(&ctx, outputs);
         self.update_diagnostics();

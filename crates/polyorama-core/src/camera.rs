@@ -74,6 +74,7 @@ pub struct CameraDragSession {
     source: PaneId,
     before: Vec<CameraState>,
     preview: Vec<CameraState>,
+    pointer_origin: Option<ViewportPoint>,
     total_delta: ViewportPoint,
 }
 
@@ -86,8 +87,28 @@ impl CameraDragSession {
                 source,
                 preview: before.clone(),
                 before,
+                pointer_origin: None,
                 total_delta: ViewportPoint::default(),
             })
+    }
+
+    pub fn new_at(
+        source: PaneId,
+        before: Vec<CameraState>,
+        pointer_origin: ViewportPoint,
+    ) -> Option<Self> {
+        Self::new(source, before).map(|mut session| {
+            session.pointer_origin = Some(pointer_origin);
+            session
+        })
+    }
+
+    pub fn update_pointer(&mut self, pointer: ViewportPoint) -> &[CameraState] {
+        let origin = *self.pointer_origin.get_or_insert(pointer);
+        self.update_total(ViewportPoint::new(
+            pointer.x - origin.x,
+            pointer.y - origin.y,
+        ))
     }
 
     pub fn update_total(&mut self, total_delta: ViewportPoint) -> &[CameraState] {
@@ -241,11 +262,15 @@ mod tests {
                 link: group,
             },
         ];
-        let mut drag = CameraDragSession::new(PaneId(1), before.clone()).unwrap();
+        let mut drag =
+            CameraDragSession::new_at(PaneId(1), before.clone(), ViewportPoint::new(10.0, 20.0))
+                .unwrap();
 
-        drag.update_total(ViewportPoint::new(30.0, 10.0));
-        drag.update_total(ViewportPoint::new(55.0, 25.0));
-        let preview = drag.update_total(ViewportPoint::new(90.0, 50.0)).to_vec();
+        drag.update_pointer(ViewportPoint::new(40.0, 30.0));
+        drag.update_pointer(ViewportPoint::new(65.0, 45.0));
+        let preview = drag
+            .update_pointer(ViewportPoint::new(100.0, 70.0))
+            .to_vec();
 
         let expected = Camera {
             centre: ImagePoint::new(
