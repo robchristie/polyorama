@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    AnnotationId, Camera, Document, GesturePreview, LayerId, LinkGroupId, PaneId, Polygon,
-    ResultId, Session, WorldPoint, propagate_linked_camera, result_at,
+    AnnotationId, Camera, DockNodeId, Document, GesturePreview, LayerId, LinkGroupId, PaneId,
+    Polygon, ResultId, Session, Workspace, WorldPoint, propagate_linked_camera, result_at,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -65,6 +65,11 @@ pub enum Command {
         before: Option<ResultId>,
         after: Option<ResultId>,
     },
+    ResizeSplit {
+        node: DockNodeId,
+        before: f32,
+        after: f32,
+    },
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -74,26 +79,42 @@ pub struct CommandHistory {
 }
 
 impl CommandHistory {
-    pub fn execute(&mut self, command: Command, document: &mut Document, session: &mut Session) {
-        apply(&command, document, session);
+    pub fn execute(
+        &mut self,
+        command: Command,
+        document: &mut Document,
+        session: &mut Session,
+        workspace: &mut Workspace,
+    ) {
+        apply(&command, document, session, workspace);
         self.undo.push(command);
         self.redo.clear();
     }
 
-    pub fn undo(&mut self, document: &mut Document, session: &mut Session) -> bool {
+    pub fn undo(
+        &mut self,
+        document: &mut Document,
+        session: &mut Session,
+        workspace: &mut Workspace,
+    ) -> bool {
         let Some(command) = self.undo.pop() else {
             return false;
         };
-        revert(&command, document, session);
+        revert(&command, document, session, workspace);
         self.redo.push(command);
         true
     }
 
-    pub fn redo(&mut self, document: &mut Document, session: &mut Session) -> bool {
+    pub fn redo(
+        &mut self,
+        document: &mut Document,
+        session: &mut Session,
+        workspace: &mut Workspace,
+    ) -> bool {
         let Some(command) = self.redo.pop() else {
             return false;
         };
-        apply(&command, document, session);
+        apply(&command, document, session, workspace);
         self.undo.push(command);
         true
     }
@@ -226,7 +247,12 @@ pub fn commit_gesture(document: &mut Document, session: &mut Session) -> Result<
     }
 }
 
-fn apply(command: &Command, document: &mut Document, session: &mut Session) {
+fn apply(
+    command: &Command,
+    document: &mut Document,
+    session: &mut Session,
+    workspace: &mut Workspace,
+) {
     match command {
         Command::SetCamera { pane, after, .. } => {
             propagate_linked_camera(&mut session.cameras, *pane, *after)
@@ -261,10 +287,18 @@ fn apply(command: &Command, document: &mut Document, session: &mut Session) {
             }
         }
         Command::SelectResult { after, .. } => session.selected_result = *after,
+        Command::ResizeSplit { node, after, .. } => {
+            workspace.root.set_split_fraction(*node, *after);
+        }
     }
 }
 
-fn revert(command: &Command, document: &mut Document, session: &mut Session) {
+fn revert(
+    command: &Command,
+    document: &mut Document,
+    session: &mut Session,
+    workspace: &mut Workspace,
+) {
     match command {
         Command::SetCamera { pane, before, .. } => {
             propagate_linked_camera(&mut session.cameras, *pane, *before)
@@ -299,6 +333,9 @@ fn revert(command: &Command, document: &mut Document, session: &mut Session) {
             session.selected_annotation = Some(polygon.id);
         }
         Command::SelectResult { before, .. } => session.selected_result = *before,
+        Command::ResizeSplit { node, before, .. } => {
+            workspace.root.set_split_fraction(*node, *before);
+        }
     }
 }
 
@@ -311,6 +348,7 @@ mod tests {
     fn command_application_undo_and_redo() {
         let mut document = Document::default();
         let mut session = Session::default();
+        let mut workspace = Workspace::analytical_default();
         let command = validate_intent(
             ImageIntent::CommitPolygon {
                 layer: LayerId(1),
@@ -325,11 +363,11 @@ mod tests {
         )
         .unwrap();
         let mut history = CommandHistory::default();
-        history.execute(command, &mut document, &mut session);
+        history.execute(command, &mut document, &mut session, &mut workspace);
         assert_eq!(document.annotations.len(), 1);
-        assert!(history.undo(&mut document, &mut session));
+        assert!(history.undo(&mut document, &mut session, &mut workspace));
         assert!(document.annotations.is_empty());
-        assert!(history.redo(&mut document, &mut session));
+        assert!(history.redo(&mut document, &mut session, &mut workspace));
         assert_eq!(document.annotations.len(), 1);
     }
 
@@ -347,9 +385,10 @@ mod tests {
             }),
             ..Session::default()
         };
+        let mut workspace = Workspace::analytical_default();
         let command = commit_gesture(&mut document, &mut session).unwrap();
         let mut history = CommandHistory::default();
-        history.execute(command, &mut document, &mut session);
+        history.execute(command, &mut document, &mut session, &mut workspace);
         assert_eq!(history.undo_len(), 1);
     }
 
@@ -376,6 +415,7 @@ mod tests {
     fn result_selection_is_stable_across_virtual_ranges_and_undoable() {
         let mut document = Document::default();
         let mut session = Session::default();
+        let mut workspace = Workspace::analytical_default();
         let mut history = CommandHistory::default();
         let command = validate_intent(
             ImageIntent::SelectResult {
@@ -386,15 +426,43 @@ mod tests {
         )
         .unwrap();
 
-        history.execute(command, &mut document, &mut session);
+        history.execute(command, &mut document, &mut session, &mut workspace);
         assert_eq!(session.selected_result, Some(ResultId(734_219)));
         let range = crate::virtual_rows(700_000.0, 480.0, 20.0, 1_000_000, 8);
         assert_eq!(range.visible.start, 35_000);
         assert_eq!(range.materialised.start, 34_992);
         assert_eq!(session.selected_result, Some(ResultId(734_219)));
-        assert!(history.undo(&mut document, &mut session));
+        assert!(history.undo(&mut document, &mut session, &mut workspace));
         assert_eq!(session.selected_result, None);
-        assert!(history.redo(&mut document, &mut session));
+        assert!(history.redo(&mut document, &mut session, &mut workspace));
         assert_eq!(session.selected_result, Some(ResultId(734_219)));
+    }
+
+    #[test]
+    fn splitter_gesture_is_one_undoable_workspace_command() {
+        let mut document = Document::default();
+        let mut session = Session::default();
+        let mut workspace = Workspace::analytical_default();
+        let node = DockNodeId(1);
+        let before = workspace.root.split_fraction(node).unwrap();
+        let mut history = CommandHistory::default();
+
+        history.execute(
+            Command::ResizeSplit {
+                node,
+                before,
+                after: 0.61,
+            },
+            &mut document,
+            &mut session,
+            &mut workspace,
+        );
+
+        assert_eq!(history.undo_len(), 1);
+        assert_eq!(workspace.root.split_fraction(node), Some(0.61));
+        assert!(history.undo(&mut document, &mut session, &mut workspace));
+        assert_eq!(workspace.root.split_fraction(node), Some(before));
+        assert!(history.redo(&mut document, &mut session, &mut workspace));
+        assert_eq!(workspace.root.split_fraction(node), Some(0.61));
     }
 }

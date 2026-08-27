@@ -178,6 +178,11 @@ impl Runtime {
 
     pub fn invalidate(&mut self) {
         self.generation += 1;
+        self.resources.clear();
+        self.external_requests.clear();
+        self.decoded.clear();
+        self.failures.clear();
+        self.update_depths();
     }
 
     pub fn state(&self, key: TileKey) -> ResourceState {
@@ -303,6 +308,14 @@ impl Runtime {
         if let Some(entry) = self.resources.get_mut(&key) {
             entry.state = ResourceState::Resident;
         }
+    }
+
+    pub fn mark_evicted(&mut self, key: TileKey) {
+        if let Some(entry) = self.resources.get_mut(&key) {
+            entry.state = ResourceState::Missing;
+        }
+        self.metrics.evictions += 1;
+        self.update_depths();
     }
 
     pub fn pending_decoded_bytes(&self) -> usize {
@@ -479,6 +492,36 @@ mod tests {
     }
 
     #[test]
+    fn invalidation_resets_resources_for_new_generation_demand() {
+        let mut runtime = Runtime::default();
+        runtime.resources.insert(
+            key(0),
+            ResourceEntry {
+                state: ResourceState::Resident,
+                generation: runtime.generation(),
+            },
+        );
+        runtime.failures.insert(key(1), "old failure".into());
+        let old_generation = runtime.generation();
+
+        runtime.invalidate();
+
+        assert_eq!(runtime.generation(), old_generation + 1);
+        assert_eq!(runtime.state(key(0)), ResourceState::Missing);
+        assert!(runtime.failures.is_empty());
+
+        runtime.reconcile([TileDemand {
+            key: key(0),
+            priority: DemandPriority::Visible,
+            generation: runtime.generation(),
+        }]);
+        assert!(matches!(
+            runtime.state(key(0)),
+            ResourceState::Queued | ResourceState::Decoding
+        ));
+    }
+
+    #[test]
     fn cache_evicts_deterministically_within_budget() {
         let mut cache = TileCache::new(20);
         cache.insert(key(0), 10);
@@ -486,6 +529,17 @@ mod tests {
         let evicted = cache.insert(key(2), 10);
         assert_eq!(evicted, vec![key(0)]);
         assert!(cache.used() <= cache.budget());
+    }
+
+    #[test]
+    fn cache_hits_refresh_recency_before_eviction() {
+        let mut cache = TileCache::new(20);
+        cache.insert(key(0), 10);
+        cache.insert(key(1), 10);
+        assert!(cache.contains(key(0)));
+        assert_eq!(cache.insert(key(2), 10), vec![key(1)]);
+        assert!(cache.contains(key(0)));
+        assert!(cache.contains(key(2)));
     }
 
     #[test]
@@ -542,5 +596,33 @@ mod tests {
         assert_eq!(runtime.state(demand.key), ResourceState::Failed);
         assert_eq!(runtime.metrics.cache_misses, misses_before);
         assert_eq!(runtime.metrics.failed, 1);
+    }
+
+    #[test]
+    fn evicted_resident_tile_can_be_demanded_again() {
+        let mut runtime = Runtime::default();
+        let demand = TileDemand {
+            key: key(0),
+            priority: DemandPriority::Visible,
+            generation: runtime.generation(),
+        };
+        runtime.resources.insert(
+            demand.key,
+            ResourceEntry {
+                state: ResourceState::Resident,
+                generation: demand.generation,
+            },
+        );
+
+        runtime.mark_evicted(demand.key);
+        assert_eq!(runtime.state(demand.key), ResourceState::Missing);
+        runtime.reconcile([demand]);
+
+        assert!(matches!(
+            runtime.state(demand.key),
+            ResourceState::Queued | ResourceState::Decoding
+        ));
+        assert_eq!(runtime.metrics.cache_misses, 1);
+        assert_eq!(runtime.metrics.evictions, 1);
     }
 }

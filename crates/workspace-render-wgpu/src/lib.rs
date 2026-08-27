@@ -72,6 +72,7 @@ pub struct RenderBridge(pub Arc<Mutex<RenderBridgeState>>);
 pub struct RenderBridgeState {
     pub uploads: VecDeque<DecodeEvent>,
     pub became_resident: Vec<TileKey>,
+    pub evicted: Vec<TileKey>,
     pub metrics: RenderMetrics,
 }
 
@@ -81,6 +82,9 @@ impl RenderBridge {
     }
     pub fn take_resident(&self) -> Vec<TileKey> {
         std::mem::take(&mut self.0.lock().became_resident)
+    }
+    pub fn take_evicted(&self) -> Vec<TileKey> {
+        std::mem::take(&mut self.0.lock().evicted)
     }
     pub fn snapshot(&self) -> RenderMetrics {
         self.0.lock().metrics.clone()
@@ -94,15 +98,19 @@ struct DisplayUniform {
     high: f32,
     map: u32,
     _padding: u32,
+    rect_ndc: [f32; 4],
 }
 
 struct ScalarTexture {
     _texture: wgpu::Texture,
     view: wgpu::TextureView,
 }
+struct TileDraw {
+    _uniform: wgpu::Buffer,
+    bind_group: wgpu::BindGroup,
+}
 struct PaneDraw {
-    uniform: wgpu::Buffer,
-    bind_groups: Vec<(TileKey, wgpu::BindGroup)>,
+    tiles: Vec<TileDraw>,
 }
 
 pub struct ScalarRenderer {
@@ -140,7 +148,7 @@ impl ScalarRenderer {
                 },
                 wgpu::BindGroupLayoutEntry {
                     binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
@@ -216,24 +224,30 @@ impl ScalarRenderer {
             DisplayMap::Greyscale => 1,
             DisplayMap::Threshold => 2,
         };
-        let uniform_data = DisplayUniform {
-            low: request.display.window_low,
-            high: request.display.window_high,
-            map,
-            _padding: 0,
-        };
-        let pane = self.panes.entry(request.pane).or_insert_with(|| PaneDraw {
-            uniform: device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("polyorama display uniform"),
-                contents: bytemuck::bytes_of(&uniform_data),
-                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            }),
-            bind_groups: Vec::new(),
-        });
-        queue.write_buffer(&pane.uniform, 0, bytemuck::bytes_of(&uniform_data));
-        pane.bind_groups.clear();
-        for key in &request.visible_tiles {
-            if let Some(texture) = self.textures.get(key) {
+        let pane = self
+            .panes
+            .entry(request.pane)
+            .or_insert_with(|| PaneDraw { tiles: Vec::new() });
+        pane.tiles.clear();
+        let mut visible_tiles = request.visible_tiles.clone();
+        visible_tiles.sort_by_key(|key| std::cmp::Reverse((key.level, key.x, key.y)));
+        visible_tiles.dedup();
+        for key in visible_tiles {
+            if self.cache.contains(key)
+                && let Some(texture) = self.textures.get(&key)
+            {
+                let uniform_data = DisplayUniform {
+                    low: request.display.window_low,
+                    high: request.display.window_high,
+                    map,
+                    _padding: 0,
+                    rect_ndc: tile_ndc_rect(request, key),
+                };
+                let uniform = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("polyorama tile display uniform"),
+                    contents: bytemuck::bytes_of(&uniform_data),
+                    usage: wgpu::BufferUsages::UNIFORM,
+                });
                 let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
                     label: Some("polyorama scalar tile bind group"),
                     layout: &self.bind_layout,
@@ -244,18 +258,21 @@ impl ScalarRenderer {
                         },
                         wgpu::BindGroupEntry {
                             binding: 1,
-                            resource: pane.uniform.as_entire_binding(),
+                            resource: uniform.as_entire_binding(),
                         },
                     ],
                 });
-                pane.bind_groups.push((*key, bind_group));
+                pane.tiles.push(TileDraw {
+                    _uniform: uniform,
+                    bind_group,
+                });
             }
         }
         let mut state = self.bridge.0.lock();
         state.metrics.gpu_viewports += 1;
         state.metrics.render_jobs += 1;
         state.metrics.render_passes = 1;
-        state.metrics.draw_calls += pane.bind_groups.len();
+        state.metrics.draw_calls += pane.tiles.len();
         state.metrics.resident_texture_bytes = self.cache.used();
         state.metrics.cache_evictions = self.cache.evictions;
         state.metrics.prepare_ms = started.elapsed().as_secs_f64() * 1000.0;
@@ -320,6 +337,7 @@ impl ScalarRenderer {
                 let _eviction_guard = (!evicted.is_empty()).then(|| eviction_span.enter());
                 for victim in evicted {
                     self.textures.remove(&victim);
+                    state.evicted.push(victim);
                     state.metrics.resident_texture_bytes = self.cache.used();
                 }
                 let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
@@ -357,57 +375,45 @@ impl ScalarRenderer {
         let Some(draw) = self.panes.get(&pane) else {
             return;
         };
-        if draw.bind_groups.is_empty() {
+        if draw.tiles.is_empty() {
             return;
         }
         render_pass.set_pipeline(&self.pipeline);
         render_pass.set_scissor_rect(clip.x, clip.y, clip.width.max(1), clip.height.max(1));
-        let finest = draw
-            .bind_groups
-            .iter()
-            .map(|(key, _)| key.level)
-            .min()
-            .unwrap_or(0);
-        if let Some((_, fallback)) = draw.bind_groups.iter().max_by_key(|(key, _)| key.level) {
-            render_pass.set_viewport(
-                viewport.x as f32,
-                viewport.y as f32,
-                viewport.width as f32,
-                viewport.height as f32,
-                0.0,
-                1.0,
-            );
-            render_pass.set_bind_group(0, fallback, &[]);
-            render_pass.draw(0..3, 0..1);
-        }
-        let fine: Vec<_> = draw
-            .bind_groups
-            .iter()
-            .filter(|(key, _)| key.level == finest)
-            .collect();
-        let min_x = fine.iter().map(|(key, _)| key.x).min().unwrap_or(0);
-        let max_x = fine.iter().map(|(key, _)| key.x).max().unwrap_or(min_x);
-        let min_y = fine.iter().map(|(key, _)| key.y).min().unwrap_or(0);
-        let max_y = fine.iter().map(|(key, _)| key.y).max().unwrap_or(min_y);
-        let columns = max_x - min_x + 1;
-        let rows = max_y - min_y + 1;
-        for (key, bind_group) in fine {
-            let x0 = viewport.x + viewport.width * (key.x - min_x) / columns;
-            let y0 = viewport.y + viewport.height * (key.y - min_y) / rows;
-            let x1 = viewport.x + viewport.width * (key.x - min_x + 1) / columns;
-            let y1 = viewport.y + viewport.height * (key.y - min_y + 1) / rows;
-            render_pass.set_viewport(
-                x0 as f32,
-                y0 as f32,
-                (x1 - x0).max(1) as f32,
-                (y1 - y0).max(1) as f32,
-                0.0,
-                1.0,
-            );
-            render_pass.set_bind_group(0, bind_group, &[]);
+        render_pass.set_viewport(
+            viewport.x as f32,
+            viewport.y as f32,
+            viewport.width as f32,
+            viewport.height as f32,
+            0.0,
+            1.0,
+        );
+        for tile in &draw.tiles {
+            render_pass.set_bind_group(0, &tile.bind_group, &[]);
             render_pass.draw(0..3, 0..1);
         }
     }
+}
+
+fn tile_ndc_rect(request: &ImageRenderRequest, key: TileKey) -> [f32; 4] {
+    let scale = request.viewport.scale_factor.max(f32::EPSILON) as f64;
+    let viewport_width = request.viewport.size.x / scale;
+    let viewport_height = request.viewport.size.y / scale;
+    let tile_extent = workspace_core::TILE_SIZE as f64 * 2_f64.powi(key.level as i32);
+    let left = viewport_width * 0.5
+        + (key.x as f64 * tile_extent - request.camera.centre.x)
+            / request.camera.pixels_per_screen_point;
+    let top = viewport_height * 0.5
+        + (key.y as f64 * tile_extent - request.camera.centre.y)
+            / request.camera.pixels_per_screen_point;
+    let right = left + tile_extent / request.camera.pixels_per_screen_point;
+    let bottom = top + tile_extent / request.camera.pixels_per_screen_point;
+    [
+        (left / viewport_width * 2.0 - 1.0) as f32,
+        (1.0 - bottom / viewport_height * 2.0) as f32,
+        (right / viewport_width * 2.0 - 1.0) as f32,
+        (1.0 - top / viewport_height * 2.0) as f32,
+    ]
 }
 
 #[derive(Clone, Copy)]
@@ -419,7 +425,7 @@ pub struct PixelRect {
 }
 
 const SCALAR_SHADER: &str = r#"
-struct Display { low: f32, high: f32, map: u32, padding: u32 };
+struct Display { low: f32, high: f32, map: u32, padding: u32, rect_ndc: vec4<f32> };
 @group(0) @binding(0) var scalar_tile: texture_2d<u32>;
 @group(0) @binding(1) var<uniform> display: Display;
 
@@ -427,7 +433,8 @@ struct VertexOut { @builtin(position) position: vec4<f32>, @location(0) uv: vec2
 @vertex fn vs_main(@builtin(vertex_index) index: u32) -> VertexOut {
     var positions = array<vec2<f32>, 3>(vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
     var out: VertexOut;
-    out.position = vec4(positions[index], 0.0, 1.0);
+    let local = positions[index] * 0.5 + vec2(0.5);
+    out.position = vec4(mix(display.rect_ndc.xy, display.rect_ndc.zw, local), 0.0, 1.0);
     out.uv = positions[index] * vec2(0.5, -0.5) + vec2(0.5);
     return out;
 }
@@ -445,3 +452,64 @@ fn viridis(t: f32) -> vec3<f32> {
     return vec4(colour, 1.0);
 }
 "#;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use workspace_core::{ImagePoint, SourceId};
+
+    fn request(camera: Camera) -> ImageRenderRequest {
+        ImageRenderRequest {
+            pane: PaneId(1),
+            source: SourceId(1),
+            viewport: PhysicalViewport {
+                origin: PhysicalPoint::new(0.0, 0.0),
+                size: PhysicalPoint::new(1_000.0, 800.0),
+                scale_factor: 1.0,
+            },
+            camera,
+            display: DisplaySettings::default(),
+            visible_tiles: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn camera_pan_translates_tile_geometry() {
+        let camera = Camera {
+            centre: ImagePoint::new(65_536.0, 65_536.0),
+            pixels_per_screen_point: 128.0,
+        };
+        let key = TileKey {
+            source: SourceId(1),
+            level: 8,
+            x: 1,
+            y: 1,
+        };
+        let before = tile_ndc_rect(&request(camera), key);
+        let mut panned = camera;
+        panned.centre.x += 12_800.0;
+        let after = tile_ndc_rect(&request(panned), key);
+        assert!(after[0] < before[0]);
+        assert!((after[1] - before[1]).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn camera_zoom_changes_tile_extent_around_the_viewport() {
+        let camera = Camera {
+            centre: ImagePoint::new(65_536.0, 65_536.0),
+            pixels_per_screen_point: 128.0,
+        };
+        let key = TileKey {
+            source: SourceId(1),
+            level: 8,
+            x: 1,
+            y: 1,
+        };
+        let before = tile_ndc_rect(&request(camera), key);
+        let mut zoomed = camera;
+        zoomed.pixels_per_screen_point *= 0.5;
+        let after = tile_ndc_rect(&request(zoomed), key);
+        assert!(after[2] - after[0] > before[2] - before[0]);
+        assert!(after[3] - after[1] > before[3] - before[1]);
+    }
+}

@@ -12,21 +12,21 @@
   "adapter": "",
   "frame": {
     "frame_number": 8,
-    "cpu_frame_ms": 0.3,
+    "cpu_frame_ms": 0.4,
     "cpu_frame_history_ms": [
-      18.700000000000003,
-      16.299999999999997,
+      17.6,
+      18.9,
       0.3,
-      0.6,
-      0.5,
+      0.7,
       0.4,
-      0.6,
-      0.3
+      0.7,
+      0.5,
+      0.4
     ],
     "runtime_poll_ms": 0,
-    "ui_ms": 0.1,
-    "demand_ms": 0.1,
-    "render_prepare_ms": 0.1,
+    "ui_ms": 0.3,
+    "demand_ms": 0,
+    "render_prepare_ms": 0,
     "repaint_requests": 3,
     "repaint_reason": "None",
     "recent_reasons": [
@@ -41,19 +41,19 @@
     "visible_panes": 5,
     "active_pane": 4,
     "dock_nodes": 9,
-    "serialised_bytes": 496
+    "serialised_bytes": 579
   },
   "render": {
     "gpu_viewports": 4,
     "render_jobs": 4,
     "render_passes": 1,
-    "draw_calls": 14,
+    "draw_calls": 12,
     "command_buffers": 1,
     "uploaded_bytes": 0,
     "pending_upload_bytes": 0,
     "resident_texture_bytes": 655360,
     "cache_evictions": 0,
-    "prepare_ms": 0.1,
+    "prepare_ms": 0,
     "capability_profile": "WebGPU/WGPU; scalar=R16Uint; target=Rgba8Unorm; timestamps=unavailable",
     "gpu_timestamp_ms": null
   },
@@ -70,9 +70,55 @@
     "completed": 5,
     "failed": 0,
     "stale_discarded": 0,
-    "decode_latency_ms_median": 0.1,
+    "decode_latency_ms_median": 0.0125,
     "worker_queue_depth": 0
   },
+  "cameras": [
+    {
+      "pane": 1,
+      "camera": {
+        "centre": {
+          "x": -203939.12418971228,
+          "y": 130215.72503847409
+        },
+        "pixels_per_screen_point": 1024
+      },
+      "link": 1
+    },
+    {
+      "pane": 2,
+      "camera": {
+        "centre": {
+          "x": -203939.12418971228,
+          "y": 130215.72503847409
+        },
+        "pixels_per_screen_point": 1024
+      },
+      "link": 1
+    },
+    {
+      "pane": 3,
+      "camera": {
+        "centre": {
+          "x": 65536,
+          "y": 65536
+        },
+        "pixels_per_screen_point": 256
+      },
+      "link": null
+    },
+    {
+      "pane": 4,
+      "camera": {
+        "centre": {
+          "x": 65536,
+          "y": 65536
+        },
+        "pixels_per_screen_point": 256
+      },
+      "link": null
+    }
+  ],
   "virtualisation": {
     "result_count": 1000000,
     "visible_rows": [

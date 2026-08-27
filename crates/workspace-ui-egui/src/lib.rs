@@ -2,7 +2,8 @@
 
 use egui::{Pos2, Rect, Ui};
 use workspace_core::{
-    DockDrop, DockNode, LogicalPoint, PaneId, PhysicalPoint, SplitAxis, ViewportPoint, Workspace,
+    Command, DockDrop, DockNode, DockNodeId, LogicalPoint, PaneId, PhysicalPoint, SplitAxis,
+    ViewportPoint, Workspace,
 };
 use workspace_render_wgpu::{ImageRenderRequest, PixelRect, ScalarRenderer};
 
@@ -13,6 +14,14 @@ const SPLITTER: f32 = 5.0;
 pub struct DockBehaviour {
     pub dragging: Option<PaneId>,
     pending: Option<DockAction>,
+    split_preview: Option<SplitPreview>,
+}
+
+#[derive(Clone, Copy)]
+struct SplitPreview {
+    node: DockNodeId,
+    before: f32,
+    after: f32,
 }
 
 enum DockAction {
@@ -21,6 +30,11 @@ enum DockAction {
         pane: PaneId,
         target: PaneId,
         drop: DockDrop,
+    },
+    Resize {
+        node: DockNodeId,
+        before: f32,
+        after: f32,
     },
 }
 
@@ -34,17 +48,31 @@ pub fn dock_workspace(
     workspace: &mut Workspace,
     behaviour: &mut DockBehaviour,
     presenter: &mut impl PanePresenter,
-) {
+) -> Option<Command> {
     let rect = ui.available_rect_before_wrap();
     render_node(ui, &mut workspace.root, rect, behaviour, presenter);
     if let Some(action) = behaviour.pending.take() {
         match action {
-            DockAction::Activate(pane) => workspace.activate(pane),
+            DockAction::Activate(pane) => {
+                workspace.activate(pane);
+            }
             DockAction::Move { pane, target, drop } => {
                 workspace.move_pane(pane, target, drop);
             }
+            DockAction::Resize {
+                node,
+                before,
+                after,
+            } => {
+                return Some(Command::ResizeSplit {
+                    node,
+                    before,
+                    after,
+                });
+            }
         }
     }
+    None
 }
 
 fn render_node(
@@ -56,56 +84,70 @@ fn render_node(
 ) {
     match node {
         DockNode::Split {
+            id,
             axis,
             fraction,
             first,
             second,
         } => {
+            let node = *id;
             let horizontal = *axis == SplitAxis::Horizontal;
             let length = if horizontal {
                 rect.width()
             } else {
                 rect.height()
             };
-            let first_length = (length * *fraction - SPLITTER * 0.5).max(40.0);
-            let (first_rect, split_rect, second_rect) = if horizontal {
-                let cut = rect.left() + first_length;
-                (
-                    Rect::from_min_max(rect.min, Pos2::new(cut, rect.bottom())),
-                    Rect::from_min_max(
-                        Pos2::new(cut, rect.top()),
-                        Pos2::new(cut + SPLITTER, rect.bottom()),
-                    ),
-                    Rect::from_min_max(Pos2::new(cut + SPLITTER, rect.top()), rect.max),
-                )
-            } else {
-                let cut = rect.top() + first_length;
-                (
-                    Rect::from_min_max(rect.min, Pos2::new(rect.right(), cut)),
-                    Rect::from_min_max(
-                        Pos2::new(rect.left(), cut),
-                        Pos2::new(rect.right(), cut + SPLITTER),
-                    ),
-                    Rect::from_min_max(Pos2::new(rect.left(), cut + SPLITTER), rect.max),
-                )
-            };
+            let initial_fraction = behaviour
+                .split_preview
+                .filter(|preview| preview.node == node)
+                .map_or(*fraction, |preview| preview.after);
+            let (_, hit_rect, _) = split_rects(rect, horizontal, initial_fraction);
             let response = ui.interact(
-                split_rect,
-                ui.id().with((
-                    "split",
-                    split_rect.min.x.to_bits(),
-                    split_rect.min.y.to_bits(),
-                )),
+                hit_rect,
+                ui.id().with(("split", node.0)),
                 egui::Sense::drag(),
             );
-            if response.dragged() {
+            if response.drag_started() {
+                behaviour.split_preview = Some(SplitPreview {
+                    node,
+                    before: *fraction,
+                    after: *fraction,
+                });
+            }
+            if response.dragged() || response.drag_stopped() {
                 let delta = if horizontal {
                     response.drag_delta().x
                 } else {
                     response.drag_delta().y
                 };
-                *fraction = ((*fraction * length + delta) / length).clamp(0.1, 0.9);
+                let before = behaviour
+                    .split_preview
+                    .filter(|preview| preview.node == node)
+                    .map_or(*fraction, |preview| preview.before);
+                behaviour.split_preview = Some(SplitPreview {
+                    node,
+                    before,
+                    after: ((before * length + delta) / length).clamp(0.1, 0.9),
+                });
                 ui.ctx().request_repaint();
+            }
+            let shown_fraction = behaviour
+                .split_preview
+                .filter(|preview| preview.node == node)
+                .map_or(*fraction, |preview| preview.after);
+            let (first_rect, split_rect, second_rect) =
+                split_rects(rect, horizontal, shown_fraction);
+            if response.drag_stopped()
+                && let Some(preview) = behaviour
+                    .split_preview
+                    .take()
+                    .filter(|preview| preview.node == node)
+            {
+                behaviour.pending = Some(DockAction::Resize {
+                    node,
+                    before: preview.before,
+                    after: preview.after,
+                });
             }
             ui.painter().rect_filled(
                 split_rect,
@@ -119,7 +161,7 @@ fn render_node(
             render_node(ui, first, first_rect, behaviour, presenter);
             render_node(ui, second, second_rect, behaviour, presenter);
         }
-        DockNode::Tabs { tabs, active } => {
+        DockNode::Tabs { tabs, active, .. } => {
             if tabs.is_empty() {
                 ui.painter()
                     .rect_filled(rect, 0.0, ui.visuals().extreme_bg_color);
@@ -240,6 +282,36 @@ fn render_node(
                 );
             }
         }
+    }
+}
+
+fn split_rects(rect: Rect, horizontal: bool, fraction: f32) -> (Rect, Rect, Rect) {
+    let length = if horizontal {
+        rect.width()
+    } else {
+        rect.height()
+    };
+    let first_length = (length * fraction - SPLITTER * 0.5).max(40.0);
+    if horizontal {
+        let cut = rect.left() + first_length;
+        (
+            Rect::from_min_max(rect.min, Pos2::new(cut, rect.bottom())),
+            Rect::from_min_max(
+                Pos2::new(cut, rect.top()),
+                Pos2::new(cut + SPLITTER, rect.bottom()),
+            ),
+            Rect::from_min_max(Pos2::new(cut + SPLITTER, rect.top()), rect.max),
+        )
+    } else {
+        let cut = rect.top() + first_length;
+        (
+            Rect::from_min_max(rect.min, Pos2::new(rect.right(), cut)),
+            Rect::from_min_max(
+                Pos2::new(rect.left(), cut),
+                Pos2::new(rect.right(), cut + SPLITTER),
+            ),
+            Rect::from_min_max(Pos2::new(rect.left(), cut + SPLITTER), rect.max),
+        )
     }
 }
 

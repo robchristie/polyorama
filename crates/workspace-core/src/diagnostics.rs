@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{PaneId, RESULT_COUNT, THUMBNAIL_COUNT};
+use crate::{CameraState, PaneId, RESULT_COUNT, THUMBNAIL_COUNT};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RepaintReason {
@@ -110,6 +110,7 @@ pub struct DiagnosticsSnapshot {
     pub workspace: WorkspaceMetrics,
     pub render: RenderMetrics,
     pub runtime: RuntimeMetrics,
+    pub cameras: Vec<CameraState>,
     pub virtualisation: VirtualisationMetrics,
     pub tile_cache_budget_bytes: usize,
     pub upload_budget_bytes: usize,

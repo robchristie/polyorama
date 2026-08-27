@@ -53,6 +53,8 @@ xdo mousemove 300 300 click --repeat 3 --delay 80 4
 xdo mousemove 300 300 mousedown 1 mousemove --sync 360 335 mouseup 1
 sleep 1
 capture native-linked-camera.png
+xdo mousemove 211 77 click 1
+sleep 1
 
 # Construct, commit, edit, undo and redo a world-coordinate polygon.
 xdo mousemove 110 77 click 1

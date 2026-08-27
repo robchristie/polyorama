@@ -67,11 +67,47 @@ try {
     median_ms: percentile(evidence.diagnostics.frame.cpu_frame_history_ms, 0.5),
     p95_ms: percentile(evidence.diagnostics.frame.cpu_frame_history_ms, 0.95),
   };
+  const camera = async (pane) => page.evaluate((target) =>
+    window.__POLYORAMA_DIAGNOSTICS.cameras.find((item) => item.pane === target), pane);
+  const rasterBeforePan = await page.screenshot({ path: join(evidenceRoot, 'browser-pan-before.png') });
+  const primaryBeforePan = await camera(1);
   await observe('four_viewports_panning', async () => {
     await page.mouse.move(300, 300); await page.mouse.down(); await page.mouse.move(390, 350, { steps: 12 }); await page.mouse.up();
   });
+  const primaryAfterPan = await camera(1);
+  const linkedAfterPan = await camera(2);
+  if (primaryAfterPan.camera.centre.x === primaryBeforePan.camera.centre.x
+      && primaryAfterPan.camera.centre.y === primaryBeforePan.camera.centre.y) {
+    throw new Error('primary camera did not change after pan');
+  }
+  if (JSON.stringify(primaryAfterPan.camera) !== JSON.stringify(linkedAfterPan.camera)) {
+    throw new Error('linked camera did not receive the primary pan');
+  }
+  const rasterAfterPan = await page.screenshot({ path: join(evidenceRoot, 'browser-pan-after.png') });
+  if (rasterAfterPan.equals(rasterBeforePan)) throw new Error('rendered canvas did not change after pan');
+
+  const primaryBeforeZoom = await camera(1);
   await observe('rapid_zoom_transitions', async () => {
     await page.mouse.move(300, 300); for (let index = 0; index < 6; index += 1) await page.mouse.wheel(0, -120);
+  });
+  const primaryAfterZoom = await camera(1);
+  const linkedAfterZoom = await camera(2);
+  if (primaryAfterZoom.camera.pixels_per_screen_point === primaryBeforeZoom.camera.pixels_per_screen_point) {
+    throw new Error('primary camera scale did not change after zoom');
+  }
+  if (JSON.stringify(primaryAfterZoom.camera) !== JSON.stringify(linkedAfterZoom.camera)) {
+    throw new Error('linked camera did not receive the primary zoom');
+  }
+  await page.mouse.click(244, 77);
+  await page.waitForFunction(() => window.__POLYORAMA_DIAGNOSTICS.cameras.find((item) => item.pane === 1)?.link === null);
+  await page.mouse.click(244, 77);
+  await page.waitForFunction(() => window.__POLYORAMA_DIAGNOSTICS.cameras.find((item) => item.pane === 1)?.link === 1);
+  await page.mouse.click(211, 77);
+  await page.waitForFunction(() => {
+    const cameras = window.__POLYORAMA_DIAGNOSTICS.cameras;
+    const primary = cameras.find((item) => item.pane === 1)?.camera;
+    const linked = cameras.find((item) => item.pane === 2)?.camera;
+    return primary?.pixels_per_screen_point < 512 && JSON.stringify(primary) === JSON.stringify(linked);
   });
   await observe('million_row_scroll', async () => {
     await page.mouse.move(1180, 270); await page.mouse.wheel(0, 1800);

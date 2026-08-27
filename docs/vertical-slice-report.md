@@ -12,7 +12,7 @@ Polyorama now contains a runnable, application-shaped analytical workspace built
 
 The complete release verification passed on both targets. The native binary was launched under a user-space Xvfb display and rendered through wgpu's OpenGL backend on Mesa llvmpipe. The WebAssembly build was launched in headless Chromium with real WebGPU, a module Web Worker and persisted browser storage. Both paths were interacted with and captured; neither result rests on compilation alone.
 
-The architectural hypothesis is supported: this slice did not reveal a need to replace egui. A narrow egui integration layer can present a canonical retained workspace and submit typed work into one renderer-owned wgpu resource universe. The strongest measured limitation is currently fixture production during rapid zoom, not egui presentation: the release browser run recorded a 0.7 ms median but 126.5 ms p95 for that scenario because deterministic scalar generation and LZ4 compression happen before worker dispatch. This is retained as a measured follow-up rather than hidden by an unprofiled rewrite.
+The architectural hypothesis is supported: this slice did not reveal a need to replace egui. A narrow egui integration layer can present a canonical retained workspace and submit typed work into one renderer-owned wgpu resource universe. The strongest measured limitation is currently fixture production during rapid zoom, not egui presentation: the release browser run records a material high-tail cost for that scenario because deterministic scalar generation and LZ4 compression happen before worker dispatch. This is retained as a measured follow-up rather than hidden by an unprofiled rewrite.
 
 Important limitations are documented below. In particular, native evidence uses a software adapter, browser adapter naming is unavailable, GPU timestamps are unavailable, and the synthetic data/decoder is an architectural fixture rather than a production image codec.
 
@@ -58,9 +58,9 @@ flowchart LR
 
 An intent records a feature-scoped request. Validation creates a durable command; the history applies it and supplies undo/redo. Gesture previews remain transient and a completed camera drag, vertex drag or polygon construction produces one command. No asynchronous domain effect was needed in this fixture: persistence is an explicit shell operation, while decode work is expressed as idempotent demand and typed runtime events rather than disguised as commands. The distinction remains mechanical in `PaneOutputs`, `ImageIntent`, `Command`, `TileDemand`, `DecodeEvent`, `ImageRenderRequest` and `RepaintReason`.
 
-`workspace_core::Workspace` is the only dock-tree representation. The egui presenter walks and mutates that tree directly; it has no mirrored docking model. Pane IDs survive rearrangement and JSON restoration. Vacated splits are pruned deterministically.
+`workspace_core::Workspace` is the only dock-tree representation. The egui presenter walks that tree directly and keeps only a transient split preview; it has no mirrored docking model. Stable `DockNodeId` and `PaneId` values survive rearrangement and JSON restoration. Releasing a splitter emits one undoable `ResizeSplit` command, while pane drops modify the canonical tree and prune vacated splits deterministically.
 
-The application obtains eframe's wgpu render state once and installs one `ScalarRenderer` in callback resources. Every pane callback receives that same device and queue. Renderer-owned `R16Uint` textures, pipelines, buffers, bind groups and cache entries are shared by tile key. The callback bridge converts egui allocation and clipping into physical viewport/scissor rectangles; pane code does not see a device, queue, render pass or persistent GPU object.
+The application obtains eframe's wgpu render state once and installs one `ScalarRenderer` in callback resources. Every pane callback receives that same device and queue. Renderer-owned `R16Uint` textures, pipelines, buffers, bind groups and cache entries are shared by tile key. Each tile's image extent is transformed through the request camera into viewport geometry before the custom shader draws it, so pan and zoom affect the scalar raster itself. The callback bridge converts egui allocation and clipping into physical viewport/scissor rectangles; pane code does not see a device, queue, render pass or persistent GPU object.
 
 Native decode uses a named background thread and an explicit egui repaint waker. Browser decode uses a real module `Worker`, a separately built worker Wasm package and the same serialisable `DecodeRequest`/`DecodeEvent` protocol. Only decoded CPU buffers return for GPU upload. Repaints are requested for recorded interaction, command, completion or pending-upload reasons; there is no unconditional frame request.
 
@@ -73,10 +73,10 @@ Native decode uses a named background thread and an explicit egui repaint waker.
 | A01 | Required document/workspace/session/UI/GPU/runtime ownership; no authoritative domain state in widget memory | Verified | `app.rs`, `panes.rs`, `diagnostics.rs`; `cargo xtask architecture` | Selection and layout live in Rust models. UI behaviour contains only transient camera drag/pointer state. |
 | A02 | Egui is immediate presentation through narrow pane APIs | Verified | `PanePresenter`/`PaneSurface`; architecture source scan | Pane code has no mutable complete app/runtime/workspace or wgpu device/queue access. |
 | A03 | Intent, command, event, demand, render request and repaint outputs remain distinct | Verified | `ImageIntent`, `Command`, `DecodeEvent`, `TileDemand`, `ImageRenderRequest`, `RepaintReason`; command validation tests | Decode is demand/event work; persistence is a shell operation. No speculative effect abstraction was added. |
-| A04 | Live interaction preview and one durable command per completed gesture | Verified | `GesturePreview`; `complete_gesture_is_one_command`; native polygon/edit/undo/redo sequence | Preview is painted in the gesture frame; history gains one record at completion. |
-| A05 | Exactly one canonical, versioned dock tree with stable IDs, splits, tabs, resizing, active pane and drag/drop | Verified | Dock invariant/rearrangement/schema/round-trip tests; `browser-rearranged-dock.png`; native restored layout | Optional close/create was not implemented because it is conditional “where supported”; all mandatory panes remain restorable through Reset. |
+| A04 | Live interaction preview and one durable command per completed gesture | Verified | `GesturePreview`; `complete_gesture_is_one_command`; `splitter_gesture_is_one_undoable_workspace_command`; native polygon/edit/undo/redo sequence | Camera, polygon and splitter previews are painted in the gesture frame; history gains one record at completion. |
+| A05 | Exactly one canonical, versioned dock tree with stable IDs, splits, tabs, resizing, active pane and drag/drop | Verified | Stable `DockNodeId`; node/pane invariant, rearrangement, schema and round-trip tests; `browser-rearranged-dock.png`; native restored layout | Optional close/create was not implemented because it is conditional “where supported”; all mandatory panes remain restorable through Reset. |
 | A06 | One shared wgpu device/queue and renderer resource universe for all viewports | Verified | `ScalarRenderer` is inserted once from `CreationContext::wgpu_render_state`; architecture scan rejects viewport device creation; diagnostics report four GPU viewports | No texture-import or per-pane device architecture exists. |
-| A07 | Typed render plan and correct logical/physical viewport, scale, clipping, focus and pointer-local mapping | Verified | `ViewportAllocation`, `PhysicalViewport`, `ImageRenderRequest`, callback `viewport_in_pixels`/`clip_rect_in_pixels`; resize smoke | All four callbacks render inside their allocated pane. |
+| A07 | Typed render plan and correct logical/physical viewport, scale, clipping, focus and pointer-local mapping | Verified | `ViewportAllocation`, `PhysicalViewport`, `ImageRenderRequest`, camera-to-NDC renderer tests, callback `viewport_in_pixels`/`clip_rect_in_pixels`; resize smoke | All four callbacks render inside their allocated pane; camera pan/zoom transforms the tile geometry. |
 | A08 | Semantic identity is stable across rearrangement | Verified | IDs are scoped from window/pane/feature/domain IDs; pane stability and restored-dock tests | No call-order counter is used as semantic identity. |
 | A09 | Typed UI, physical, viewport, image and world coordinate spaces plus deterministic affine transform | Verified | Coordinate newtypes and affine round-trip test; viewport status lines; world-coordinate annotations | Screen tuples do not cross the domain/render boundary as ambiguous coordinates. |
 | A10 | Agent-friendly dependency direction and durable rules | Verified | `cargo xtask architecture`; `AGENTS.md`; workspace crate graph | Core reducers run with no window/GPU. No fork or general GUI core was introduced. |
@@ -86,10 +86,10 @@ Native decode uses a named background thread and an explicit egui repaint waker.
 | W01 | Default workspace contains four GPU views and Results, Thumbnails, Inspector, Diagnostics | Verified | Default dock invariant lists panes 1–8; native/browser default screenshots; readiness asserts pane count 8 | Results/Thumbnails and Inspector/Diagnostics are tab stacks. |
 | F01 | Resize, tabs, horizontal/vertical dock drops, activation, reset, save and deterministic restore | Verified | Playwright splitter and pane drag; native splitter/drag/save/restart; round-trip and schema tests | Empty source nodes are pruned after moves. |
 | F02 | Non-RGBA scientific pixels retained and mapped by a custom shader with controls | Verified | Renderer creates `R16Uint` textures and WGSL `textureLoad`; Viridis, greyscale, threshold and window controls; capability diagnostics | No CPU RGBA conversion is used for source tiles. |
-| F03 | Independent pan, pointer-centred zoom, fit, coordinates, link/unlink, explicit propagation, overview footprint/recentre | Verified | Camera and link propagation tests; browser pan/zoom; native linked-camera screenshot and result/overview interactions | Primary and Linked Detail begin in Link A and can leave/rejoin it. |
+| F03 | Independent pan, pointer-centred zoom, fit, coordinates, link/unlink, explicit propagation, overview footprint/recentre | Verified | Camera/link and renderer-geometry tests; browser exact camera equality, unlink/relink and differing before/after compositor captures; native linked-camera screenshot and result/overview interactions | Primary and Linked Detail begin in Link A and can leave/rejoin it. |
 | F04 | View-derived bounded tile demand, dedupe, priority, stale/failure handling, hidden suppression, coarse-first placeholder | Verified | Demand derivation/dedupe/priority/coarse-first/hidden tests; stale and terminal-failure tests; placeholder painter | Coarsest same-priority coverage is explicitly ordered ahead of fine tiles. |
 | F05 | Common protocol; native background decode; actual browser Worker; no UI/GPU worker ownership; completion repaint | Verified | Native worker thread, module Worker source and worker Wasm; LZ4 test; browser worker completion assertion; idle audit | Browser worker calls `request_repaint`; app records `WorkerCompletion`. |
-| F06 | Bounded configurable shared GPU cache, deterministic eviction/accounting and per-frame upload budget; all semantic states | Verified | 64 MiB cache/4 MiB upload diagnostics; eviction/shared-residency/upload tests; state enum and runtime transitions | Fixed 128 KiB tiles are smaller than the upload/cache budgets. |
+| F06 | Bounded configurable shared GPU cache, deterministic eviction/accounting and per-frame upload budget; all semantic states | Verified | 64 MiB cache/4 MiB upload diagnostics; LRU-touch, eviction/re-demand, shared-residency, upload and invalidation tests; renderer-to-runtime eviction bridge | Fixed 128 KiB tiles are smaller than the upload/cache budgets; evicted keys return to `Missing` and can be demanded again. |
 | F07 | Polygon preview, commit, selection, vertex move, delete, undo/redo, coordinates and linked display | Verified | Command/coalescing/validation tests; native scripted creation/edit/delete/undo/redo; native/browser polygon screenshots | Durable polygons store `WorldPoint` vertices. |
 | F08 | Million-row virtual result table, bounded overscan, stable selection and recenter | Verified | Virtual-row and stable-selection tests; browser result scroll profile; native select/recentre action; diagnostics | Default materialisation is far below 500 rows (16 in the captured default snapshot). |
 | F09 | Two-dimensional 100k thumbnail grid, bounded visible/overscan demand, placeholders, stable selection and recenter path | Verified | Virtual-grid test; browser/native gallery scroll screenshots and worker completions | Thumbnail and result IDs are the same authoritative identity. |
@@ -100,9 +100,9 @@ Native decode uses a named background thread and an explicit egui repaint waker.
 | I02 | Structured spans around frame, command, demand, decode, upload, eviction, render preparation, viewport and layout serialisation | Verified | Source span inventory; native subscriber; tracing `log` fallback reaches the browser web logger | Both target builds compile the same instrumented operations. |
 | I03 | Copy/save structured snapshot with versions, backend, viewports, budgets, datasets and counters | Verified | “Copy JSON snapshot”; `browser-diagnostics.json` | Snapshot includes pinned dependency versions; browser adapter name is unavailable and remains empty. |
 | I04 | Honest release observations for all eight specified scenarios, with environment and unavailable metrics distinguished | Verified | `browser-performance.json` and Performance observations below | Splitter/pane-drag observations are additional. |
-| V01 | All specified focused automated tests run without UI/GPU where required | Verified | 18 `workspace-core` and 6 `workspace-runtime` tests in `cargo test --workspace` | Covers dock, schema, IDs, links, coordinates, validation, history, demand, cache, upload, virtualisation and stable selection. |
+| V01 | All specified focused automated tests run without UI/GPU where required | Verified | 21 `workspace-core`, 9 `workspace-runtime` and 2 renderer geometry tests in `cargo test --workspace` | Covers dock, schema, IDs, links, coordinates, validation, history, camera geometry, demand, cache, eviction, invalidation, upload, virtualisation and stable selection. |
 | V02 | Native release actually launched and required interactions captured | Verified | `tools/native-smoke.sh`, runtime log, seven native screenshots | Failure scan rejects panic and wgpu fatal errors. |
-| V03 | Browser Wasm actually launched in a real browser, checked and interacted with | Verified | Playwright readiness/dimensions/renderer/worker checks, console failure hooks, pan/zoom/split/drag/save/reload and screenshots | Also restored at 1280×720 and 900×700. |
+| V03 | Browser Wasm actually launched in a real browser, checked and interacted with | Verified | Playwright readiness/dimensions/renderer/worker checks, exact linked-camera assertions, full-compositor pixel-difference check, console failure hooks, pan/zoom/split/drag/save/reload and screenshots | Also restored at 1280×720 and 900×700. |
 | V04 | Mechanical architecture verification | Verified | `cargo xtask architecture` output | Checks dependency trees, narrow pane source, one Workspace definition and no renderer device creation. |
 | V05 | One documented command runs format, native+Wasm lint, tests, architecture, release builds and both runtime smokes | Verified | `cargo xtask verify`; README and xtask help | The command completed successfully on 27 August 2026. |
 | L01 | Polyorama code is Apache-2.0 and stated non-goals/boundaries remain intact | Verified | Full SPDX Apache-2.0 `LICENSE`; Cargo `license = "Apache-2.0"`; architecture scan and diff review | No network data service, proprietary data, egui/wgpu fork, generic GUI core, render graph or WebGL fallback was added. |
@@ -191,7 +191,7 @@ npm run browser-smoke
 bash tools/native-smoke.sh
 ```
 
-Summary: formatting passed; native and Wasm clippy passed with warnings denied; all 24 focused core/runtime tests passed; architecture boundaries passed; release native and both release Wasm packages built; Playwright browser smoke passed; native release smoke passed. The browser canvas was 1440×900 with eight registered panes, `wgpu-scalar` readiness, four GPU render jobs and completed Worker decodes. The responsive reload probes also produced non-zero 1280×720 and 900×700 canvases. Native smoke reported `GL/llvmpipe, 1440x900` and found no panic or fatal wgpu error.
+Summary: formatting passed; native and Wasm clippy passed with warnings denied; all 32 focused core/runtime/renderer tests passed; architecture boundaries passed; release native and both release Wasm packages built; Playwright browser smoke passed; native release smoke passed. The browser canvas was 1440×900 with eight registered panes, `wgpu-scalar` readiness, four GPU render jobs and completed Worker decodes. Its linked cameras matched exactly after pan and zoom, while before/after compositor captures differed. The responsive reload probes also produced non-zero 1280×720 and 900×700 canvases. Native smoke reported `GL/llvmpipe, 1440x900` and found no panic or fatal wgpu error.
 
 Verification host:
 
@@ -213,18 +213,18 @@ These values are directly measured application-side CPU frame samples from the r
 
 | Scenario | Median | p95 | Direct observation |
 | --- | ---: | ---: | --- |
-| Initial loading | 0.7 ms | 35.8 ms | Twelve samples; startup/first pipeline work dominates the tail. |
-| Four visible GPU viewports while panning | 0.5 ms | 0.6 ms | Linked view updated during the gesture. |
-| Warmed idle | n/a | n/a | Frame counter stayed 145 → 145 over 700 ms; no deliberate continuous repaint. |
-| Rapid zoom/tile-level transitions | 0.7 ms | 126.5 ms | Tail spikes are material and reproducible enough to retain as follow-up. |
-| Million-row result scroll | 0.6 ms | 0.9 ms | Only the visible/overscan range was materialised. |
-| Thumbnail gallery scroll | 0.5 ms | 4.5 ms | Worker-requested visible cells and placeholders were exercised. |
-| Polygon editing | 0.3 ms | 0.9 ms | Three vertices and commit across linked panes. |
-| Saved workspace restore | 0.6 ms | 18.7 ms | Persisted rearranged dock restored after a full reload. |
-| Splitter interaction (additional) | 0.4 ms | 5.4 ms | Canonical split fraction changed live. |
+| Initial loading | 0.8 ms | 32.8 ms | Twelve samples; startup/first pipeline work dominates the tail. |
+| Four visible GPU viewports while panning | 0.6 ms | 0.9 ms | Linked view updated during the gesture. |
+| Warmed idle | n/a | n/a | Frame counter stayed 150 → 150 over 700 ms; no deliberate continuous repaint. |
+| Rapid zoom/tile-level transitions | 0.6 ms | 127.4 ms | Tail spikes are material and reproducible enough to retain as follow-up. |
+| Million-row result scroll | 0.7 ms | 1.4 ms | Only the visible/overscan range was materialised. |
+| Thumbnail gallery scroll | 0.4 ms | 4.8 ms | Worker-requested visible cells and placeholders were exercised. |
+| Polygon editing | 0.3 ms | 1.2 ms | Three vertices and commit across linked panes. |
+| Saved workspace restore | 0.7 ms | 18.9 ms | Persisted rearranged dock restored after a full reload. |
+| Splitter interaction (additional) | 0.3 ms | 5.4 ms | A transient preview resolved to one canonical, undoable split command. |
 | Pane drag/drop (additional) | 0.5 ms | 0.7 ms | Derived View moved and the empty source split was pruned. |
 
-Measured capability and counters from the restored browser snapshot include four GPU viewports/render jobs, one application render pass, 14 counted draw calls, a 64 MiB texture cache budget, 4 MiB upload budget, 655,360 resident texture bytes, zero in-flight decodes and zero failures. Dataset sizes are 1,000,000 results and 100,000 thumbnails.
+Measured capability and counters from the restored browser snapshot include four GPU viewports/render jobs, one application render pass, 12 counted draw calls, a 64 MiB texture cache budget, 4 MiB upload budget, 655,360 resident texture bytes, zero in-flight decodes and zero failures. Dataset sizes are 1,000,000 results and 100,000 thumbnails.
 
 The explanation for the rapid-zoom tail is an inference from source placement and the scenario: deterministic scalar fixture generation and LZ4 compression are currently performed while constructing a request, before the compressed payload is handed to the decoder worker. Worker decode itself remains off-thread. A follow-up profile should separate fixture generation/compression from reconciliation before changing the renderer or egui boundary.
 
@@ -237,6 +237,12 @@ GPU timestamp queries were unavailable on both captured capability profiles. The
 ![Native default workspace](vertical-slice-evidence/native-default.png)
 
 ![Browser default workspace](vertical-slice-evidence/browser-default.png)
+
+### Camera-derived scalar rendering
+
+![Browser scalar tiles before camera pan](vertical-slice-evidence/browser-pan-before.png)
+
+![Browser scalar tiles after linked camera pan](vertical-slice-evidence/browser-pan-after.png)
 
 ### Dock rearrangement and restoration
 
@@ -270,7 +276,7 @@ GPU timestamp queries were unavailable on both captured capability profiles. The
 - GPU timestamp data is unavailable. Renderer preparation and application CPU frame times remain explicitly CPU-side.
 - The worker fixture demonstrates real compressed transport/decode but is not a production image codec or remote source. Network access, proprietary imagery and production CRS/codecs remain non-goals.
 - Pane close/create behaviour was not added; the specification makes it conditional where supported. Reset restores every mandatory pane. If optional pane lifecycle becomes a real product need, extend the one canonical tree rather than introducing a second dock model.
-- The current renderer draws resident scalar tiles as a representative mosaic. It validates scalar residency, shader mapping, multiple physical viewports and progressive replacement, but does not claim production resampling, atlas packing or geospatial accuracy.
+- The current renderer positions resident scalar tiles from their image extents and the typed camera transform, validating scalar residency, camera-correct shader geometry, multiple physical viewports and progressive replacement. It does not yet claim production filtering, atlas packing or geospatial reprojection accuracy.
 - The narrow 900-pixel layout remains usable and clipped to its canvas, but long tab/control rows become dense. Responsive control compaction can be considered after analytical workflows establish priority; it is not an architectural blocker.
 - Framework APIs remain deliberately concrete and demo-driven. Generic effect systems, render graphs, public component libraries, WebGL fallback, accessibility replacement and arbitrary texture import remain deferred non-goals.
 

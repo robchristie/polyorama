@@ -16,7 +16,7 @@ use crate::{
     panes::{PaneOutputs, PaneSurface, UiBehaviour},
 };
 
-const STORAGE_KEY: &str = "polyorama.vertical-slice.v1";
+const STORAGE_KEY: &str = "polyorama.vertical-slice.v2";
 
 #[derive(Clone, Serialize, Deserialize)]
 struct PersistedState {
@@ -227,6 +227,10 @@ impl AnalyticalWorkspaceApp {
             self.resident_tiles.insert(key);
             self.runtime.mark_resident(key);
         }
+        for key in self.render_bridge.take_evicted() {
+            self.resident_tiles.remove(&key);
+            self.runtime.mark_evicted(key);
+        }
         if !self.resident_tiles.is_empty() {
             self.status = "Workspace ready".into();
         }
@@ -249,22 +253,34 @@ impl AnalyticalWorkspaceApp {
         let command_count = outputs.commands.len();
         let intent_count = outputs.intents.len();
         let _span = info_span!("command_dispatch", command_count, intent_count).entered();
+        let mut applied_commands = 0;
         for command in outputs.commands {
-            self.history
-                .execute(command, &mut self.document, &mut self.session);
+            self.history.execute(
+                command,
+                &mut self.document,
+                &mut self.session,
+                &mut self.workspace,
+            );
+            applied_commands += 1;
         }
         for intent in outputs.intents {
             match validate_intent(intent, &mut self.document, &self.session) {
-                Ok(command) => self
-                    .history
-                    .execute(command, &mut self.document, &mut self.session),
+                Ok(command) => {
+                    self.history.execute(
+                        command,
+                        &mut self.document,
+                        &mut self.session,
+                        &mut self.workspace,
+                    );
+                    applied_commands += 1;
+                }
                 Err(error) => self.status = error,
             }
         }
         let demand_started = Instant::now();
         self.runtime.reconcile(outputs.demands);
         self.diagnostics.frame.demand_ms = demand_started.elapsed().as_secs_f64() * 1000.0;
-        if command_count > 0 {
+        if applied_commands > 0 {
             self.request_repaint(ctx, RepaintReason::Command);
         }
         if self.render_bridge.snapshot().pending_upload_bytes > 0 {
@@ -289,6 +305,7 @@ impl AnalyticalWorkspaceApp {
             serialised_bytes: self.workspace.serialised_size(),
         };
         self.diagnostics.runtime = self.runtime.metrics.clone();
+        self.diagnostics.cameras = self.session.cameras.clone();
         self.diagnostics.render = self.render_bridge.snapshot();
         self.diagnostics.runtime.evictions = self.diagnostics.render.cache_evictions;
         self.diagnostics.frame.render_prepare_ms = self.diagnostics.render.prepare_ms;
@@ -344,12 +361,20 @@ impl eframe::App for AnalyticalWorkspaceApp {
                     ui.strong(APPLICATION_NAME);
                     ui.separator();
                     if ui.button("Undo").clicked()
-                        && self.history.undo(&mut self.document, &mut self.session)
+                        && self.history.undo(
+                            &mut self.document,
+                            &mut self.session,
+                            &mut self.workspace,
+                        )
                     {
                         self.request_repaint(&ctx, RepaintReason::Command);
                     }
                     if ui.button("Redo").clicked()
-                        && self.history.redo(&mut self.document, &mut self.session)
+                        && self.history.redo(
+                            &mut self.document,
+                            &mut self.session,
+                            &mut self.workspace,
+                        )
                     {
                         self.request_repaint(&ctx, RepaintReason::Command);
                     }
@@ -393,12 +418,14 @@ impl eframe::App for AnalyticalWorkspaceApp {
                     active_pane,
                     outputs: &mut outputs,
                 };
-                dock_workspace(
+                if let Some(command) = dock_workspace(
                     ui,
                     &mut self.workspace,
                     &mut self.dock_behaviour,
                     &mut surface,
-                );
+                ) {
+                    surface.outputs.commands.push(command);
+                }
             });
         self.diagnostics.frame.ui_ms = ui_started.elapsed().as_secs_f64() * 1000.0;
         self.apply_outputs(&ctx, outputs);
