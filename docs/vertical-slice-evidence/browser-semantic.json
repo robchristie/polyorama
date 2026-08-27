@@ -227,6 +227,24 @@
     "resized_hash": "05245d0961a7e7b1",
     "hash_after_undo": "40f5bb36d8d13921"
   },
+  "zero_viewport_maintenance": {
+    "visible_panes": [
+      5
+    ],
+    "pending_upload_bytes": 0,
+    "gpu_viewports": 0,
+    "render_jobs": 0,
+    "paint_callbacks": 0,
+    "resident_texture_bytes": 131072,
+    "runtime_state": {
+      "desired": 0,
+      "queued": 0,
+      "in_flight": 0,
+      "residency_rejected": 0
+    },
+    "frame_before_idle": 22,
+    "frame_after_idle": 22
+  },
   "thumbnail_cache": {
     "resident_keys": [
       {
@@ -360,8 +378,19 @@
     "configured_item_bound": 256
   },
   "warmed_idle": {
-    "frame_before": 179,
-    "frame_after": 179,
+    "frame_before": 187,
+    "frame_after": 187,
     "deliberate_continuous_repaint": false
+  },
+  "worker_unavailable": {
+    "health": "Unavailable",
+    "failed_before": 0,
+    "failed_after": 1,
+    "queued": 0,
+    "in_flight": 0,
+    "external_queue": 0,
+    "browser_credits_in_use": 0,
+    "frame_before_idle": 9,
+    "frame_after_idle": 9
   }
 }
