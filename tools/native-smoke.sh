@@ -97,6 +97,9 @@ xdo mouseup 1
 sleep 1
 capture native-linked-camera.png
 snapshot
+PAN_AFTER="$(jq -c '.cameras[] | select(.pane == 1).camera' "$SNAPSHOT")"
+LINKED_AFTER="$(jq -c '.cameras[] | select(.pane == 2).camera' "$SNAPSHOT")"
+UNDO_AFTER="$(jq -r '.undo_depth' "$SNAPSHOT")"
 jq -e --argjson before "$PAN_BEFORE" --argjson undo "$UNDO_BEFORE" '
   (.cameras[] | select(.pane == 1).camera) as $primary
   | (.cameras[] | select(.pane == 2).camera) as $linked
@@ -108,6 +111,8 @@ jq -e --argjson before "$PAN_BEFORE" --argjson undo "$UNDO_BEFORE" '
 xdo mousemove 195 18 click 1
 sleep 0.5
 snapshot
+PAN_UNDONE="$(jq -c '.cameras[] | select(.pane == 1).camera' "$SNAPSHOT")"
+LINKED_UNDONE="$(jq -c '.cameras[] | select(.pane == 2).camera' "$SNAPSHOT")"
 jq -e --argjson primary "$PAN_BEFORE" --argjson linked "$LINKED_BEFORE" --argjson undo "$UNDO_BEFORE" '
   ((.cameras[] | select(.pane == 1).camera) == $primary)
   and ((.cameras[] | select(.pane == 2).camera) == $linked)
@@ -142,6 +147,7 @@ xdo mousemove 1260 77 click 1
 xdo mousemove 1170 53 click 1
 sleep 0.5
 snapshot
+THUMBNAILS_BEFORE="$(jq -c '.virtualisation' "$SNAPSHOT")"
 THUMBNAIL_OFFSET_BEFORE="$(jq -r '.virtualisation.thumbnail_scroll_offset_y' "$SNAPSHOT")"
 THUMBNAIL_START_BEFORE="$(jq -r '.virtualisation.visible_thumbnails[0]' "$SNAPSHOT")"
 WHEEL_EVENTS_BEFORE="$(jq -r '.physical_wheel_events' "$SNAPSHOT")"
@@ -149,6 +155,9 @@ xdo mousemove 1100 150 click --repeat 5 --delay 50 5
 sleep 2
 capture native-thumbnails.png
 snapshot
+THUMBNAILS_AFTER="$(jq -c '.virtualisation' "$SNAPSHOT")"
+WHEEL_EVENTS_AFTER="$(jq -r '.physical_wheel_events' "$SNAPSHOT")"
+THUMBNAIL_RESIDENT_KEYS="$(jq -c '.thumbnail_resident_keys' "$SNAPSHOT")"
 jq -e --argjson offset "$THUMBNAIL_OFFSET_BEFORE" --argjson start "$THUMBNAIL_START_BEFORE" --argjson wheel "$WHEEL_EVENTS_BEFORE" '
   .virtualisation as $v
   | ($v.thumbnail_scroll_offset_y > $offset)
@@ -158,6 +167,38 @@ jq -e --argjson offset "$THUMBNAIL_OFFSET_BEFORE" --argjson start "$THUMBNAIL_ST
     and ($v.thumbnail_cache_bytes <= (4 * 1024 * 1024))
     and (any(.thumbnail_resident_keys[]; .source == 2 and .x >= $v.visible_thumbnails[0]))
 ' "$SNAPSHOT" >/dev/null
+jq -n \
+  --argjson pan_before "$PAN_BEFORE" \
+  --argjson linked_before "$LINKED_BEFORE" \
+  --argjson pan_after "$PAN_AFTER" \
+  --argjson linked_after "$LINKED_AFTER" \
+  --argjson pan_undone "$PAN_UNDONE" \
+  --argjson linked_undone "$LINKED_UNDONE" \
+  --argjson undo_before "$UNDO_BEFORE" \
+  --argjson undo_after "$UNDO_AFTER" \
+  --argjson thumbnails_before "$THUMBNAILS_BEFORE" \
+  --argjson thumbnails_after "$THUMBNAILS_AFTER" \
+  --argjson wheel_before "$WHEEL_EVENTS_BEFORE" \
+  --argjson wheel_after "$WHEEL_EVENTS_AFTER" \
+  --argjson resident_keys "$THUMBNAIL_RESIDENT_KEYS" '
+  {
+    physical_pan: {
+      pointer_delta: {x: 90, y: 50},
+      before: [$pan_before, $linked_before],
+      after: [$pan_after, $linked_after],
+      undo_restored: [$pan_undone, $linked_undone],
+      undo_depth_before: $undo_before,
+      undo_depth_after: $undo_after
+    },
+    thumbnail_scroll: {
+      before: $thumbnails_before,
+      after: $thumbnails_after,
+      physical_wheel_events_before: $wheel_before,
+      physical_wheel_events_after: $wheel_after,
+      resident_keys: $resident_keys
+    }
+  }
+' >docs/vertical-slice-evidence/native-semantic.json
 
 # Diagnostics, then a dock split resize and pane drag/drop.
 xdo mousemove 1180 505 click 1

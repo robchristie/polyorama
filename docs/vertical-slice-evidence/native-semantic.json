@@ -1,0 +1,336 @@
+{
+  "physical_pan": {
+    "pointer_delta": {
+      "x": 90,
+      "y": 50
+    },
+    "before": [
+      {
+        "centre": {
+          "x": 70464.78171734799,
+          "y": 59982.773583200375
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      },
+      {
+        "centre": {
+          "x": 70464.78171734799,
+          "y": 59982.773583200375
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      }
+    ],
+    "after": [
+      {
+        "centre": {
+          "x": 57820.161685097686,
+          "y": 52957.984676394655
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      },
+      {
+        "centre": {
+          "x": 57820.161685097686,
+          "y": 52957.984676394655
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      }
+    ],
+    "undo_restored": [
+      {
+        "centre": {
+          "x": 70464.78171734799,
+          "y": 59982.773583200375
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      },
+      {
+        "centre": {
+          "x": 70464.78171734799,
+          "y": 59982.773583200375
+        },
+        "pixels_per_screen_point": 140.49577813611444
+      }
+    ],
+    "undo_depth_before": 1,
+    "undo_depth_after": 2
+  },
+  "thumbnail_scroll": {
+    "before": {
+      "result_count": 1000000,
+      "visible_rows": [
+        0,
+        18
+      ],
+      "materialised_rows": 26,
+      "row_overscan": 8,
+      "thumbnail_count": 100000,
+      "visible_thumbnails": [
+        0,
+        18
+      ],
+      "materialised_thumbnails": 24,
+      "materialised_thumbnail_range": [
+        0,
+        24
+      ],
+      "thumbnail_columns": 3,
+      "thumbnail_total_rows": 33334,
+      "thumbnail_scroll_offset_y": 0.0,
+      "thumbnail_content_height": 3200059.0,
+      "thumbnail_viewport_height": 397.75,
+      "thumbnail_wheel_input_frames": 0,
+      "thumbnail_wheel_delta_y": 0.0,
+      "resident_thumbnails": 24,
+      "thumbnail_cache_bytes": 393216
+    },
+    "after": {
+      "result_count": 1000000,
+      "visible_rows": [
+        0,
+        18
+      ],
+      "materialised_rows": 26,
+      "row_overscan": 8,
+      "thumbnail_count": 100000,
+      "visible_thumbnails": [
+        12,
+        30
+      ],
+      "materialised_thumbnails": 30,
+      "materialised_thumbnail_range": [
+        6,
+        36
+      ],
+      "thumbnail_columns": 3,
+      "thumbnail_total_rows": 33334,
+      "thumbnail_scroll_offset_y": 400.00006,
+      "thumbnail_content_height": 3200059.0,
+      "thumbnail_viewport_height": 397.75,
+      "thumbnail_wheel_input_frames": 90,
+      "thumbnail_wheel_delta_y": -400.00006,
+      "resident_thumbnails": 36,
+      "thumbnail_cache_bytes": 589824
+    },
+    "physical_wheel_events_before": 6,
+    "physical_wheel_events_after": 16,
+    "resident_keys": [
+      {
+        "source": 2,
+        "level": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 2,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 3,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 4,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 5,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 6,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 7,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 8,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 9,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 10,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 11,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 12,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 13,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 14,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 15,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 16,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 17,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 18,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 19,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 20,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 21,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 22,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 23,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 24,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 25,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 26,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 27,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 28,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 29,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 30,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 31,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 32,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 33,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 34,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 35,
+        "y": 0
+      }
+    ]
+  }
+}
