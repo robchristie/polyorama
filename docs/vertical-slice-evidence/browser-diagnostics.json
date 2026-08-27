@@ -12,21 +12,21 @@
   "adapter": "",
   "frame": {
     "frame_number": 8,
-    "cpu_frame_ms": 0.4,
+    "cpu_frame_ms": 0.5,
     "cpu_frame_history_ms": [
-      17.6,
-      18.9,
+      21.7,
+      19.7,
       0.3,
-      0.7,
+      0.9,
       0.4,
       0.7,
       0.5,
-      0.4
+      0.5
     ],
     "runtime_poll_ms": 0,
-    "ui_ms": 0.3,
-    "demand_ms": 0,
-    "render_prepare_ms": 0,
+    "ui_ms": 0.2,
+    "demand_ms": 0.2,
+    "render_prepare_ms": 0.1,
     "repaint_requests": 3,
     "repaint_reason": "None",
     "recent_reasons": [
@@ -53,7 +53,7 @@
     "pending_upload_bytes": 0,
     "resident_texture_bytes": 655360,
     "cache_evictions": 0,
-    "prepare_ms": 0,
+    "prepare_ms": 0.1,
     "capability_profile": "WebGPU/WGPU; scalar=R16Uint; target=Rgba8Unorm; timestamps=unavailable",
     "gpu_timestamp_ms": null
   },
@@ -70,7 +70,7 @@
     "completed": 5,
     "failed": 0,
     "stale_discarded": 0,
-    "decode_latency_ms_median": 0.0125,
+    "decode_latency_ms_median": 0,
     "worker_queue_depth": 0
   },
   "cameras": [
@@ -78,8 +78,8 @@
       "pane": 1,
       "camera": {
         "centre": {
-          "x": -203939.12418971228,
-          "y": 130215.72503847409
+          "x": -203939.12418971222,
+          "y": 130215.72503847408
         },
         "pixels_per_screen_point": 1024
       },
@@ -89,8 +89,8 @@
       "pane": 2,
       "camera": {
         "centre": {
-          "x": -203939.12418971228,
-          "y": 130215.72503847409
+          "x": -203939.12418971222,
+          "y": 130215.72503847408
         },
         "pixels_per_screen_point": 1024
       },

@@ -115,6 +115,7 @@ struct PaneDraw {
 
 pub struct ScalarRenderer {
     pipeline: wgpu::RenderPipeline,
+    tile_vertices: wgpu::Buffer,
     bind_layout: wgpu::BindGroupLayout,
     textures: BTreeMap<TileKey, ScalarTexture>,
     panes: BTreeMap<PaneId, PaneDraw>,
@@ -163,6 +164,11 @@ impl ScalarRenderer {
             bind_group_layouts: &[Some(&bind_layout)],
             immediate_size: 0,
         });
+        let tile_vertices = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("polyorama bounded tile quad"),
+            contents: bytemuck::cast_slice(&TILE_QUAD),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("polyorama scalar pipeline"),
             layout: Some(&layout),
@@ -170,7 +176,15 @@ impl ScalarRenderer {
                 module: &shader,
                 entry_point: Some("vs_main"),
                 compilation_options: Default::default(),
-                buffers: &[],
+                buffers: &[Some(wgpu::VertexBufferLayout {
+                    array_stride: std::mem::size_of::<[f32; 2]>() as u64,
+                    step_mode: wgpu::VertexStepMode::Vertex,
+                    attributes: &[wgpu::VertexAttribute {
+                        format: wgpu::VertexFormat::Float32x2,
+                        offset: 0,
+                        shader_location: 0,
+                    }],
+                })],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -197,6 +211,7 @@ impl ScalarRenderer {
         }
         Self {
             pipeline,
+            tile_vertices,
             bind_layout,
             textures: BTreeMap::new(),
             panes: BTreeMap::new(),
@@ -388,12 +403,22 @@ impl ScalarRenderer {
             0.0,
             1.0,
         );
+        render_pass.set_vertex_buffer(0, self.tile_vertices.slice(..));
         for tile in &draw.tiles {
             render_pass.set_bind_group(0, &tile.bind_group, &[]);
-            render_pass.draw(0..3, 0..1);
+            render_pass.draw(0..TILE_QUAD.len() as u32, 0..1);
         }
     }
 }
+
+const TILE_QUAD: [[f32; 2]; 6] = [
+    [0.0, 0.0],
+    [1.0, 0.0],
+    [0.0, 1.0],
+    [0.0, 1.0],
+    [1.0, 0.0],
+    [1.0, 1.0],
+];
 
 fn tile_ndc_rect(request: &ImageRenderRequest, key: TileKey) -> [f32; 4] {
     let scale = request.viewport.scale_factor.max(f32::EPSILON) as f64;
@@ -430,12 +455,10 @@ struct Display { low: f32, high: f32, map: u32, padding: u32, rect_ndc: vec4<f32
 @group(0) @binding(1) var<uniform> display: Display;
 
 struct VertexOut { @builtin(position) position: vec4<f32>, @location(0) uv: vec2<f32> };
-@vertex fn vs_main(@builtin(vertex_index) index: u32) -> VertexOut {
-    var positions = array<vec2<f32>, 3>(vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
+@vertex fn vs_main(@location(0) local: vec2<f32>) -> VertexOut {
     var out: VertexOut;
-    let local = positions[index] * 0.5 + vec2(0.5);
     out.position = vec4(mix(display.rect_ndc.xy, display.rect_ndc.zw, local), 0.0, 1.0);
-    out.uv = positions[index] * vec2(0.5, -0.5) + vec2(0.5);
+    out.uv = vec2(local.x, 1.0 - local.y);
     return out;
 }
 fn viridis(t: f32) -> vec3<f32> {
@@ -511,5 +534,19 @@ mod tests {
         let after = tile_ndc_rect(&request(zoomed), key);
         assert!(after[2] - after[0] > before[2] - before[0]);
         assert!(after[3] - after[1] > before[3] - before[1]);
+    }
+
+    #[test]
+    fn tile_quad_cannot_rasterise_outside_projected_bounds() {
+        assert_eq!(TILE_QUAD.len(), 6);
+        assert!(
+            TILE_QUAD
+                .iter()
+                .flatten()
+                .all(|value| (0.0..=1.0).contains(value))
+        );
+        for corner in [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]] {
+            assert!(TILE_QUAD.contains(&corner));
+        }
     }
 }
