@@ -208,10 +208,20 @@ impl PaneSurface<'_> {
         }
         if response.dragged() {
             if let Some(drag) = self.ui_behaviour.camera_drags.get_mut(&pane) {
+                let total_delta = ui.input(|input| {
+                    input.pointer.press_origin().and_then(|origin| {
+                        input.pointer.interact_pos().map(|current| current - origin)
+                    })
+                });
                 let preview = drag
-                    .update_incremental(ViewportPoint::new(
-                        response.drag_delta().x as f64,
-                        response.drag_delta().y as f64,
+                    .update_total(total_delta.map_or_else(
+                        || {
+                            ViewportPoint::new(
+                                response.drag_delta().x as f64,
+                                response.drag_delta().y as f64,
+                            )
+                        },
+                        |delta| ViewportPoint::new(delta.x as f64, delta.y as f64),
                     ))
                     .to_vec();
                 self.ui_behaviour.expose_preview(&preview);

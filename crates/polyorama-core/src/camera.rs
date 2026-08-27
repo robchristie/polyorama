@@ -63,12 +63,12 @@ pub struct CameraChange {
     pub after: Camera,
 }
 
-/// A coalesced camera drag built from incremental pointer movement.
+/// A coalesced camera drag built from the total physical pointer displacement.
 ///
-/// Presentation integrations report drag movement one frame at a time. This
-/// session accumulates those deltas, while always deriving the preview from the
-/// exact starting cameras so linked previews and undo retain their original
-/// values without floating-point drift from repeated camera mutation.
+/// Presentation integrations report displacement from the press origin. This
+/// session always derives the preview from the exact starting cameras so linked
+/// previews and undo retain their original values without floating-point drift
+/// from repeated camera mutation or loss at the drag-recognition threshold.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CameraDragSession {
     source: PaneId,
@@ -90,9 +90,8 @@ impl CameraDragSession {
             })
     }
 
-    pub fn update_incremental(&mut self, delta: ViewportPoint) -> &[CameraState] {
-        self.total_delta.x += delta.x;
-        self.total_delta.y += delta.y;
+    pub fn update_total(&mut self, total_delta: ViewportPoint) -> &[CameraState] {
+        self.total_delta = total_delta;
         let mut after = self
             .before
             .iter()
@@ -244,11 +243,9 @@ mod tests {
         ];
         let mut drag = CameraDragSession::new(PaneId(1), before.clone()).unwrap();
 
-        drag.update_incremental(ViewportPoint::new(30.0, 10.0));
-        drag.update_incremental(ViewportPoint::new(25.0, 15.0));
-        let preview = drag
-            .update_incremental(ViewportPoint::new(35.0, 25.0))
-            .to_vec();
+        drag.update_total(ViewportPoint::new(30.0, 10.0));
+        drag.update_total(ViewportPoint::new(55.0, 25.0));
+        let preview = drag.update_total(ViewportPoint::new(90.0, 50.0)).to_vec();
 
         let expected = Camera {
             centre: ImagePoint::new(
