@@ -807,11 +807,11 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 1504.54248046875,
+      "thumbnail_scroll_offset_y": 1502.3563232421875,
       "thumbnail_content_height": 3200059,
       "thumbnail_viewport_height": 397.75,
-      "thumbnail_wheel_input_frames": 42,
-      "thumbnail_wheel_delta_y": -1504.54248046875,
+      "thumbnail_wheel_input_frames": 40,
+      "thumbnail_wheel_delta_y": -1502.3563232421875,
       "resident_thumbnails": 69,
       "thumbnail_cache_bytes": 1130496
     },
@@ -831,8 +831,8 @@
     "physical_wheel_events_after": 12
   },
   "warmed_idle": {
-    "frame_before": 219,
-    "frame_after": 219,
+    "frame_before": 217,
+    "frame_after": 217,
     "deliberate_continuous_repaint": false
   },
   "worker_unavailable": {

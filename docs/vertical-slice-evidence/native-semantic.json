@@ -7,49 +7,49 @@
     "before": [
       {
         "centre": {
-          "x": 70464.78171734799,
-          "y": 59982.773583200375
+          "x": 70464.78154861515,
+          "y": 59982.773773310575
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       },
       {
         "centre": {
-          "x": 70464.78171734799,
-          "y": 59982.773583200375
+          "x": 70464.78154861515,
+          "y": 59982.773773310575
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       }
     ],
     "after": [
       {
         "centre": {
-          "x": 57820.161685097686,
-          "y": 52957.984676394655
+          "x": 57820.16116048746,
+          "y": 52957.984668795194
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       },
       {
         "centre": {
-          "x": 57820.161685097686,
-          "y": 52957.984676394655
+          "x": 57820.16116048746,
+          "y": 52957.984668795194
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       }
     ],
     "undo_restored": [
       {
         "centre": {
-          "x": 70464.78171734799,
-          "y": 59982.773583200375
+          "x": 70464.78154861515,
+          "y": 59982.773773310575
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       },
       {
         "centre": {
-          "x": 70464.78171734799,
-          "y": 59982.773583200375
+          "x": 70464.78154861515,
+          "y": 59982.773773310575
         },
-        "pixels_per_screen_point": 140.49577813611444
+        "pixels_per_screen_point": 140.49578209030764
       }
     ],
     "undo_depth_before": 1,
@@ -104,16 +104,303 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 400.00006,
+      "thumbnail_scroll_offset_y": 400.0,
       "thumbnail_content_height": 3200059.0,
       "thumbnail_viewport_height": 397.75,
       "thumbnail_wheel_input_frames": 90,
-      "thumbnail_wheel_delta_y": -400.00006,
+      "thumbnail_wheel_delta_y": -400.0,
       "resident_thumbnails": 36,
       "thumbnail_cache_bytes": 589824
     },
+    "resident_keys_before": [
+      {
+        "source": 2,
+        "level": 0,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 2,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 3,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 4,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 5,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 6,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 7,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 8,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 9,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 10,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 11,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 12,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 13,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 14,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 15,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 16,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 17,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 18,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 19,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 20,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 21,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 22,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 23,
+        "y": 0
+      }
+    ],
+    "prior_resident_or_materialised_frontier": 23,
     "physical_wheel_events_before": 6,
     "physical_wheel_events_after": 16,
+    "visible_keys_after": [
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 0,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 0
+      },
+      {
+        "source": 1,
+        "level": 8,
+        "x": 1,
+        "y": 1
+      },
+      {
+        "source": 1,
+        "level": 9,
+        "x": 0,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 12,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 13,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 14,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 15,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 16,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 17,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 18,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 19,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 20,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 21,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 22,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 23,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 24,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 25,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 26,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 27,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 28,
+        "y": 0
+      },
+      {
+        "source": 2,
+        "level": 0,
+        "x": 29,
+        "y": 0
+      }
+    ],
     "resident_keys": [
       {
         "source": 2,
