@@ -1,4 +1,94 @@
 {
+  "ui_geometry": {
+    "root": {
+      "min_x": 0,
+      "min_y": 0,
+      "max_x": 1440,
+      "max_y": 900
+    },
+    "tab_panes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "visible_pane_bodies": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7
+    ],
+    "image_viewports": [
+      {
+        "pane": 1,
+        "rect": {
+          "min_x": 0,
+          "min_y": 96.5,
+          "max_x": 514.65625,
+          "max_y": 599.65625
+        }
+      },
+      {
+        "pane": 2,
+        "rect": {
+          "min_x": 519.65625,
+          "min_y": 96.5,
+          "max_x": 1034.3125,
+          "max_y": 599.65625
+        }
+      },
+      {
+        "pane": 3,
+        "rect": {
+          "min_x": 0,
+          "min_y": 682.65625,
+          "max_x": 514.65625,
+          "max_y": 878
+        }
+      },
+      {
+        "pane": 4,
+        "rect": {
+          "min_x": 519.65625,
+          "min_y": 682.65625,
+          "max_x": 1034.3125,
+          "max_y": 878
+        }
+      }
+    ],
+    "control_names": [
+      "global:undo",
+      "global:redo",
+      "global:save_layout",
+      "global:reset_workspace",
+      "1:navigate",
+      "1:polygon",
+      "1:edit_vertex",
+      "1:fit",
+      "1:link_a",
+      "2:navigate",
+      "2:polygon",
+      "2:edit_vertex",
+      "2:fit",
+      "2:link_a",
+      "3:fit",
+      "3:link_a",
+      "4:fit",
+      "4:link_a"
+    ],
+    "results_scroll": {
+      "min_x": 1039.3125,
+      "min_y": 89,
+      "max_x": 1440,
+      "max_y": 483.75
+    }
+  },
   "initial": {
     "visible_tile_keys": [
       {
@@ -339,6 +429,25 @@
     ],
     "undo_depth_before": 0,
     "undo_depth_after": 1
+  },
+  "physical_no_op_pan": {
+    "pointer_path": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 60,
+        "y": 30
+      },
+      {
+        "x": 0,
+        "y": 0
+      }
+    ],
+    "undo_depth_before": 0,
+    "undo_depth_after": 0,
+    "cameras_unchanged": true
   },
   "thumbnail_cache": {
     "resident_keys": [
@@ -807,11 +916,11 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 1502.3563232421875,
+      "thumbnail_scroll_offset_y": 1501.6717529296875,
       "thumbnail_content_height": 3200059,
       "thumbnail_viewport_height": 397.75,
-      "thumbnail_wheel_input_frames": 40,
-      "thumbnail_wheel_delta_y": -1502.3563232421875,
+      "thumbnail_wheel_input_frames": 39,
+      "thumbnail_wheel_delta_y": -1501.6717529296875,
       "resident_thumbnails": 69,
       "thumbnail_cache_bytes": 1130496
     },
@@ -828,11 +937,17 @@
       "y": 0
     },
     "physical_wheel_events_before": 7,
-    "physical_wheel_events_after": 12
+    "physical_wheel_events_after": 12,
+    "semantic_scroll_rect": {
+      "min_x": 1039.3125,
+      "min_y": 86,
+      "max_x": 1440,
+      "max_y": 483.75
+    }
   },
   "warmed_idle": {
-    "frame_before": 217,
-    "frame_after": 217,
+    "frame_before": 232,
+    "frame_after": 232,
     "deliberate_continuous_repaint": false
   },
   "worker_unavailable": {
