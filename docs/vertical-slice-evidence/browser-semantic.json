@@ -332,8 +332,8 @@
       "in_flight": 0,
       "residency_rejected": 0
     },
-    "frame_before_idle": 23,
-    "frame_after_idle": 23
+    "frame_before_idle": 22,
+    "frame_after_idle": 22
   },
   "physical_pan": {
     "pointer_delta": {
@@ -916,11 +916,11 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 1501.6226806640625,
+      "thumbnail_scroll_offset_y": 1501.6798095703125,
       "thumbnail_content_height": 3200059,
       "thumbnail_viewport_height": 397.75,
       "thumbnail_wheel_input_frames": 39,
-      "thumbnail_wheel_delta_y": -1501.6226806640625,
+      "thumbnail_wheel_delta_y": -1501.6798095703125,
       "resident_thumbnails": 69,
       "thumbnail_cache_bytes": 1130496
     },
@@ -945,6 +945,29 @@
       "max_y": 483.75
     }
   },
+  "physical_vertex_edit": {
+    "screen_delta": {
+      "x": 35,
+      "y": 25
+    },
+    "original_vertex": {
+      "x": 570306.8667630462,
+      "y": 6928030.512148486
+    },
+    "expected_vertex": {
+      "x": 583999.0404327753,
+      "y": 6918250.38809868
+    },
+    "committed_vertex": {
+      "x": 583999.0404327753,
+      "y": 6918250.38809868
+    },
+    "undo_depth_before": 5,
+    "undo_depth_after": 6,
+    "undo_restored_original": true,
+    "redo_restored_edit": true,
+    "release_frame_preview_regression": "covered by deterministic Rust frame-output test"
+  },
   "physical_splitter_resize": {
     "pointer_delta_x": -47,
     "splitter_centre_before": 1036.800048828125,
@@ -960,15 +983,15 @@
     "preview_tracked_pointer": true,
     "workspace_hash_before": "b6fbb734cdf1bb3f",
     "workspace_hash_after": "8aed8bbef57ec876",
-    "undo_depth_before": 5,
-    "undo_depth_after": 6,
+    "undo_depth_before": 6,
+    "undo_depth_after": 7,
     "undo_restored_original": true,
     "redo_restored_resize": true,
     "out_and_back_no_op": true
   },
   "warmed_idle": {
-    "frame_before": 255,
-    "frame_after": 255,
+    "frame_before": 265,
+    "frame_after": 265,
     "deliberate_continuous_repaint": false
   },
   "worker_unavailable": {
@@ -979,7 +1002,7 @@
     "in_flight": 0,
     "external_queue": 0,
     "browser_credits_in_use": 0,
-    "frame_before_idle": 8,
-    "frame_after_idle": 8
+    "frame_before_idle": 9,
+    "frame_after_idle": 9
   }
 }
