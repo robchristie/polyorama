@@ -1,5 +1,5 @@
 {
-  "application_version": "0.1.4",
+  "application_version": "0.1.5",
   "dependency_versions": {
     "eframe": "0.36.1",
     "egui": "0.36.1",
@@ -11,21 +11,20 @@
   "backend": "BrowserWebGpu",
   "adapter": "",
   "frame": {
-    "frame_number": 7,
+    "frame_number": 6,
     "cpu_frame_ms": 0.5,
     "cpu_frame_history_ms": [
-      3.6,
+      3.7,
+      0.7,
       0.5,
-      0.6,
-      0.6,
-      0.5,
-      0.5,
+      0.3,
+      0.7,
       0.5
     ],
     "runtime_poll_ms": 0,
-    "ui_ms": 0.2,
-    "demand_ms": 0,
-    "render_prepare_ms": 0.2,
+    "ui_ms": 0.3,
+    "demand_ms": 0.1,
+    "render_prepare_ms": 0.30000000000000004,
     "repaint_requests": 4,
     "repaint_reason": "None",
     "recent_reasons": [
@@ -42,7 +41,7 @@
     "visible_panes": 5,
     "active_pane": 4,
     "dock_nodes": 9,
-    "serialised_bytes": 579
+    "serialised_bytes": 584
   },
   "render": {
     "gpu_viewports": 4,
@@ -55,7 +54,7 @@
     "pending_upload_bytes": 0,
     "resident_texture_bytes": 655360,
     "cache_evictions": 0,
-    "prepare_ms": 0.2,
+    "prepare_ms": 0.30000000000000004,
     "capability_profile": "WebGPU/WGPU; scalar=R16Uint; target=Rgba8Unorm; timestamps=unavailable",
     "gpu_timestamp_ms": null
   },
@@ -87,7 +86,7 @@
     "scheduler_high_water": 5,
     "external_queue_high_water": 4,
     "native_queue_high_water": 0,
-    "deferred_dispatches": 7,
+    "deferred_dispatches": 6,
     "deferred_completions": 0,
     "completion_unknown": 0,
     "completion_obsolete": 0,
@@ -99,10 +98,10 @@
     "last_worker_error": "",
     "preparation_latency_ms": {
       "samples": 5,
-      "min": 2.7,
+      "min": 2.6,
       "p50": 2.8,
-      "p95": 3.5,
-      "max": 3.5
+      "p95": 3.9,
+      "max": 3.9
     },
     "decode_latency_ms": {
       "samples": 5,
@@ -113,10 +112,10 @@
     },
     "end_to_end_latency_ms": {
       "samples": 5,
-      "min": 32.4,
-      "p50": 32.4,
-      "p95": 47.6,
-      "max": 47.6
+      "min": 29.2,
+      "p50": 44.5,
+      "p95": 44.5,
+      "max": 44.5
     }
   },
   "cameras": [

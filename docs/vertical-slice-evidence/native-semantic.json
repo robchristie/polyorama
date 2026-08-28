@@ -700,49 +700,49 @@
     "before": [
       {
         "centre": {
-          "x": 56604.27468956304,
-          "y": 62639.37055501085
+          "x": 56604.275267106736,
+          "y": 62639.37074231285
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       },
       {
         "centre": {
-          "x": 56604.27468956304,
-          "y": 62639.37055501085
+          "x": 56604.275267106736,
+          "y": 62639.37074231285
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       }
     ],
     "after": [
       {
         "centre": {
-          "x": 43959.65512765495,
-          "y": 55614.581909506356
+          "x": 43959.655033012015,
+          "y": 55614.58172337134
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       },
       {
         "centre": {
-          "x": 43959.65512765495,
-          "y": 55614.581909506356
+          "x": 43959.655033012015,
+          "y": 55614.58172337134
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       }
     ],
     "undo_restored": [
       {
         "centre": {
-          "x": 56604.27468956304,
-          "y": 62639.37055501085
+          "x": 56604.275267106736,
+          "y": 62639.37074231285
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       },
       {
         "centre": {
-          "x": 56604.27468956304,
-          "y": 62639.37055501085
+          "x": 56604.275267106736,
+          "y": 62639.37074231285
         },
-        "pixels_per_screen_point": 140.49577291008987
+        "pixels_per_screen_point": 140.49578037883023
       }
     ],
     "undo_depth_before": 1,
@@ -797,11 +797,11 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 400.00006,
+      "thumbnail_scroll_offset_y": 400.00003,
       "thumbnail_content_height": 3200059.0,
       "thumbnail_viewport_height": 397.75,
-      "thumbnail_wheel_input_frames": 94,
-      "thumbnail_wheel_delta_y": -400.00006,
+      "thumbnail_wheel_input_frames": 95,
+      "thumbnail_wheel_delta_y": -400.00003,
       "resident_thumbnails": 36,
       "thumbnail_cache_bytes": 589824
     },
@@ -1312,5 +1312,17 @@
         "y": 0
       }
     ]
+  },
+  "physical_splitter_resize": {
+    "pointer_delta_x": -47,
+    "splitter_centre_before": 1036.8,
+    "splitter_centre_after": 989.8,
+    "workspace_hash_before": "7fb885e321be70de",
+    "workspace_hash_after": "6f7bec61c5a30f7f",
+    "undo_depth_before": 6,
+    "undo_depth_after": 7,
+    "undo_restored_original": true,
+    "redo_restored_resize": true,
+    "out_and_back_no_op": true
   }
 }

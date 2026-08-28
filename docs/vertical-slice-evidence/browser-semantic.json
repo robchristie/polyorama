@@ -332,8 +332,8 @@
       "in_flight": 0,
       "residency_rejected": 0
     },
-    "frame_before_idle": 22,
-    "frame_after_idle": 22
+    "frame_before_idle": 23,
+    "frame_after_idle": 23
   },
   "physical_pan": {
     "pointer_delta": {
@@ -916,11 +916,11 @@
       ],
       "thumbnail_columns": 3,
       "thumbnail_total_rows": 33334,
-      "thumbnail_scroll_offset_y": 1501.6717529296875,
+      "thumbnail_scroll_offset_y": 1501.6226806640625,
       "thumbnail_content_height": 3200059,
       "thumbnail_viewport_height": 397.75,
       "thumbnail_wheel_input_frames": 39,
-      "thumbnail_wheel_delta_y": -1501.6717529296875,
+      "thumbnail_wheel_delta_y": -1501.6226806640625,
       "resident_thumbnails": 69,
       "thumbnail_cache_bytes": 1130496
     },
@@ -945,9 +945,30 @@
       "max_y": 483.75
     }
   },
+  "physical_splitter_resize": {
+    "pointer_delta_x": -47,
+    "splitter_centre_before": 1036.800048828125,
+    "splitter_centre_after": 989.7999877929688,
+    "splitter_preview_trace": [
+      1028.800048828125,
+      1021.8000183105469,
+      1013.800048828125,
+      1005.800048828125,
+      997.800048828125,
+      989.7999877929688
+    ],
+    "preview_tracked_pointer": true,
+    "workspace_hash_before": "b6fbb734cdf1bb3f",
+    "workspace_hash_after": "8aed8bbef57ec876",
+    "undo_depth_before": 5,
+    "undo_depth_after": 6,
+    "undo_restored_original": true,
+    "redo_restored_resize": true,
+    "out_and_back_no_op": true
+  },
   "warmed_idle": {
-    "frame_before": 232,
-    "frame_after": 232,
+    "frame_before": 255,
+    "frame_after": 255,
     "deliberate_continuous_repaint": false
   },
   "worker_unavailable": {
