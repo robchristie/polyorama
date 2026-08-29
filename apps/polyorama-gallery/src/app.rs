@@ -810,6 +810,7 @@ fn thumbnail_grid(
                     label: &format!("Tile {:06}", 120_000 + index),
                     state,
                     selected: index == 0,
+                    texture: None,
                 },
                 tokens,
                 font_scale,

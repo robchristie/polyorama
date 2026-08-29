@@ -25,6 +25,11 @@ pub fn availability(id: ActionId, context: ActionContext) -> Availability {
         | ActionId::SaveLayout
         | ActionId::ResetWorkspace
         | ActionId::AppearanceSettings => Availability::Enabled,
+        ActionId::CopyDiagnostics if context.target_pane != Some(PaneId(8)) => {
+            Availability::Disabled {
+                reason: "The Diagnostics pane is required".into(),
+            }
+        }
         ActionId::FitView | ActionId::LinkViews
             if !context
                 .target_pane
@@ -59,7 +64,8 @@ pub fn availability(id: ActionId, context: ActionContext) -> Availability {
         | ActionId::EditVerticesTool
         | ActionId::CommitPolygon
         | ActionId::DeleteAnnotation
-        | ActionId::RecenterPrimary => Availability::Enabled,
+        | ActionId::RecenterPrimary
+        | ActionId::CopyDiagnostics => Availability::Enabled,
     }
 }
 

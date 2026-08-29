@@ -203,6 +203,8 @@ pub enum TextComponentKind {
     StatusBadge,
     ThumbnailCell,
     DiagnosticRow,
+    SectionHeading,
+    ContentLabel,
     GalleryHeading,
     TextSample,
 }

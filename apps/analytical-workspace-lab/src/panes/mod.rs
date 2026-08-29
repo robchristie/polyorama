@@ -11,7 +11,7 @@ use polyorama_ui_egui::{
     ActionButtonSpec, ActionEmphasis, ActionId, ActionScope, ActionTarget, Availability,
     DesignTokens, DomainReference, ImagePlanTarget, PanePresenter, SemanticUiId,
     TextLayoutObservation, UiNode, UiRole, action_button, action_spec, allocate_viewport,
-    consume_action_shortcut, stage_render_callback,
+    consume_action_shortcut, diagnostic_row, section_heading, stage_render_callback,
 };
 use web_time::Instant;
 
@@ -490,8 +490,12 @@ impl PaneSurface<'_> {
     fn thumbnails_pane(&mut self, ui: &mut egui::Ui) {
         thumbnails::show(
             ui,
-            self.selected_result,
-            self.generation,
+            thumbnails::ThumbnailPaneView {
+                selected_result: self.selected_result,
+                generation: self.generation,
+                tokens: &self.tokens,
+                font_scale: self.font_scale,
+            },
             self.thumbnail_cache,
             self.virtualisation,
             self.outputs,
@@ -914,8 +918,12 @@ mod tests {
                     ui.set_clip_rect(thumbnails_rect);
                     thumbnails::show(
                         ui,
-                        Some(ResultId(0)),
-                        1,
+                        thumbnails::ThumbnailPaneView {
+                            selected_result: Some(ResultId(0)),
+                            generation: 1,
+                            tokens: &tokens,
+                            font_scale: 1.0,
+                        },
                         &mut thumbnail_cache,
                         &mut virtualisation,
                         &mut output,

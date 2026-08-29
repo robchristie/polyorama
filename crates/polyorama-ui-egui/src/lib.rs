@@ -5,6 +5,7 @@ mod virtual_grid;
 
 mod components;
 mod generated_tokens;
+mod pane_content;
 mod preferences;
 mod preferences_control;
 mod responsive;
@@ -15,6 +16,7 @@ mod text;
 pub use actions::*;
 pub use components::*;
 pub use generated_tokens::*;
+pub use pane_content::*;
 pub use preferences::*;
 pub use preferences_control::*;
 pub use responsive::*;

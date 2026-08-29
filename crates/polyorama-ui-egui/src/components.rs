@@ -397,6 +397,14 @@ pub struct ResultRowSpec<'a> {
     pub selected: bool,
 }
 
+pub fn result_row_height(tokens: &DesignTokens, font_scale: f32) -> f32 {
+    tokens.geometry.control_height.0.max(
+        tokens.typography.body_size.0
+            * font_scale.clamp(1.0, 1.5)
+            * tokens.typography.line_height.0,
+    )
+}
+
 pub fn result_row(
     ui: &mut egui::Ui,
     spec: ResultRowSpec<'_>,
@@ -405,11 +413,7 @@ pub fn result_row(
     observations: &mut Vec<crate::TextLayoutObservation>,
 ) -> Response {
     let width = ui.available_width().max(1.0);
-    let height = tokens
-        .geometry
-        .control_height
-        .0
-        .max(tokens.typography.body_size.0 * font_scale * tokens.typography.line_height.0);
+    let height = result_row_height(tokens, font_scale);
     let (_, rect) = ui.allocate_space(egui::vec2(width, height));
     let response = ui.interact(
         rect,
@@ -456,7 +460,7 @@ pub fn result_row(
     let parent = TextComponentId::new(crate::TextComponentKind::ResultRow, spec.instance);
     let values = [
         (spec.identifier, 0.18, HorizontalTextAlignment::Start),
-        (spec.position, 0.42, HorizontalTextAlignment::Start),
+        (spec.position, 0.42, HorizontalTextAlignment::End),
         (spec.confidence, 0.20, HorizontalTextAlignment::End),
         (spec.category, 0.20, HorizontalTextAlignment::Start),
     ];
@@ -482,7 +486,7 @@ pub fn result_row(
                 spec: TextSpec {
                     horizontal_alignment: alignment,
                     ..TextSpec::single_line(
-                        if index == 2 {
+                        if index == 1 || index == 2 {
                             TextRole::TabularValue
                         } else {
                             TextRole::Body
@@ -518,6 +522,12 @@ pub struct ThumbnailCellSpec<'a> {
     pub label: &'a str,
     pub state: ThumbnailState,
     pub selected: bool,
+    /// Optional progressively decoded content for the resident state.
+    pub texture: Option<egui::TextureId>,
+}
+
+pub fn thumbnail_cell_side(tokens: &DesignTokens, font_scale: f32) -> f32 {
+    tokens.geometry.control_height.0 * 3.0 * font_scale.clamp(1.0, 1.5)
 }
 
 pub fn thumbnail_cell(
@@ -527,7 +537,8 @@ pub fn thumbnail_cell(
     font_scale: f32,
     observations: &mut Vec<crate::TextLayoutObservation>,
 ) -> Response {
-    let side = ui.available_width().clamp(76.0, 132.0);
+    let side = thumbnail_cell_side(tokens, font_scale)
+        .min(ui.available_width().max(tokens.geometry.minimum_hit_size.0));
     let (_, rect) = ui.allocate_space(egui::vec2(side, side));
     let response = ui.interact(
         rect,
@@ -592,14 +603,23 @@ pub fn thumbnail_cell(
             );
         }
         ThumbnailState::Resident => {
-            ui.painter()
-                .rect_filled(image_rect, 1.0, tokens.colours.selection_background);
-            let centre = image_rect.center();
-            ui.painter().circle_filled(
-                centre,
-                image_rect.width().min(image_rect.height()) * 0.27,
-                tokens.colours.accent_primary,
-            );
+            if let Some(texture) = spec.texture {
+                ui.painter().image(
+                    texture,
+                    image_rect,
+                    Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1.0, 1.0)),
+                    Color32::WHITE,
+                );
+            } else {
+                ui.painter()
+                    .rect_filled(image_rect, 1.0, tokens.colours.selection_background);
+                let centre = image_rect.center();
+                ui.painter().circle_filled(
+                    centre,
+                    image_rect.width().min(image_rect.height()) * 0.27,
+                    tokens.colours.accent_primary,
+                );
+            }
         }
         ThumbnailState::Error => {
             ui.painter()
@@ -1076,6 +1096,7 @@ mod tests {
                         label: "Tile 13",
                         state: ThumbnailState::Resident,
                         selected: true,
+                        texture: None,
                     },
                     &tokens,
                     1.0,

@@ -17,6 +17,7 @@ pub enum ActionId {
     SaveLayout,
     ResetWorkspace,
     AppearanceSettings,
+    CopyDiagnostics,
     FitView,
     LinkViews,
     NavigateTool,
@@ -28,12 +29,13 @@ pub enum ActionId {
 }
 
 impl ActionId {
-    pub const ALL: [Self; 13] = [
+    pub const ALL: [Self; 14] = [
         Self::Undo,
         Self::Redo,
         Self::SaveLayout,
         Self::ResetWorkspace,
         Self::AppearanceSettings,
+        Self::CopyDiagnostics,
         Self::FitView,
         Self::LinkViews,
         Self::NavigateTool,
@@ -51,6 +53,7 @@ impl ActionId {
             Self::SaveLayout => "save_layout",
             Self::ResetWorkspace => "reset_workspace",
             Self::AppearanceSettings => "appearance_settings",
+            Self::CopyDiagnostics => "copy_diagnostics",
             Self::FitView => "fit_view",
             Self::LinkViews => "link_views",
             Self::NavigateTool => "navigate_tool",
@@ -231,6 +234,14 @@ pub const fn action_spec(id: ActionId) -> ActionSpec {
             compact_label: Some("Display"),
             shortcut: None,
             scope: ActionScope::Application,
+        },
+        ActionId::CopyDiagnostics => ActionSpec {
+            id,
+            label: "Copy diagnostics",
+            description: "Copy the current diagnostic snapshot as JSON",
+            compact_label: Some("Copy JSON"),
+            shortcut: None,
+            scope: ActionScope::Pane,
         },
         ActionId::FitView => ActionSpec {
             id,

@@ -98,6 +98,7 @@ pub enum UiRole {
     ResultRow,
     ThumbnailCell,
     Status,
+    Section,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
