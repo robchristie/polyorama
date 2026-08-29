@@ -66,11 +66,11 @@ ordinary labels or virtualised collections.
 
 The last landed canonical gate passes 125 tests, token drift, architecture,
 native and Wasm clippy, release native/Wasm builds, browser WebGPU and native
-GL/llvmpipe physical smokes. Increment 6 focused checks pass 44 UI, 26
-application and five gallery tests plus workspace clippy, architecture, native
-release, Wasm release and all four runtime smokes. Exact-head canonical
-verification remains the candidate landing gate. Tooling/CI/guides remain
-increment 7 and complete shell/content migration remains increment 8.
+GL/llvmpipe physical smokes. Increment 6 candidate head `d05ac95` passes the
+complete canonical gate: 140 Rust tests, token drift, architecture, native and
+Wasm clippy/release builds, browser WebGPU smokes and native GL/llvmpipe
+physical smokes. Tooling/CI/guides remain increment 7 and complete
+shell/content migration remains increment 8.
 
 ## Baseline evidence
 
@@ -149,8 +149,8 @@ show that the change is intentional.
 
 ## Next action
 
-Commit the selected increment 6 evidence, run the complete exact-head gate,
-independently review and repair the same head, then land it. Begin `xtask ui`,
-snapshot artefacts, CI publication, agent guides and the evaluation seed only
-after the semantic inspection contract is stable. Application-wide migration
-remains deferred to increment 8.
+Independently review increment 6 against its exact head, repair and reverify any
+blocking finding, then land it. Begin `xtask ui`, snapshot artefacts, CI
+publication, agent guides and the evaluation seed only after the semantic
+inspection contract is stable. Application-wide migration remains deferred to
+increment 8.

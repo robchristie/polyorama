@@ -139,10 +139,11 @@ browser harnesses locate Undo, Redo, Save layout, Fit view, Link views and tool
 selection by `ActionId` in the current Rust snapshot, not by label or fixed
 coordinates.
 
-Focused verification passed 44 `polyorama-ui-egui` tests, 26 application tests,
-five gallery tests, workspace clippy, architecture checks, native release,
-Wasm release and all four native/browser runtime smokes. The exact-head
-`cargo xtask verify` result remains the landing gate.
+Candidate head `d05ac950bdc6f830d96aaee22373936e26d27a65` passed
+`cargo xtask verify`: 140 Rust tests, token drift and architecture checks,
+native and Wasm clippy/release builds, browser WebGPU application/gallery
+smokes and native GL/llvmpipe application/gallery physical smokes. Both gallery
+and warmed application idle-frame assertions passed.
 
 SHA-256 values:
 
