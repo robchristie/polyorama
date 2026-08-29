@@ -57,8 +57,10 @@ pub fn action_button(
         .minimum_hit_size
         .0
         .max(tokens.geometry.control_height.0 * font_scale.clamp(1.0, 1.5));
-    let (hit_rect, response) = ui.allocate_exact_size(
-        egui::vec2(width, hit_height),
+    let (_, hit_rect) = ui.allocate_space(egui::vec2(width, hit_height));
+    let response = ui.interact(
+        hit_rect,
+        egui::Id::new(("polyorama.action-button", spec.instance)),
         if spec.enabled {
             Sense::click()
         } else {
@@ -119,7 +121,7 @@ pub fn action_button(
         );
     }
     let label_rect = visual.shrink2(egui::vec2(tokens.geometry.control_padding_x.0, 0.0));
-    if let Ok(measured) = measure_text(
+    if let Ok(mut measured) = measure_text(
         ui.painter(),
         spec.label,
         text_spec,
@@ -127,6 +129,11 @@ pub fn action_button(
         font_scale,
         label_rect.width().max(0.5),
     ) {
+        if spec.emphasis == ActionEmphasis::Primary || response.is_pointer_button_down_on() {
+            measured.colour = tokens.colours.accent_on_accent.into();
+        } else if !spec.enabled {
+            measured.colour = tokens.colours.text_muted.into();
+        }
         let truncated = measured.truncated();
         observations.push(paint_measured_text(
             &ui.painter_at(label_rect),
@@ -317,7 +324,12 @@ pub fn result_row(
         .control_height
         .0
         .max(tokens.typography.body_size.0 * font_scale * tokens.typography.line_height.0);
-    let (rect, response) = ui.allocate_exact_size(egui::vec2(width, height), Sense::click());
+    let (_, rect) = ui.allocate_space(egui::vec2(width, height));
+    let response = ui.interact(
+        rect,
+        egui::Id::new(("polyorama.result-row", spec.instance)),
+        Sense::click(),
+    );
     if response.clicked() {
         response.request_focus();
     }
@@ -430,7 +442,12 @@ pub fn thumbnail_cell(
     observations: &mut Vec<crate::TextLayoutObservation>,
 ) -> Response {
     let side = ui.available_width().clamp(76.0, 132.0);
-    let (rect, response) = ui.allocate_exact_size(egui::vec2(side, side), Sense::click());
+    let (_, rect) = ui.allocate_space(egui::vec2(side, side));
+    let response = ui.interact(
+        rect,
+        egui::Id::new(("polyorama.thumbnail-cell", spec.instance)),
+        Sense::click(),
+    );
     if response.clicked() {
         response.request_focus();
     }
@@ -929,7 +946,7 @@ mod tests {
                 ..Default::default()
             },
             |ui| {
-                action_button(
+                let button = action_button(
                     ui,
                     ActionButtonSpec {
                         instance: 11,
@@ -942,7 +959,11 @@ mod tests {
                     1.0,
                     &mut observations,
                 );
-                result_row(
+                assert_eq!(
+                    button.id,
+                    egui::Id::new(("polyorama.action-button", 11_u64))
+                );
+                let result = result_row(
                     ui,
                     ResultRowSpec {
                         instance: 12,
@@ -956,7 +977,8 @@ mod tests {
                     1.0,
                     &mut observations,
                 );
-                thumbnail_cell(
+                assert_eq!(result.id, egui::Id::new(("polyorama.result-row", 12_u64)));
+                let thumbnail = thumbnail_cell(
                     ui,
                     ThumbnailCellSpec {
                         instance: 13,
@@ -967,6 +989,10 @@ mod tests {
                     &tokens,
                     1.0,
                     &mut observations,
+                );
+                assert_eq!(
+                    thumbnail.id,
+                    egui::Id::new(("polyorama.thumbnail-cell", 13_u64))
                 );
             },
         );

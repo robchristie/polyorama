@@ -121,6 +121,18 @@ try {
   if (idleAfter !== idleBefore) throw new Error(`gallery repainted while idle: ${idleBefore} -> ${idleAfter}`);
   if (errors.length) throw new Error(errors.join('\n'));
   await writeFile(join(evidenceRoot, 'gallery-browser-snapshot.json'), `${JSON.stringify(current, null, 2)}\n`);
+  await writeFile(join(evidenceRoot, 'gallery-browser-evidence.json'), `${JSON.stringify({
+    build: 'release',
+    browser: browser.version(),
+    automation: 'Playwright 1.62.1',
+    host: `${process.platform}/${process.arch}`,
+    backend: 'browser WebGPU via eframe/wgpu',
+    viewport: '1440x900 CSS pixels',
+    stories: manifest.length,
+    idle_frame_before: idleBefore,
+    idle_frame_after: idleAfter,
+    text_audit_findings: current.text_audit.length,
+  }, null, 2)}\n`);
   console.log(JSON.stringify({ status: 'passed', stories: manifest.length, idleFrame: idleAfter, textAudit: current.text_audit }, null, 2));
 } catch (error) {
   await page.screenshot({ path: join(evidenceRoot, 'gallery-browser-failure.png') }).catch(() => {});

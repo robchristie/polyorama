@@ -1,0 +1,52 @@
+{
+  "frame": 14,
+  "story": "button/keyboard-focus",
+  "configuration": {
+    "appearance": "light",
+    "contrast": "high",
+    "density": "compact",
+    "font_scale": 1.5,
+    "width": "narrow"
+  },
+  "story_count": 18,
+  "story_rect": {
+    "min_x": 682,
+    "min_y": 64,
+    "max_x": 1002,
+    "max_y": 224
+  },
+  "text": [
+    {
+      "component_id": {
+        "kind": "action_button",
+        "instance": 5
+      },
+      "role": "button_label",
+      "horizontal_alignment": "centre",
+      "vertical_alignment": "centre",
+      "allocated_rect": {
+        "min_x": 697,
+        "min_y": 153,
+        "max_x": 814.40625,
+        "max_y": 189
+      },
+      "painted_rect": {
+        "min_x": 697.203125,
+        "min_y": 160,
+        "max_x": 814.203125,
+        "max_y": 182
+      },
+      "clip_rect": {
+        "min_x": 697,
+        "min_y": 153,
+        "max_x": 814.40625,
+        "max_y": 189
+      },
+      "overflow": "ellipsis",
+      "declared_max_lines": 1,
+      "line_count": 1,
+      "truncated": false
+    }
+  ],
+  "text_audit": []
+}
