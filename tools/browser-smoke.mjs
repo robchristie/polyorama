@@ -219,6 +219,23 @@ try {
     await page.mouse.click(point.x, point.y, options);
   };
   const preferenceNodeId = (field, value) => `application.bar.preferences.${field}.${value}`;
+  const physicallyClickSemanticControl = async (id) => {
+    let point = await targetPoint({ kind: 'semantic_id', id });
+    const beforeHover = await semanticSnapshot();
+    await page.mouse.move(point.x, point.y);
+    await page.waitForFunction(
+      (frame) => window.__POLYORAMA_HANDLE.test_snapshot().frame_number > frame,
+      beforeHover.frame_number,
+      { timeout: 10_000 },
+    );
+    // Hover can change egui layout. Refresh the Rust-owned rectangle before the
+    // held click, and allow headed Chromium to deliver down and up separately.
+    point = await targetPoint({ kind: 'semantic_id', id });
+    await page.mouse.move(point.x, point.y);
+    await page.mouse.down();
+    await page.waitForTimeout(50);
+    await page.mouse.up();
+  };
   const openFreshAppearance = async () => {
     const open = await page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot()
       .ui_snapshot.nodes.some((node) => node.id === 'application.bar.preferences.appearance.light'));
@@ -233,7 +250,7 @@ try {
   };
   const choosePreference = async (field, value) => {
     await openFreshAppearance();
-    await clickTarget({ kind: 'semantic_id', id: preferenceNodeId(field, value) });
+    await physicallyClickSemanticControl(preferenceNodeId(field, value));
     await page.waitForFunction(
       ({ field, value }) => window.__POLYORAMA_HANDLE.test_snapshot().preferences[field] === value,
       { field, value },
