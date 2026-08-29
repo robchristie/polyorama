@@ -27,7 +27,7 @@ geometry covers the dock, viewports, visible virtualised rows/cells and
 representative actions with empty semantic audits and without a second
 application tree.
 
-Increment 7 candidate `1a05953` adds five typed `cargo xtask ui` operations,
+Increment 7 candidate `6dbd18c` adds five typed `cargo xtask ui` operations,
 five selected zero-tolerance browser-WebGPU fixtures, canonical semantic/text
 comparison, complete failure bundles and an explicit read-only baseline policy.
 The checked-in CI workflow runs the canonical verifier and uploads ignored
@@ -35,11 +35,12 @@ failure evidence. Focused component, pane, interaction, token, accessibility
 and review guides point agents to production boundaries and deterministic
 evidence. Six frozen gallery tasks use a four-dimension 0–2 scoring rubric.
 
-The exact candidate head passes 145 tests, token drift, architecture, native
+The exact candidate head passes 147 tests, token drift, architecture, native
 and Wasm clippy/release builds, application/gallery browser WebGPU smokes, five
 deterministic UI fixtures and both native GL/llvmpipe physical smokes. A
-deliberate one-field mismatch exited 1 with all required evidence categories
-and no baseline update. Complete shell/content migration remains increment 8.
+negative mismatch, capture-failure, missing-baseline and unsafe-output probes
+all exited 1 with retained evidence and no source mutation. Complete
+shell/content migration remains increment 8.
 
 ## Baseline evidence
 

@@ -156,17 +156,20 @@ SHA-256 values:
 ## Increment 7: deterministic UI verification loop
 
 Implementation source revision
-`1a05953f22cca61d3553ce9f9c91133bba24d63e` passed the complete canonical
-gate with 145 Rust tests, five exact browser-WebGPU snapshot fixtures and all
+`6dbd18cb833c3949ca7e3a6ddabfde7cfb836842` passed the complete canonical
+gate with 147 Rust tests, five exact browser-WebGPU snapshot fixtures and all
 existing native/browser physical smokes. The selected expected metadata,
 semantic snapshots, text observations and PNGs are owned by
 [`../ui-snapshots/`](../ui-snapshots/); they pin viewport, data seed,
 preferences, bundled fonts and renderer contract.
 
 [`increment-7-ui-verification.json`](increment-7-ui-verification.json) records
-the exact environment, command, fixture hashes and a deliberate one-field
-mismatch probe. The probe exited 1, named only the affected fixture, declared
-baseline updates disabled, emitted expected/actual/diff semantic, text, visual
-and browser-log evidence, and left the restored checked-in baseline unchanged.
+the exact environment, command, fixture hashes and four negative probes. A
+one-field mismatch emitted complete expected/actual/diff evidence; browser
+launch failure retained per-fixture unavailable evidence and logs plus the root
+summary; an incomplete baseline retained the actual capture and explicit
+missing evidence; and a baseline-tree output target was rejected before
+cleanup with its hash unchanged. Every probe exited 1 and restored source
+state without a diff.
 The GitHub workflow invokes only `cargo xtask verify` and uploads its ignored
 evidence directory on failure; it contains no baseline update operation.

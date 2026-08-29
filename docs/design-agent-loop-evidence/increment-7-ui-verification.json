@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "increment": 7,
-  "source_revision": "1a05953f22cca61d3553ce9f9c91133bba24d63e",
+  "source_revision": "6dbd18cb833c3949ca7e3a6ddabfde7cfb836842",
+  "initial_candidate_revision": "1a05953f22cca61d3553ce9f9c91133bba24d63e",
   "captured_on": "2026-08-29",
   "environment": {
     "rustc": "1.97.1",
@@ -17,7 +18,7 @@
   "canonical_verification": {
     "command": "TMPDIR=/nvme/development/polyorama/.tools/tmp cargo xtask verify",
     "status": "passed",
-    "rust_tests": 145,
+    "rust_tests": 147,
     "ui_fixture_count": 5,
     "ui_failed_fixtures": [],
     "baseline_updates_allowed": false,
@@ -26,16 +27,45 @@
     "browser_application_smoke": "passed",
     "browser_gallery_smoke": "passed"
   },
-  "failure_probe": {
-    "input": "Temporarily changed only button-keyboard-focus metadata.fixture_id in the working tree, then restored it byte-for-byte.",
-    "command": "TMPDIR=/nvme/development/polyorama/.tools/tmp cargo xtask ui verify --output-dir .tools/runtime/ui-failure-probe-final",
-    "exit_code": 1,
-    "failed_fixtures": ["button-keyboard-focus"],
-    "baseline_updates_allowed": false,
-    "bundle_categories": ["expected", "actual", "diff", "semantic", "text", "visual", "logs"],
-    "bundle_file_count": 18,
-    "baseline_restored_without_diff": true
-  },
+  "failure_probes": [
+    {
+      "kind": "snapshot_mismatch",
+      "input": "Temporarily changed only button-keyboard-focus metadata.fixture_id, then restored it byte-for-byte.",
+      "output_directory": ".tools/runtime/ui-repair-mismatch",
+      "exit_code": 1,
+      "failed_fixtures": ["button-keyboard-focus"],
+      "baseline_updates_allowed": false,
+      "bundle_categories": ["expected", "actual", "diff", "semantic", "text", "visual", "logs"],
+      "baseline_restored_without_diff": true
+    },
+    {
+      "kind": "capture_failure",
+      "input": "POLYORAMA_CHROMIUM=/definitely/missing/chromium",
+      "output_directory": ".tools/runtime/ui-capture-failure-repair",
+      "exit_code": 1,
+      "failed_fixture_count": 5,
+      "root_summary_written": true,
+      "available_expected_evidence_retained": true,
+      "unavailable_actual_and_diff_evidence_recorded": true,
+      "browser_and_runner_logs_retained": true
+    },
+    {
+      "kind": "missing_baseline",
+      "input": "Temporarily moved only button-keyboard-focus/metadata.json to an ignored backup, then restored it.",
+      "output_directory": ".tools/runtime/ui-repair-missing-baseline",
+      "exit_code": 1,
+      "failed_fixtures": ["button-keyboard-focus"],
+      "actual_evidence_retained": true,
+      "missing_expected_evidence_recorded": true,
+      "baseline_restored_without_diff": true
+    },
+    {
+      "kind": "destructive_output_guard",
+      "input": "--output-dir docs/ui-snapshots/expected",
+      "exit_code": 1,
+      "baseline_sha256_unchanged": true
+    }
+  ],
   "sha256": {
     "fixtures.json": "e5a00418c1d59240d655e5462b72d5764070b02ed0e9bd1dbcd8ac1f9bdcca5a",
     "application-shell-dark/visual.png": "b0585d8ccb277b75d5afe4f30ff4c14997d0aecdcf65f0a32f352b33a72d72e0",
