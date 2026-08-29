@@ -173,3 +173,52 @@ cleanup with its hash unchanged. Every probe exited 1 and restored source
 state without a diff.
 The GitHub workflow invokes only `cargo xtask verify` and uploads its ignored
 evidence directory on failure; it contains no baseline update operation.
+
+## Increment 8: complete application migration
+
+Implementation source revision
+`7c504802ef415e27e7969f5ff4793504394a59bb` passed `cargo xtask verify` with
+156 Rust tests, token drift and architecture checks, strict native/Wasm lint
+and release builds, both browser smokes, five zero-tolerance UI fixtures, and
+both native GL/llvmpipe physical smokes. The verifier retained the selected
+application matrix from the same release Wasm and native binaries.
+
+- `increment-8-browser-dark.png` and `increment-8-browser-light.png` establish
+  distinct standard-theme application states;
+- `increment-8-browser-high-contrast-150.png` combines authored light high
+  contrast, compact density and 150% text while retaining bright scientific
+  overlays and non-overlapping application chrome;
+- `increment-8-browser-narrow.png` exercises collapsed application status,
+  wrapped pane toolbars, truncated tabs and measured viewport status text;
+- `increment-8-display-controls.png` shows the narrow-pane `Display` action
+  and its complete semantic map/window popup within the application root;
+- `increment-8-gallery-long-text.png`, `increment-8-gallery-error.png` and
+  `increment-8-gallery-loading.png` retain the required long-text, persistent
+  error and progressive-loading treatments from production components; and
+- `increment-8-browser-semantic.json` and `increment-8-native-semantic.json`
+  retain bounded current geometry, application actions, exact interaction
+  postconditions, virtualisation, empty semantic/text audits and idle evidence.
+
+The browser physical smoke targets the real `Appearance` and `Display` actions,
+asserts all preference and image controls by stable role/ID, persists all five
+appearance fields, and checks an empty semantic audit after every profiled
+interaction. A separate disposable Lantern session used Chrome 151.0.7922.47
+with hardware WebGPU on `nvidia.com/gpu=0`; it showed a nonblank four-view
+canvas, zero layout findings, and zero navigation-time console exceptions,
+failed requests or HTTP errors. Canonical browser evidence uses the pinned
+Playwright 1.62.1 WebGPU path; native evidence uses GL/llvmpipe at 1440×900.
+
+SHA-256 values:
+
+```text
+3e5dd2e310e10c717d0468798eb3de7bf02334cc455ce2734dc6d4daf9cf49e2  increment-8-browser-dark.png
+cc04c3bfa24097da2f6fdb06e17b46dc8ba975a19282b275c00316790bf15122  increment-8-browser-light.png
+cd7605e699107258e5bd636c76143d573adf94c7da55cc733c456eff87f4be54  increment-8-browser-high-contrast-150.png
+6baa6af2404e7e867c166e61344dc59c81229dba4c811023132bc8b7add74fcc  increment-8-browser-narrow.png
+8ba25f74d149dbc5b755f25354e6aaee5f48efd50773af8d045e26b7d6456f67  increment-8-display-controls.png
+1fdd232cd63abb65a0989a1b3d43a7d5bf5d12ed4737b33ce705cd3736b2f503  increment-8-gallery-long-text.png
+7bd6510d5e828309c8469d11da7bb5cca7aaa62c7a66a83edc5efc7535456e07  increment-8-gallery-error.png
+da046b6d200d62148f22a79ee64754719fab97aec6dd1b064738628ae6dd91ec  increment-8-gallery-loading.png
+c37ce32f0b8cc88f9dd40cd735c5f27de24e67356e7b784863c7ed5dcc342a52  increment-8-browser-semantic.json
+f1d25b7a723cb9365d73e511a70a79e84254ae6539ed37a0ce089a5ccdb476e3  increment-8-native-semantic.json
+```

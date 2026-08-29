@@ -1,6 +1,6 @@
 # Polyorama design system and agent UI loop plan
 
-Status: active; increments 1–7 landed; increment 8 in progress
+Status: active; increments 1–7 landed; increment 8 verified and in review
 
 Baseline revision: `b8c66317aaa9284c45e712278010bc9cd285c01b`
 
@@ -33,8 +33,9 @@ The exact reviewed head passed 147 tests, token drift, architecture, native
 and Wasm clippy/release builds, application/gallery browser WebGPU smokes, five
 deterministic UI fixtures and both native GL/llvmpipe physical smokes. A
 negative mismatch, capture-failure, missing-baseline and unsafe-output probes
-all exited 1 with retained evidence and no source mutation. Complete
-shell/content migration and the required visual selection are now increment 8.
+all exited 1 with retained evidence and no source mutation. Increment 8 now
+has an exact-head canonical pass and selected native/browser evidence. Landing
+review is the remaining increment gate.
 
 ## Baseline evidence
 
@@ -88,7 +89,7 @@ now publishes that ignored evidence only when CI fails.
 | 5 | Native/browser gallery, stories and reference scenes | 3–4 | Landed | PR #13, 18-story manifest, matrix tests and selected gallery captures |
 | 6 | Action registry and reusable semantic snapshot | 4–5 | Landed | PR #14, registry, parity/kittest coverage and bounded semantic snapshots |
 | 7 | `xtask ui`, snapshot artefacts, CI, guides and eval seed | 3–6 | Landed | PR #15 and [Increment 7 evidence](design-agent-loop-evidence/increment-7-ui-verification.json) |
-| 8 | Full Analytical Workspace Lab migration and visual selection | 2–7 | In progress | Required capture matrix |
+| 8 | Full Analytical Workspace Lab migration and visual selection | 2–7 | Verified; review pending | [Increment 8 evidence](design-agent-loop-evidence/README.md#increment-8-complete-application-migration) |
 | 9 | Final performance/idle/native/browser hardening and report | 8 | Pending | Final report and canonical gate |
 
 The graph may be refined only at phase boundaries when evidence reveals a
@@ -113,7 +114,6 @@ show that the change is intentional.
 
 ## Next action
 
-Audit the remaining application surfaces, migrate them through the shared
-tokens, recipes, actions and semantics, expose and persist all appearance
-preferences, then inspect the required state matrix before selecting visual
-baselines. Preserve the existing native/browser physical and idle contracts.
+Complete exact-head independent review, repair any blocking finding on the same
+branch, land increment 8, then begin increment 9 final performance, idle,
+native/browser reconciliation and the criterion-by-criterion final report.
