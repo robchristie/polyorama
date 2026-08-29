@@ -43,7 +43,7 @@ jobs:
       - name: Install Linux UI prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install --yes imagemagick jq libgl1-mesa-dri libxkbcommon-x11-0 mesa-vulkan-drivers xdotool xvfb
+          sudo apt-get install --yes imagemagick jq libegl-mesa0 libegl1 libgl1-mesa-dri libglx-mesa0 libglx0 libxkbcommon-x11-0 mesa-vulkan-drivers xdotool xvfb
           npm ci
           npx playwright install --with-deps chromium
 
