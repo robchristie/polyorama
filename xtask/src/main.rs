@@ -30,6 +30,12 @@ fn main() -> Result<()> {
 }
 
 fn verify() -> Result<()> {
+    let evidence_directory = env::current_dir()
+        .context("resolve verification working directory")?
+        .join(".tools/runtime/verification-evidence");
+    fs::create_dir_all(&evidence_directory)
+        .context("create ignored verification evidence directory")?;
+    let evidence_environment = [("POLYORAMA_EVIDENCE_DIR", evidence_directory.as_path())];
     tokens::check(Path::new("."))?;
     run("cargo", &["fmt", "--all", "--check"])?;
     run(
@@ -68,9 +74,9 @@ fn verify() -> Result<()> {
     }
     run("npm", &["ci"])?;
     run("npx", &["playwright", "install", "chromium"])?;
-    run("npm", &["run", "browser-smoke"])?;
+    run_with_environment("npm", &["run", "browser-smoke"], &evidence_environment)?;
     if cfg!(target_os = "linux") {
-        run("bash", &["tools/native-smoke.sh"])?;
+        run_with_environment("bash", &["tools/native-smoke.sh"], &evidence_environment)?;
     }
     println!(
         "Polyorama verification passed: format, lint, tests, architecture, release native, release WASM, browser and native runtime smoke"
@@ -295,12 +301,23 @@ fn ensure_wasm_bindgen_version(expected: &str) -> Result<()> {
 }
 
 fn run(program: &str, arguments: &[&str]) -> Result<()> {
+    run_with_environment(program, arguments, &[])
+}
+
+fn run_with_environment(
+    program: &str,
+    arguments: &[&str],
+    environment: &[(&str, &Path)],
+) -> Result<()> {
     if !Path::new("Cargo.toml").exists() {
         bail!("run xtask from the repository root");
     }
     println!("+ {program} {}", arguments.join(" "));
     let mut command = Command::new(program);
     command.args(arguments);
+    for (name, value) in environment {
+        command.env(name, value);
+    }
     if program == "cargo" {
         let temporary_directory = env::current_dir()
             .context("resolve verification working directory")?
