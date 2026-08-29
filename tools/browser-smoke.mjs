@@ -90,27 +90,47 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.on('pageerror', (error) => errors.push(`pageerror: ${error.stack ?? error}`));
 page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
 
+const screenshotStatistics = async (screenshot) => page.evaluate(async (base64) => {
+  const bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+  const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
+  const canvas = document.createElement('canvas');
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const context = canvas.getContext('2d');
+  context.drawImage(bitmap, 0, 0);
+  const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
+  let minimum = 255;
+  let maximum = 0;
+  for (let index = 0; index < pixels.length; index += 4) {
+    minimum = Math.min(minimum, pixels[index], pixels[index + 1], pixels[index + 2]);
+    maximum = Math.max(maximum, pixels[index], pixels[index + 1], pixels[index + 2]);
+  }
+  return { minimum, maximum };
+}, screenshot.toString('base64'));
+
 const assertRenderedScreenshot = async (screenshot, label) => {
-  const statistics = await page.evaluate(async (base64) => {
-    const bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
-    const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const context = canvas.getContext('2d');
-    context.drawImage(bitmap, 0, 0);
-    const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
-    let minimum = 255;
-    let maximum = 0;
-    for (let index = 0; index < pixels.length; index += 4) {
-      minimum = Math.min(minimum, pixels[index], pixels[index + 1], pixels[index + 2]);
-      maximum = Math.max(maximum, pixels[index], pixels[index + 1], pixels[index + 2]);
-    }
-    return { minimum, maximum };
-  }, screenshot.toString('base64'));
+  const statistics = await screenshotStatistics(screenshot);
   if (statistics.maximum === 0 || statistics.minimum === statistics.maximum) {
     throw new Error(`${label} has no visible rendered output: ${JSON.stringify(statistics)}`);
   }
+};
+
+const captureX11Root = async (path) => {
+  if (process.platform !== 'linux' || process.env.POLYORAMA_BROWSER_HEADFUL !== '1') return null;
+  const capture = spawn('import', ['-silent', '-window', 'root', path], {
+    env: process.env,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  let diagnostics = '';
+  capture.stderr.setEncoding('utf8');
+  capture.stderr.on('data', (chunk) => { diagnostics += chunk; });
+  const timeout = setTimeout(() => capture.kill('SIGTERM'), 10_000);
+  const [code, signal] = await once(capture, 'exit');
+  clearTimeout(timeout);
+  if (code !== 0) {
+    throw new Error(`X11 framebuffer capture failed: code=${code} signal=${signal}\n${diagnostics}`);
+  }
+  return readFile(path);
 };
 
 try {
@@ -133,6 +153,11 @@ try {
   if (evidence.canvas.width <= 0 || evidence.canvas.height <= 0) throw new Error('canvas has zero dimensions');
   if (evidence.panes !== 8 || evidence.renderer !== 'wgpu-scalar') throw new Error(`unexpected readiness data: ${JSON.stringify(evidence)}`);
   const defaultScreenshot = await page.screenshot({ path: join(evidenceRoot, 'browser-default.png') });
+  const x11Screenshot = await captureX11Root(join(evidenceRoot, 'browser-default-x11-root.png'));
+  await writeFile(join(evidenceRoot, 'browser-presentation-probe.json'), `${JSON.stringify({
+    cdp: await screenshotStatistics(defaultScreenshot),
+    x11_root: x11Screenshot ? await screenshotStatistics(x11Screenshot) : null,
+  }, null, 2)}\n`);
   await assertRenderedScreenshot(defaultScreenshot, 'default application screenshot');
 
   const semanticSnapshot = () => page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot());
