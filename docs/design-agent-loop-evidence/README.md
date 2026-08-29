@@ -152,3 +152,21 @@ SHA-256 values:
 87a4ccef405877eb32572c7f125479aa9512a6aa576f90f5614360513421eca8  increment-6-native-semantic.json
 1e0618a718d1defadbbe9ab4e8e09877549545443064aeafe349e942c386841b  increment-6-gallery-semantic.json
 ```
+
+## Increment 7: deterministic UI verification loop
+
+Implementation source revision
+`1a05953f22cca61d3553ce9f9c91133bba24d63e` passed the complete canonical
+gate with 145 Rust tests, five exact browser-WebGPU snapshot fixtures and all
+existing native/browser physical smokes. The selected expected metadata,
+semantic snapshots, text observations and PNGs are owned by
+[`../ui-snapshots/`](../ui-snapshots/); they pin viewport, data seed,
+preferences, bundled fonts and renderer contract.
+
+[`increment-7-ui-verification.json`](increment-7-ui-verification.json) records
+the exact environment, command, fixture hashes and a deliberate one-field
+mismatch probe. The probe exited 1, named only the affected fixture, declared
+baseline updates disabled, emitted expected/actual/diff semantic, text, visual
+and browser-log evidence, and left the restored checked-in baseline unchanged.
+The GitHub workflow invokes only `cargo xtask verify` and uploads its ignored
+evidence directory on failure; it contains no baseline update operation.
