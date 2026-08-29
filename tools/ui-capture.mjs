@@ -53,11 +53,13 @@ let browserProfile;
 
 async function launchBrowser() {
   const flags = [
-    '--headless', '--no-sandbox', '--enable-unsafe-webgpu', '--enable-features=Vulkan',
+    '--headless', '--no-sandbox', '--enable-unsafe-webgpu',
+    '--enable-features=Vulkan,CDPScreenshotNewSurface',
     '--use-angle=vulkan', '--disable-vulkan-surface',
   ];
-  if (process.platform !== 'linux') {
-    browser = await chromium.launch({ headless: true, args: flags.slice(2) });
+  if (process.platform !== 'linux' || process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
+    const launchFlags = process.platform === 'linux' ? flags.slice(1) : flags.slice(2);
+    browser = await chromium.launch({ headless: true, args: launchFlags });
     return;
   }
   const installedChromium = chromium.executablePath();

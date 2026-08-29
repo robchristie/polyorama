@@ -34,49 +34,79 @@ const headlessShell = process.env.POLYORAMA_CHROMIUM ?? join(
   'chrome-headless-shell-linux64',
   'chrome-headless-shell',
 );
-const browserProfile = await mkdtemp(join(tmpdir(), 'polyorama-browser-'));
-const browserEnvironment = process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1'
-  ? process.env
-  : { ...process.env, LD_LIBRARY_PATH: `${join(process.cwd(), '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}` };
-const browserProcess = spawn(headlessShell, [
+const browserFlags = [
   '--headless',
   '--no-sandbox',
-  '--remote-debugging-port=0',
-  `--user-data-dir=${browserProfile}`,
   '--enable-unsafe-webgpu',
-  '--enable-features=Vulkan',
+  '--enable-features=Vulkan,CDPScreenshotNewSurface',
   '--use-angle=vulkan',
   '--disable-vulkan-surface',
-  'about:blank',
-], {
-  env: browserEnvironment,
-  stdio: ['ignore', 'ignore', 'pipe'],
-});
-const cdpEndpoint = await new Promise((resolve, reject) => {
-  let diagnostics = '';
-  const timeout = setTimeout(() => reject(new Error(`Chromium CDP endpoint timed out: ${diagnostics}`)), 10_000);
-  browserProcess.stderr.setEncoding('utf8');
-  browserProcess.stderr.on('data', (chunk) => {
-    diagnostics += chunk;
-    const endpoint = diagnostics.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];
-    if (endpoint) {
+];
+let browser;
+let browserProcess;
+let browserProfile;
+if (process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
+  browser = await chromium.launch({ headless: true, args: browserFlags.slice(1) });
+} else {
+  browserProfile = await mkdtemp(join(tmpdir(), 'polyorama-browser-'));
+  browserProcess = spawn(headlessShell, [
+    ...browserFlags,
+    '--remote-debugging-port=0',
+    `--user-data-dir=${browserProfile}`,
+    'about:blank',
+  ], {
+    env: { ...process.env, LD_LIBRARY_PATH: `${join(process.cwd(), '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}` },
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  const cdpEndpoint = await new Promise((resolve, reject) => {
+    let diagnostics = '';
+    const timeout = setTimeout(() => reject(new Error(`Chromium CDP endpoint timed out: ${diagnostics}`)), 10_000);
+    browserProcess.stderr.setEncoding('utf8');
+    browserProcess.stderr.on('data', (chunk) => {
+      diagnostics += chunk;
+      const endpoint = diagnostics.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];
+      if (endpoint) {
+        clearTimeout(timeout);
+        resolve(endpoint);
+      }
+    });
+    browserProcess.once('error', (error) => {
       clearTimeout(timeout);
-      resolve(endpoint);
-    }
+      reject(error);
+    });
+    browserProcess.once('exit', (code, signal) => {
+      clearTimeout(timeout);
+      reject(new Error(`Chromium exited before CDP attachment: code=${code} signal=${signal}\n${diagnostics}`));
+    });
   });
-  browserProcess.once('error', (error) => {
-    clearTimeout(timeout);
-    reject(error);
-  });
-  browserProcess.once('exit', (code, signal) => {
-    clearTimeout(timeout);
-    reject(new Error(`Chromium exited before CDP attachment: code=${code} signal=${signal}\n${diagnostics}`));
-  });
-});
-const browser = await chromium.connectOverCDP(cdpEndpoint);
+  browser = await chromium.connectOverCDP(cdpEndpoint);
+}
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 page.on('pageerror', (error) => errors.push(`pageerror: ${error.stack ?? error}`));
 page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
+
+const assertRenderedScreenshot = async (screenshot, label) => {
+  const statistics = await page.evaluate(async (base64) => {
+    const bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+    const bitmap = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const context = canvas.getContext('2d');
+    context.drawImage(bitmap, 0, 0);
+    const pixels = context.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    let minimum = 255;
+    let maximum = 0;
+    for (let index = 0; index < pixels.length; index += 4) {
+      minimum = Math.min(minimum, pixels[index], pixels[index + 1], pixels[index + 2]);
+      maximum = Math.max(maximum, pixels[index], pixels[index + 1], pixels[index + 2]);
+    }
+    return { minimum, maximum };
+  }, screenshot.toString('base64'));
+  if (statistics.maximum === 0 || statistics.minimum === statistics.maximum) {
+    throw new Error(`${label} has no visible rendered output: ${JSON.stringify(statistics)}`);
+  }
+};
 
 try {
   await page.goto('http://127.0.0.1:4173', { waitUntil: 'domcontentloaded' });
@@ -97,7 +127,8 @@ try {
   });
   if (evidence.canvas.width <= 0 || evidence.canvas.height <= 0) throw new Error('canvas has zero dimensions');
   if (evidence.panes !== 8 || evidence.renderer !== 'wgpu-scalar') throw new Error(`unexpected readiness data: ${JSON.stringify(evidence)}`);
-  await page.screenshot({ path: join(evidenceRoot, 'browser-default.png') });
+  const defaultScreenshot = await page.screenshot({ path: join(evidenceRoot, 'browser-default.png') });
+  await assertRenderedScreenshot(defaultScreenshot, 'default application screenshot');
 
   const semanticSnapshot = () => page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot());
   const targetPoint = async (target, fractionX = 0.5, fractionY = 0.5, deltaX = 0, deltaY = 0) => {
@@ -728,10 +759,10 @@ try {
   throw new Error(`${error.stack ?? error}\nloading: ${loading}\n${errors.join('\n')}`);
 } finally {
   await browser.close();
-  if (browserProcess.exitCode === null) {
+  if (browserProcess?.exitCode === null) {
     browserProcess.kill('SIGTERM');
     await Promise.race([once(browserProcess, 'exit'), new Promise((resolve) => setTimeout(resolve, 2_000))]);
   }
-  await rm(browserProfile, { recursive: true, force: true });
+  if (browserProfile) await rm(browserProfile, { recursive: true, force: true });
   await new Promise((resolve) => server.close(resolve));
 }
