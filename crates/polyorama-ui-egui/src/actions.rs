@@ -16,6 +16,7 @@ pub enum ActionId {
     Redo,
     SaveLayout,
     ResetWorkspace,
+    AppearanceSettings,
     FitView,
     LinkViews,
     NavigateTool,
@@ -27,11 +28,12 @@ pub enum ActionId {
 }
 
 impl ActionId {
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 13] = [
         Self::Undo,
         Self::Redo,
         Self::SaveLayout,
         Self::ResetWorkspace,
+        Self::AppearanceSettings,
         Self::FitView,
         Self::LinkViews,
         Self::NavigateTool,
@@ -48,6 +50,7 @@ impl ActionId {
             Self::Redo => "redo",
             Self::SaveLayout => "save_layout",
             Self::ResetWorkspace => "reset_workspace",
+            Self::AppearanceSettings => "appearance_settings",
             Self::FitView => "fit_view",
             Self::LinkViews => "link_views",
             Self::NavigateTool => "navigate_tool",
@@ -218,6 +221,14 @@ pub const fn action_spec(id: ActionId) -> ActionSpec {
             label: "Reset workspace",
             description: "Restore the default workspace, cameras and tools",
             compact_label: Some("Reset"),
+            shortcut: None,
+            scope: ActionScope::Application,
+        },
+        ActionId::AppearanceSettings => ActionSpec {
+            id,
+            label: "Appearance",
+            description: "Adjust theme, contrast, density, text scale and motion",
+            compact_label: Some("Display"),
             shortcut: None,
             scope: ActionScope::Application,
         },

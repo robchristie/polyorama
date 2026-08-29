@@ -20,9 +20,11 @@ pub fn availability(id: ActionId, context: ActionContext) -> Availability {
         ActionId::Redo if context.redo_depth == 0 => Availability::Disabled {
             reason: "Nothing has been undone".into(),
         },
-        ActionId::Undo | ActionId::Redo | ActionId::SaveLayout | ActionId::ResetWorkspace => {
-            Availability::Enabled
-        }
+        ActionId::Undo
+        | ActionId::Redo
+        | ActionId::SaveLayout
+        | ActionId::ResetWorkspace
+        | ActionId::AppearanceSettings => Availability::Enabled,
         ActionId::FitView | ActionId::LinkViews
             if !context
                 .target_pane

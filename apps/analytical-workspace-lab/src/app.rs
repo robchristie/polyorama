@@ -12,7 +12,7 @@ use polyorama_ui_egui::{
     ActionButtonSpec, ActionEmphasis, ActionId, ActionTarget, DockBehaviour, DockTextContext,
     SemanticUiId, UiNode, UiPreferences, UiRole, UiSnapshot, action_button, application_bar_frame,
     application_bar_height, apply_design_system, audit_text_layouts, consume_action_shortcut,
-    dock_workspace, stage_renderer_maintenance, submit_render_plan,
+    dock_workspace, preferences_control, stage_renderer_maintenance, submit_render_plan,
 };
 use serde::{Deserialize, Serialize};
 use tracing::info_span;
@@ -70,6 +70,13 @@ pub(crate) enum TestAction {
     QueueZeroViewportUpload,
     RestoreDefaultWorkspace,
     MakeWorkerUnavailable,
+    SetUiPreferences {
+        appearance: polyorama_ui_egui::AppearancePreference,
+        contrast: polyorama_ui_egui::ContrastPreference,
+        density: polyorama_ui_egui::DensityPreference,
+        font_scale: f32,
+        motion: polyorama_ui_egui::MotionPreference,
+    },
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -92,6 +99,7 @@ pub(crate) struct TestSnapshot {
     physical_wheel_events: u64,
     ui_geometry: UiGeometry,
     ui_snapshot: UiSnapshot,
+    preferences: UiPreferences,
 }
 
 impl From<DisplaySettings> for DisplaySettingsDto {
@@ -446,6 +454,27 @@ impl AnalyticalWorkspaceApp {
                 self.request_repaint(&context, RepaintReason::WorkerCompletion);
                 return Ok(self.test_snapshot());
             }
+            TestAction::SetUiPreferences {
+                appearance,
+                contrast,
+                density,
+                font_scale,
+                motion,
+            } => {
+                self.preferences = UiPreferences {
+                    appearance,
+                    contrast,
+                    density,
+                    font_scale,
+                    motion,
+                    ..self.preferences
+                }
+                .validated();
+                let context = self.egui_context.clone();
+                apply_design_system(&context, self.preferences);
+                self.request_repaint(&context, RepaintReason::Preferences);
+                return Ok(self.test_snapshot());
+            }
         };
         self.history.execute(
             command,
@@ -482,6 +511,7 @@ impl AnalyticalWorkspaceApp {
             physical_wheel_events: self.diagnostics.frame.physical_wheel_events,
             ui_geometry: self.last_ui_geometry.clone(),
             ui_snapshot: self.last_ui_snapshot.clone(),
+            preferences: self.preferences.validated(),
         }
     }
 
@@ -741,6 +771,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
             .is_none_or(|theme| theme == egui::Theme::Dark);
         let tokens = self.preferences.tokens(system_dark);
         let mut save_now = false;
+        let mut preferences_changed = false;
         let mut ui_geometry = UiGeometry::new(root_ui.max_rect(), ctx.pixels_per_point());
         let application_bar_id = SemanticUiId::new("application.bar");
         let action_context = ActionContext {
@@ -879,6 +910,38 @@ impl eframe::App for AnalyticalWorkspaceApp {
                         self.status = "Default workspace restored".into();
                         self.request_repaint(&ctx, RepaintReason::Command);
                     }
+                    let appearance_availability =
+                        availability(ActionId::AppearanceSettings, action_context);
+                    let appearance_target = ActionTarget::application(ActionId::AppearanceSettings);
+                    let appearance = action_button(
+                        ui,
+                        ActionButtonSpec {
+                            target: appearance_target,
+                            availability: appearance_availability.clone(),
+                            selected: false,
+                            emphasis: ActionEmphasis::Quiet,
+                            compact: ui.available_width() < 760.0,
+                        },
+                        &tokens,
+                        self.preferences.font_scale,
+                        &mut ui_geometry.text_layouts,
+                    );
+                    ui_geometry.action(
+                        application_bar_id.clone(),
+                        appearance_target,
+                        &appearance_availability,
+                        false,
+                        &appearance,
+                    );
+                    if let Some(popup) = egui::Popup::menu(&appearance).show(|ui| {
+                        ui.set_width(tokens.geometry.minimum_hit_size.0 * 7.0);
+                        preferences_control(ui, &mut self.preferences, &application_bar_id)
+                    }) {
+                        preferences_changed |= popup.inner.changed;
+                        for node in popup.inner.nodes {
+                            ui_geometry.record_node(node);
+                        }
+                    }
                     ui.separator();
                     ui.label(egui::RichText::new(&self.status).color(tokens.colours.text_primary));
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
@@ -893,6 +956,13 @@ impl eframe::App for AnalyticalWorkspaceApp {
                     });
                 });
             });
+        if preferences_changed {
+            self.preferences = self.preferences.validated();
+            apply_design_system(&ctx, self.preferences);
+            self.status = "Appearance preferences saved".into();
+            save_now = true;
+            self.request_repaint(&ctx, RepaintReason::Preferences);
+        }
         ui_geometry.menu = Some(menu.response.rect.into());
         let mut application_bar = UiNode::container(
             application_bar_id,
