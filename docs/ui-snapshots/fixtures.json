@@ -14,7 +14,7 @@
       },
       "data_fixture": "gallery-seed-v1",
       "fonts": "egui-default-fonts-0.36.1",
-      "renderer": "browser-webgpu-eframe-wgpu"
+      "renderer": "browser-webgpu-eframe-wgpu-swiftshader"
     },
     {
       "id": "diagnostics-high-contrast",
@@ -29,7 +29,7 @@
       },
       "data_fixture": "gallery-seed-v1",
       "fonts": "egui-default-fonts-0.36.1",
-      "renderer": "browser-webgpu-eframe-wgpu"
+      "renderer": "browser-webgpu-eframe-wgpu-swiftshader"
     },
     {
       "id": "tabs-narrow-wide",
@@ -44,7 +44,7 @@
       },
       "data_fixture": "gallery-seed-v1",
       "fonts": "egui-default-fonts-0.36.1",
-      "renderer": "browser-webgpu-eframe-wgpu"
+      "renderer": "browser-webgpu-eframe-wgpu-swiftshader"
     },
     {
       "id": "splitter-states",
@@ -59,7 +59,7 @@
       },
       "data_fixture": "gallery-seed-v1",
       "fonts": "egui-default-fonts-0.36.1",
-      "renderer": "browser-webgpu-eframe-wgpu"
+      "renderer": "browser-webgpu-eframe-wgpu-swiftshader"
     },
     {
       "id": "button-keyboard-focus",
@@ -74,7 +74,7 @@
       },
       "data_fixture": "gallery-seed-v1",
       "fonts": "egui-default-fonts-0.36.1",
-      "renderer": "browser-webgpu-eframe-wgpu"
+      "renderer": "browser-webgpu-eframe-wgpu-swiftshader"
     }
   ]
 }

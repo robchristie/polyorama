@@ -3,7 +3,8 @@
 [`fixtures.json`](fixtures.json) is the versioned, closed fixture manifest for
 Polyorama's selected visual, semantic and text baselines. Each fixture pins its
 gallery story, viewport, data seed, appearance, contrast, density, font scale,
-width class, bundled font set and browser-WebGPU renderer contract.
+width class, bundled font set and pinned browser-WebGPU/SwiftShader renderer
+contract.
 
 Build the browser package once, then use an explicit ignored output directory:
 
