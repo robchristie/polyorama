@@ -355,9 +355,13 @@ try {
     ]);
   }
   if (x11TemporaryDirectory) {
-    await rm(x11TemporaryDirectory, { recursive: true, force: true });
+    await rm(x11TemporaryDirectory, {
+      recursive: true, force: true, maxRetries: 5, retryDelay: 200,
+    });
   } else if (browserProfile) {
-    await rm(browserProfile, { recursive: true, force: true });
+    await rm(browserProfile, {
+      recursive: true, force: true, maxRetries: 5, retryDelay: 200,
+    });
   }
   await new Promise((resolve) => server.close(resolve));
 }
