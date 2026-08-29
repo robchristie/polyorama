@@ -1,4 +1,4 @@
-use egui::{Color32, Frame, Margin, Rect, Response, Sense, Stroke};
+use egui::{Color32, Frame, Margin, Painter, Rect, Response, Sense, Stroke};
 
 use crate::{
     DesignTokens, HorizontalTextAlignment, TextComponentId, TextOverflow, TextRole, TextSpec,
@@ -12,9 +12,47 @@ pub enum ActionEmphasis {
     Primary,
 }
 
+pub const SPLITTER_VISUAL_WIDTH: f32 = 5.0;
+
+/// Visual interaction state shared by the live dock and deterministic
+/// splitter stories.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct SplitterVisualState {
+    pub hovered: bool,
+    pub active: bool,
+    pub focused: bool,
+}
+
+pub fn paint_splitter(
+    painter: &Painter,
+    rect: Rect,
+    state: SplitterVisualState,
+    tokens: &DesignTokens,
+) {
+    let fill = if state.active {
+        Color32::from(tokens.colours.accent_primary)
+    } else if state.hovered {
+        Color32::from(tokens.colours.selection_background)
+    } else {
+        Color32::from(tokens.colours.surface_raised)
+    };
+    painter.rect_filled(rect, 0.0, fill);
+    if state.focused {
+        painter.rect_stroke(
+            rect,
+            0.0,
+            Stroke::new(1.0, tokens.colours.focus_ring),
+            egui::StrokeKind::Inside,
+        );
+    }
+}
+
 pub struct ActionButtonSpec<'a> {
     pub instance: u64,
+    /// Complete action name used by widget and accessibility semantics.
     pub label: &'a str,
+    /// Optional shorter visible label for a constrained toolbar.
+    pub compact_label: Option<&'a str>,
     pub enabled: bool,
     pub selected: bool,
     pub emphasis: ActionEmphasis,
@@ -30,13 +68,14 @@ pub fn action_button(
     font_scale: f32,
     observations: &mut Vec<crate::TextLayoutObservation>,
 ) -> Response {
+    let visible_label = spec.compact_label.unwrap_or(spec.label);
     let text_spec = TextSpec {
         horizontal_alignment: HorizontalTextAlignment::Centre,
         ..TextSpec::single_line(TextRole::ButtonLabel, TextOverflow::Ellipsis)
     };
     let intrinsic = measure_text(
         ui.painter(),
-        spec.label,
+        visible_label,
         TextSpec {
             overflow: TextOverflow::Expand,
             ..text_spec
@@ -123,7 +162,7 @@ pub fn action_button(
     let label_rect = visual.shrink2(egui::vec2(tokens.geometry.control_padding_x.0, 0.0));
     if let Ok(mut measured) = measure_text(
         ui.painter(),
-        spec.label,
+        visible_label,
         text_spec,
         tokens,
         font_scale,
@@ -142,7 +181,7 @@ pub fn action_button(
             TextComponentId::new(crate::TextComponentKind::ActionButton, spec.instance),
             None,
         ));
-        if truncated {
+        if truncated || spec.compact_label.is_some() {
             response.clone().on_hover_text(spec.label);
         }
     }
@@ -951,6 +990,7 @@ mod tests {
                     ActionButtonSpec {
                         instance: 11,
                         label: "Unavailable action",
+                        compact_label: Some("Unavailable"),
                         enabled: false,
                         selected: false,
                         emphasis: ActionEmphasis::Normal,

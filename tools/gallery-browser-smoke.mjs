@@ -107,6 +107,23 @@ try {
   }
   await page.screenshot({ path: join(evidenceRoot, 'gallery-browser-high-contrast-narrow.png') });
 
+  await page.evaluate(() => window.__POLYORAMA_GALLERY_HANDLE.set_configuration({
+    appearance: 'dark', contrast: 'standard', density: 'comfortable', font_scale: 1.0, width: 'wide',
+  }));
+  current = await selectStory('tabs/narrow');
+  const narrowTextMin = Math.min(...current.text.map((entry) => entry.allocated_rect.min_x));
+  const narrowTextMax = Math.max(...current.text.map((entry) => entry.allocated_rect.max_x));
+  if (current.configuration.width !== 'wide' || narrowTextMax - narrowTextMin > 296
+      || current.text_audit.length !== 0) {
+    throw new Error(`narrow tab story did not retain its own bounded geometry: ${JSON.stringify(current)}`);
+  }
+
+  current = await selectStory('splitter/hover-active');
+  if (current.text.length === 0 || current.text_audit.length !== 0) {
+    throw new Error(`deterministic splitter-state story failed: ${JSON.stringify(current)}`);
+  }
+  await page.screenshot({ path: join(evidenceRoot, 'gallery-browser-splitter-states.png') });
+
   current = await selectStory('button/keyboard-focus');
   await page.waitForTimeout(100);
   current = await snapshot();

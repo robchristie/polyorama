@@ -6,10 +6,11 @@ use polyorama_core::{
 };
 use polyorama_ui_egui::{
     ActionButtonSpec, ActionEmphasis, AppearancePreference, ContrastPreference, DensityPreference,
-    DesignTokens, DockBehaviour, DockTextContext, PanePresenter, StatusTone, TextAuditFinding,
-    TextLayoutObservation, ThumbnailCellSpec, ThumbnailState, UiPreferences, action_button,
-    application_bar_frame, application_bar_height, apply_design_system, audit_text_layouts,
-    dock_workspace, property_row, result_row, status_badge, thumbnail_cell,
+    DesignTokens, DockBehaviour, DockTextContext, PanePresenter, SplitterVisualState, StatusTone,
+    TextAuditFinding, TextLayoutObservation, ThumbnailCellSpec, ThumbnailState, UiPreferences,
+    action_button, application_bar_frame, application_bar_height, apply_design_system,
+    audit_text_layouts, dock_workspace, paint_splitter, property_row, result_row, status_badge,
+    thumbnail_cell,
 };
 use serde::{Deserialize, Serialize};
 
@@ -397,6 +398,7 @@ fn render_story(
                     ActionButtonSpec {
                         instance: 1,
                         label: "Save layout",
+                        compact_label: None,
                         enabled: true,
                         selected: false,
                         emphasis: ActionEmphasis::Normal,
@@ -410,6 +412,7 @@ fn render_story(
                     ActionButtonSpec {
                         instance: 2,
                         label: "Run analysis",
+                        compact_label: None,
                         enabled: true,
                         selected: false,
                         emphasis: ActionEmphasis::Primary,
@@ -423,6 +426,7 @@ fn render_story(
                     ActionButtonSpec {
                         instance: 3,
                         label: "Linked",
+                        compact_label: None,
                         enabled: true,
                         selected: true,
                         emphasis: ActionEmphasis::Quiet,
@@ -439,6 +443,7 @@ fn render_story(
                 ActionButtonSpec {
                     instance: 4,
                     label: "Undo unavailable — history is empty",
+                    compact_label: None,
                     enabled: false,
                     selected: false,
                     emphasis: ActionEmphasis::Normal,
@@ -449,11 +454,18 @@ fn render_story(
             );
         }
         StoryId::ButtonKeyboardFocus => {
+            if *focus_story != Some(story) {
+                ui.memory_mut(|memory| {
+                    memory.request_focus(egui::Id::new(("polyorama.action-button", 5_u64)));
+                });
+                *focus_story = Some(story);
+            }
             let response = action_button(
                 ui,
                 ActionButtonSpec {
                     instance: 5,
                     label: "Fit active view",
+                    compact_label: None,
                     enabled: true,
                     selected: false,
                     emphasis: ActionEmphasis::Normal,
@@ -462,17 +474,20 @@ fn render_story(
                 font_scale,
                 observations,
             );
-            if *focus_story != Some(story) {
-                response.request_focus();
-                *focus_story = Some(story);
-                ui.ctx().request_repaint();
-            }
+            debug_assert!(response.has_focus());
         }
-        StoryId::TabsManyLongLabels
-        | StoryId::TabsNarrow
-        | StoryId::SplitterHoverActive
-        | StoryId::ReferenceApplicationShell => {
+        StoryId::TabsManyLongLabels | StoryId::ReferenceApplicationShell => {
             dock.show(ui, tokens, font_scale, observations);
+        }
+        StoryId::TabsNarrow => {
+            ui.allocate_ui_with_layout(
+                egui::vec2(296.0_f32.min(ui.available_width()), ui.available_height()),
+                egui::Layout::top_down(egui::Align::Min),
+                |ui| dock.show(ui, tokens, font_scale, observations),
+            );
+        }
+        StoryId::SplitterHoverActive => {
+            splitter_story(ui, tokens, font_scale, observations);
         }
         StoryId::ToolbarNarrow | StoryId::ReferenceImageToolbarNarrow => {
             toolbar_story(ui, true, tokens, font_scale, observations)
@@ -528,21 +543,22 @@ fn toolbar_story(
             (43, "Fit view", false),
             (44, "Link A", true),
         ] {
-            let shown = if narrow && instance >= 42 {
+            let compact_label = if narrow && instance >= 42 {
                 match instance {
-                    42 => "Edit",
-                    43 => "Fit",
-                    44 => "Link",
-                    _ => label,
+                    42 => Some("Edit"),
+                    43 => Some("Fit"),
+                    44 => Some("Link"),
+                    _ => None,
                 }
             } else {
-                label
+                None
             };
             action_button(
                 ui,
                 ActionButtonSpec {
                     instance,
-                    label: shown,
+                    label,
+                    compact_label,
                     enabled: true,
                     selected,
                     emphasis: ActionEmphasis::Quiet,
@@ -563,6 +579,80 @@ fn toolbar_story(
             "Camera link A • 256 image pixels per screen point"
         },
         StatusTone::Success,
+        tokens,
+        font_scale,
+        observations,
+    );
+}
+
+fn splitter_story_states() -> [(&'static str, SplitterVisualState); 4] {
+    [
+        (
+            "Hover",
+            SplitterVisualState {
+                hovered: true,
+                ..Default::default()
+            },
+        ),
+        (
+            "Pressed",
+            SplitterVisualState {
+                hovered: true,
+                active: true,
+                focused: false,
+            },
+        ),
+        (
+            "Keyboard focus",
+            SplitterVisualState {
+                focused: true,
+                ..Default::default()
+            },
+        ),
+        (
+            "Active drag",
+            SplitterVisualState {
+                hovered: true,
+                active: true,
+                focused: true,
+            },
+        ),
+    ]
+}
+
+fn splitter_story(
+    ui: &mut egui::Ui,
+    tokens: &DesignTokens,
+    font_scale: f32,
+    observations: &mut Vec<TextLayoutObservation>,
+) {
+    let spacing = ui.spacing().item_spacing.x;
+    let sample_width = ((ui.available_width() - spacing * 3.0) / 4.0).max(48.0);
+    ui.horizontal(|ui| {
+        for (label, state) in splitter_story_states() {
+            ui.allocate_ui_with_layout(
+                egui::vec2(sample_width, 156.0),
+                egui::Layout::top_down(egui::Align::Center),
+                |ui| {
+                    ui.label(label);
+                    let (rect, _) = ui.allocate_exact_size(
+                        egui::vec2(tokens.geometry.minimum_hit_size.0, 128.0),
+                        egui::Sense::hover(),
+                    );
+                    let visual = egui::Rect::from_center_size(
+                        rect.center(),
+                        egui::vec2(polyorama_ui_egui::SPLITTER_VISUAL_WIDTH, rect.height()),
+                    );
+                    paint_splitter(ui.painter(), visual, state, tokens);
+                },
+            );
+        }
+    });
+    status_badge(
+        ui,
+        46,
+        "The live dock derives these same four treatments from pointer, drag and focus state.",
+        StatusTone::Neutral,
         tokens,
         font_scale,
         observations,
@@ -727,10 +817,7 @@ struct DockSceneState {
 
 impl DockSceneState {
     fn new(story: StoryId) -> Self {
-        let root = if matches!(
-            story,
-            StoryId::SplitterHoverActive | StoryId::ReferenceApplicationShell
-        ) {
+        let root = if story == StoryId::ReferenceApplicationShell {
             DockNode::Split {
                 id: DockNodeId(700),
                 axis: SplitAxis::Horizontal,
@@ -745,6 +832,12 @@ impl DockSceneState {
                     tabs: vec![PaneId(5), PaneId(6)],
                     active: 0,
                 }),
+            }
+        } else if story == StoryId::TabsNarrow {
+            DockNode::Tabs {
+                id: DockNodeId(703),
+                tabs: (1..=6).map(PaneId).collect(),
+                active: 3,
             }
         } else {
             DockNode::Tabs {
@@ -874,6 +967,92 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn splitter_story_deterministically_renders_each_declared_interaction_treatment() {
+        assert_eq!(
+            splitter_story_states(),
+            [
+                (
+                    "Hover",
+                    SplitterVisualState {
+                        hovered: true,
+                        active: false,
+                        focused: false,
+                    },
+                ),
+                (
+                    "Pressed",
+                    SplitterVisualState {
+                        hovered: true,
+                        active: true,
+                        focused: false,
+                    },
+                ),
+                (
+                    "Keyboard focus",
+                    SplitterVisualState {
+                        hovered: false,
+                        active: false,
+                        focused: true,
+                    },
+                ),
+                (
+                    "Active drag",
+                    SplitterVisualState {
+                        hovered: true,
+                        active: true,
+                        focused: true,
+                    },
+                ),
+            ]
+        );
+    }
+
+    #[test]
+    fn narrow_tabs_keep_narrow_geometry_under_a_wide_gallery_configuration() {
+        let context = egui::Context::default();
+        let configuration = GalleryConfiguration {
+            width: GalleryWidth::Wide,
+            ..GalleryConfiguration::default()
+        };
+        apply_design_system(&context, configuration.preferences());
+        let tokens = configuration.preferences().tokens(true);
+        let mut dock = DockSceneState::new(StoryId::TabsNarrow);
+        let mut observations = Vec::new();
+        let mut focus_story = None;
+        let mut output = context.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(960.0, 300.0),
+                )),
+                ..Default::default()
+            },
+            |ui| {
+                render_story(
+                    ui,
+                    StoryId::TabsNarrow,
+                    &mut dock,
+                    &tokens,
+                    1.0,
+                    &mut observations,
+                    &mut focus_story,
+                );
+            },
+        );
+        output.textures_delta.clear();
+        assert!(!observations.is_empty());
+        let min_x = observations
+            .iter()
+            .map(|observation| observation.allocated_rect.min_x)
+            .fold(f32::INFINITY, f32::min);
+        let max_x = observations
+            .iter()
+            .map(|observation| observation.allocated_rect.max_x)
+            .fold(f32::NEG_INFINITY, f32::max);
+        assert!(max_x - min_x <= 296.0);
     }
 
     #[test]
