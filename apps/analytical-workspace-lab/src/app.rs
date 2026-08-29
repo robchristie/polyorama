@@ -12,7 +12,8 @@ use polyorama_ui_egui::{
     ActionButtonSpec, ActionEmphasis, ActionId, ActionTarget, DockBehaviour, DockTextContext,
     SemanticUiId, UiNode, UiPreferences, UiRole, UiSnapshot, action_button, application_bar_frame,
     application_bar_height, apply_design_system, audit_text_layouts, consume_action_shortcut,
-    dock_workspace, preferences_control, stage_renderer_maintenance, submit_render_plan,
+    dock_workspace, measured_inline_label, preferences_control, stage_renderer_maintenance,
+    submit_render_plan,
 };
 use serde::{Deserialize, Serialize};
 use tracing::info_span;
@@ -785,8 +786,18 @@ impl eframe::App for AnalyticalWorkspaceApp {
             .exact_size(application_bar_height(&tokens, self.preferences.font_scale))
             .show(root_ui, |ui| {
                 ui.horizontal_centered(|ui| {
-                    ui.strong(
-                        egui::RichText::new(APPLICATION_NAME).color(tokens.colours.text_primary),
+                    let compact_bar = ui.available_width()
+                        < tokens.geometry.minimum_hit_size.0 * 34.0
+                        || self.preferences.font_scale > 1.25;
+                    measured_inline_label(
+                        ui,
+                        1,
+                        APPLICATION_NAME,
+                        polyorama_ui_egui::TextRole::ApplicationTitle,
+                        tokens.geometry.minimum_hit_size.0 * if compact_bar { 4.0 } else { 6.0 },
+                        &tokens,
+                        self.preferences.font_scale,
+                        &mut ui_geometry.text_layouts,
                     );
                     ui.separator();
                     let undo_availability = availability(ActionId::Undo, action_context);
@@ -798,7 +809,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
                             availability: undo_availability.clone(),
                             selected: false,
                             emphasis: ActionEmphasis::Quiet,
-                            compact: false,
+                            compact: compact_bar,
                         },
                         &tokens,
                         self.preferences.font_scale,
@@ -830,7 +841,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
                             availability: redo_availability.clone(),
                             selected: false,
                             emphasis: ActionEmphasis::Quiet,
-                            compact: false,
+                            compact: compact_bar,
                         },
                         &tokens,
                         self.preferences.font_scale,
@@ -862,7 +873,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
                             availability: save_availability.clone(),
                             selected: false,
                             emphasis: ActionEmphasis::Quiet,
-                            compact: false,
+                            compact: compact_bar,
                         },
                         &tokens,
                         self.preferences.font_scale,
@@ -891,7 +902,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
                             availability: reset_availability.clone(),
                             selected: false,
                             emphasis: ActionEmphasis::Quiet,
-                            compact: false,
+                            compact: compact_bar,
                         },
                         &tokens,
                         self.preferences.font_scale,
@@ -920,7 +931,7 @@ impl eframe::App for AnalyticalWorkspaceApp {
                             availability: appearance_availability.clone(),
                             selected: false,
                             emphasis: ActionEmphasis::Quiet,
-                            compact: ui.available_width() < 760.0,
+                            compact: compact_bar,
                         },
                         &tokens,
                         self.preferences.font_scale,
@@ -943,17 +954,55 @@ impl eframe::App for AnalyticalWorkspaceApp {
                         }
                     }
                     ui.separator();
-                    ui.label(egui::RichText::new(&self.status).color(tokens.colours.text_primary));
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.label(
-                            egui::RichText::new(format!(
-                                "{} decoded thumbnails · {} decoding",
-                                self.thumbnail_cache.len(),
-                                self.runtime.metrics.in_flight
-                            ))
-                            .color(tokens.colours.text_muted),
+                    if ui.available_width() > tokens.geometry.minimum_hit_size.0 * 5.0 {
+                        let status_width = (ui.available_width()
+                            - tokens.geometry.minimum_hit_size.0 * 4.0)
+                            .min(tokens.geometry.minimum_hit_size.0 * 7.0);
+                        let status = measured_inline_label(
+                            ui,
+                            2,
+                            &self.status,
+                            polyorama_ui_egui::TextRole::Status,
+                            status_width,
+                            &tokens,
+                            self.preferences.font_scale,
+                            &mut ui_geometry.text_layouts,
                         );
-                    });
+                        let mut node = UiNode::container(
+                            SemanticUiId::new("application.status"),
+                            Some(application_bar_id.clone()),
+                            UiRole::Status,
+                            status.rect.into(),
+                        );
+                        node.name = self.status.clone();
+                        ui_geometry.record_node(node);
+                    }
+                    if ui.available_width() > tokens.geometry.minimum_hit_size.0 * 5.0 {
+                        let worker_status = format!(
+                            "{} decoded thumbnails · {} decoding",
+                            self.thumbnail_cache.len(),
+                            self.runtime.metrics.in_flight
+                        );
+                        let worker_width = ui.available_width();
+                        let response = measured_inline_label(
+                            ui,
+                            3,
+                            &worker_status,
+                            polyorama_ui_egui::TextRole::Secondary,
+                            worker_width,
+                            &tokens,
+                            self.preferences.font_scale,
+                            &mut ui_geometry.text_layouts,
+                        );
+                        let mut node = UiNode::container(
+                            SemanticUiId::new("application.worker_status"),
+                            Some(application_bar_id.clone()),
+                            UiRole::Status,
+                            response.rect.into(),
+                        );
+                        node.name = worker_status;
+                        ui_geometry.record_node(node);
+                    }
                 });
             });
         if preferences_changed {

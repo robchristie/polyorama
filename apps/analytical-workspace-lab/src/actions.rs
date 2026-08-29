@@ -30,7 +30,7 @@ pub fn availability(id: ActionId, context: ActionContext) -> Availability {
                 reason: "The Diagnostics pane is required".into(),
             }
         }
-        ActionId::FitView | ActionId::LinkViews
+        ActionId::FitView | ActionId::LinkViews | ActionId::DisplaySettings
             if !context
                 .target_pane
                 .is_some_and(|pane| (1..=4).contains(&pane.0)) =>
@@ -59,6 +59,7 @@ pub fn availability(id: ActionId, context: ActionContext) -> Availability {
         },
         ActionId::FitView
         | ActionId::LinkViews
+        | ActionId::DisplaySettings
         | ActionId::NavigateTool
         | ActionId::PolygonTool
         | ActionId::EditVerticesTool

@@ -235,6 +235,7 @@ try {
       || initialSemantic.ui_snapshot.nodes.length >= 1_000
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('undo'))
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('appearance_settings'))
+      || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('display_settings') && node.pane === 1)
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('fit_view') && node.pane === 1)
       || initialSemantic.ui_geometry.tabs.length !== 8
       || initialSemantic.ui_geometry.image_viewports.length < 4
@@ -261,6 +262,24 @@ try {
       || initialSemantic.runtime.external_queue_high_water > initialSemantic.runtime.external_queue_capacity) {
     throw new Error(`runtime exceeded a configured bound: ${JSON.stringify(initialSemantic.runtime)}`);
   }
+  await clickTarget({ kind: 'action', action: 'display_settings', pane: 1 });
+  await page.waitForFunction(() => {
+    const nodes = window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes;
+    return nodes.some((node) => node.id === 'pane.1.display_map' && node.role === 'combo_box')
+      && nodes.some((node) => node.id === 'pane.1.display_low' && node.role === 'slider')
+      && nodes.some((node) => node.id === 'pane.1.display_high' && node.role === 'slider');
+  }, null, { timeout: 10_000 });
+  const displayMenu = await semanticSnapshot();
+  const displayNodes = displayMenu.ui_snapshot.nodes
+    .filter((node) => node.id.startsWith('pane.1.display_'));
+  if (displayNodes.length !== 3
+      || displayMenu.ui_snapshot.semantic_audit.length !== 0
+      || displayNodes.some((node) => node.rect.max_x <= node.rect.min_x
+        || node.rect.max_y <= node.rect.min_y)) {
+    throw new Error(`image display controls are incomplete: ${JSON.stringify(displayNodes)}`);
+  }
+  await page.screenshot({ path: join(evidenceRoot, 'browser-display-controls.png') });
+  await page.keyboard.press('Escape');
   await clickTarget({ kind: 'action', action: 'appearance_settings' });
   await page.waitForFunction(() => {
     const nodes = window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes;

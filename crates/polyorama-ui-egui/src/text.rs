@@ -205,6 +205,8 @@ pub enum TextComponentKind {
     DiagnosticRow,
     SectionHeading,
     ContentLabel,
+    ApplicationBarLabel,
+    ImageStatus,
     GalleryHeading,
     TextSample,
 }

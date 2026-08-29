@@ -55,6 +55,51 @@ pub fn measured_content_label(
     response
 }
 
+/// Paint one measured, single-line label within an explicit chrome width.
+/// The caller owns responsive allocation; the component owns truncation and
+/// retains the complete text in widget semantics and its hover completion.
+#[allow(clippy::too_many_arguments)]
+pub fn measured_inline_label(
+    ui: &mut egui::Ui,
+    instance: u64,
+    text: &str,
+    role: TextRole,
+    maximum_width: f32,
+    tokens: &DesignTokens,
+    font_scale: f32,
+    observations: &mut Vec<TextLayoutObservation>,
+) -> egui::Response {
+    let line_height = role.style(tokens, font_scale).font_id.size * tokens.typography.line_height.0;
+    let size = egui::vec2(
+        maximum_width.max(tokens.geometry.minimum_hit_size.0),
+        line_height.max(tokens.geometry.minimum_hit_size.0),
+    );
+    let (rect, response) = ui.allocate_exact_size(size, egui::Sense::hover());
+    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Label, true, text));
+    let spec = TextSpec::single_line(role, TextOverflow::Ellipsis);
+    if let Ok(measured) = measure_text(
+        ui.painter(),
+        text,
+        spec,
+        tokens,
+        font_scale,
+        rect.width().max(0.5),
+    ) {
+        let truncated = measured.truncated();
+        observations.push(paint_measured_text(
+            &ui.painter_at(rect),
+            &measured,
+            rect,
+            TextComponentId::new(TextComponentKind::ApplicationBarLabel, instance),
+            None,
+        ));
+        if truncated {
+            response.clone().on_hover_text(text);
+        }
+    }
+    response
+}
+
 /// One measured, single-line section heading with complete label semantics.
 /// The visible text elides at the pane edge and the full value remains in the
 /// widget label and truncation tooltip.

@@ -89,6 +89,7 @@ pub enum UiRole {
     Toolbar,
     Button,
     RadioButton,
+    ComboBox,
     Slider,
     Tab,
     Splitter,
@@ -307,6 +308,7 @@ pub fn audit_accesskit(
             node.role,
             UiRole::Button
                 | UiRole::RadioButton
+                | UiRole::ComboBox
                 | UiRole::Slider
                 | UiRole::Tab
                 | UiRole::Splitter
@@ -330,6 +332,7 @@ pub fn audit_accesskit(
         let expected_role = match semantic.role {
             UiRole::Button => egui::accesskit::Role::Button,
             UiRole::RadioButton => egui::accesskit::Role::RadioButton,
+            UiRole::ComboBox => egui::accesskit::Role::ComboBox,
             UiRole::Slider => egui::accesskit::Role::Slider,
             UiRole::Tab => egui::accesskit::Role::Tab,
             UiRole::Splitter => egui::accesskit::Role::Splitter,
