@@ -4,11 +4,16 @@ export function hostedLinuxWebGpuLaunchOptions() {
     '--no-sandbox',
     '--enable-unsafe-webgpu',
     '--use-webgpu-adapter=swiftshader',
+    '--enable-dawn-features=allow_unsafe_apis',
+    '--disable-dawn-features=use_dxc',
+    '--enable-webgpu-developer-features',
     '--use-gpu-in-tests',
-    '--use-gl=angle',
-    '--use-angle=swiftshader',
+    '--enable-accelerated-2d-canvas',
+    '--enable-gpu-rasterization',
+    '--use-vulkan=swiftshader',
+    '--disable-vulkan-fallback-to-gl-for-testing',
     '--enable-unsafe-swiftshader',
-    '--enable-features=CDPScreenshotNewSurface',
+    '--enable-features=Vulkan,CDPScreenshotNewSurface',
   ];
   if (!headless) args.push('--ozone-platform=x11');
   return { headless, args };
