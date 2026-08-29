@@ -258,11 +258,13 @@ try {
     return semanticSnapshot();
   };
   const semanticAction = async (action) => {
-    const before = await semanticSnapshot();
-    await page.evaluate((value) => window.__POLYORAMA_HANDLE.test_action(value), action);
+    const applied = await page.evaluate(
+      (value) => window.__POLYORAMA_HANDLE.test_action(value),
+      action,
+    );
     await page.waitForFunction(
       (frame) => window.__POLYORAMA_HANDLE.test_snapshot().frame_number > frame,
-      before.frame_number,
+      applied.frame_number,
       { timeout: 10_000 },
     );
     return semanticSnapshot();
@@ -343,9 +345,25 @@ try {
   await page.screenshot({ path: join(evidenceRoot, 'browser-appearance-controls.png') });
   await page.keyboard.press('Escape');
 
-  const cameraSemantic = await semanticAction({
+  await semanticAction({
     kind: 'set_camera', pane: 1, centre_x: 32768, centre_y: 24576, pixels_per_screen_point: 8,
   });
+  await page.waitForFunction(() => {
+    const snapshot = window.__POLYORAMA_HANDLE.test_snapshot();
+    const primary = snapshot.cameras.find((item) => item.pane === 1)?.camera;
+    const linked = snapshot.cameras.find((item) => item.pane === 2)?.camera;
+    const primaryRender = snapshot.render_cameras.find((item) => item.pane === 1)?.camera;
+    const linkedRender = snapshot.render_cameras.find((item) => item.pane === 2)?.camera;
+    const expected = JSON.stringify({
+      centre: { x: 32768, y: 24576 },
+      pixels_per_screen_point: 8,
+    });
+    return JSON.stringify(primary) === expected
+      && JSON.stringify(linked) === expected
+      && JSON.stringify(primaryRender) === expected
+      && JSON.stringify(linkedRender) === expected;
+  }, null, { timeout: 10_000 });
+  const cameraSemantic = await semanticSnapshot();
   const primarySemantic = cameraSemantic.cameras.find((item) => item.pane === 1);
   const linkedSemantic = cameraSemantic.cameras.find((item) => item.pane === 2);
   const primaryRender = cameraSemantic.render_cameras.find((item) => item.pane === 1);
