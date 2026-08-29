@@ -6,12 +6,14 @@ mod components;
 mod generated_tokens;
 mod preferences;
 mod responsive;
+mod style;
 mod text;
 
 pub use components::*;
 pub use generated_tokens::*;
 pub use preferences::*;
 pub use responsive::*;
+pub use style::*;
 pub use text::*;
 pub use virtual_grid::*;
 
