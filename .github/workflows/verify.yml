@@ -12,6 +12,8 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
+    env:
+      POLYORAMA_USE_SYSTEM_UI_LIBS: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -28,12 +30,6 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Restore Linux UI bootstrap packages
-        uses: actions/cache@v4
-        with:
-          path: .tools/packages
-          key: linux-ui-packages-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/bootstrap-linux-ui.sh') }}
-
       - name: Restore wasm-bindgen CLI
         uses: actions/cache@v4
         with:
@@ -43,8 +39,7 @@ jobs:
       - name: Install Linux UI prerequisites
         run: |
           sudo apt-get update
-          sudo apt-get install --yes bubblewrap imagemagick jq libarchive-tools
-          sudo ln -sf /usr/bin/bash /opt/bash
+          sudo apt-get install --yes imagemagick jq libgl1-mesa-dri mesa-vulkan-drivers xdotool xvfb
           npm ci
           npx playwright install --with-deps chromium
 

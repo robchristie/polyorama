@@ -2,6 +2,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ "${POLYORAMA_USE_SYSTEM_UI_LIBS:-0}" == "1" ]]; then
+  echo "using system Linux UI libraries"
+  exit 0
+fi
+
 PACKAGES="$ROOT/.tools/packages"
 SYSROOT="$ROOT/.tools/sysroot"
 mkdir -p "$PACKAGES" "$SYSROOT"

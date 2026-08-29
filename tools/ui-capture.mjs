@@ -73,10 +73,12 @@ async function launchBrowser() {
   browserProcess = spawn(headlessShell, [
     ...flags, '--remote-debugging-port=0', `--user-data-dir=${browserProfile}`, 'about:blank',
   ], {
-    env: {
-      ...process.env,
-      LD_LIBRARY_PATH: `${join(repositoryRoot, '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}`,
-    },
+    env: process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1'
+      ? process.env
+      : {
+        ...process.env,
+        LD_LIBRARY_PATH: `${join(repositoryRoot, '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}`,
+      },
     stdio: ['ignore', 'ignore', 'pipe'],
   });
   const cdpEndpoint = await new Promise((resolve, reject) => {

@@ -35,6 +35,9 @@ const headlessShell = process.env.POLYORAMA_CHROMIUM ?? join(
   'chrome-headless-shell',
 );
 const browserProfile = await mkdtemp(join(tmpdir(), 'polyorama-browser-'));
+const browserEnvironment = process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1'
+  ? process.env
+  : { ...process.env, LD_LIBRARY_PATH: `${join(process.cwd(), '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}` };
 const browserProcess = spawn(headlessShell, [
   '--headless',
   '--no-sandbox',
@@ -46,7 +49,7 @@ const browserProcess = spawn(headlessShell, [
   '--disable-vulkan-surface',
   'about:blank',
 ], {
-  env: { ...process.env, LD_LIBRARY_PATH: `${join(process.cwd(), '.tools/sysroot/usr/lib')}:${process.env.LD_LIBRARY_PATH ?? ''}` },
+  env: browserEnvironment,
   stdio: ['ignore', 'ignore', 'pipe'],
 });
 const cdpEndpoint = await new Promise((resolve, reject) => {
