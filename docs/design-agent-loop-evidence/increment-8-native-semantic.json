@@ -4858,7 +4858,7 @@
         "parent": "pane.1",
         "role": "status",
         "name": "Image coordinates and tile level",
-        "description": null,
+        "description": "image      0.0,      0.0  ·  world   500000.0,  7000000.0; L8 · 5 tiles",
         "rect": {
           "min_x": 0.0,
           "min_y": 589.65625,
@@ -5142,7 +5142,7 @@
         "parent": "pane.2",
         "role": "status",
         "name": "Image coordinates and tile level",
-        "description": null,
+        "description": "image  50948.0,  91564.0  ·  world   601896.0,  6816872.0; L8 · 5 tiles",
         "rect": {
           "min_x": 519.65625,
           "min_y": 589.65625,
@@ -5370,7 +5370,7 @@
         "parent": "pane.3",
         "role": "status",
         "name": "Image coordinates and tile level",
-        "description": null,
+        "description": "image      0.0,      0.0  ·  world   500000.0,  7000000.0; L8 · 5 tiles",
         "rect": {
           "min_x": 0.0,
           "min_y": 868.0,
@@ -5573,7 +5573,7 @@
         "parent": "pane.4",
         "role": "status",
         "name": "Image coordinates and tile level",
-        "description": null,
+        "description": "image      0.0,      0.0  ·  world   500000.0,  7000000.0; L8 · 5 tiles",
         "rect": {
           "min_x": 519.65625,
           "min_y": 868.0,
@@ -6216,49 +6216,49 @@
     "before": [
       {
         "centre": {
-          "x": 56604.27476848456,
-          "y": 62725.9987501577
+          "x": 56604.27479782718,
+          "y": 62725.99875938915
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       },
       {
         "centre": {
-          "x": 56604.27476848456,
-          "y": 62725.9987501577
+          "x": 56604.27479782718,
+          "y": 62725.99875938915
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       }
     ],
     "after": [
       {
         "centre": {
-          "x": 43959.655114721965,
-          "y": 55701.210053622926
+          "x": 43959.655109913554,
+          "y": 55701.210043881576
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       },
       {
         "centre": {
-          "x": 43959.655114721965,
-          "y": 55701.210053622926
+          "x": 43959.655109913554,
+          "y": 55701.210043881576
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       }
     ],
     "undo_restored": [
       {
         "centre": {
-          "x": 56604.27476848456,
-          "y": 62725.9987501577
+          "x": 56604.27479782718,
+          "y": 62725.99875938915
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       },
       {
         "centre": {
-          "x": 56604.27476848456,
-          "y": 62725.9987501577
+          "x": 56604.27479782718,
+          "y": 62725.99875938915
         },
-        "pixels_per_screen_point": 140.4957739306955
+        "pixels_per_screen_point": 140.49577431015143
       }
     ],
     "undo_depth_before": 1,
@@ -6313,11 +6313,11 @@
       ],
       "thumbnail_columns": 4,
       "thumbnail_total_rows": 25000,
-      "thumbnail_scroll_offset_y": 400.0001,
+      "thumbnail_scroll_offset_y": 400.00006,
       "thumbnail_content_height": 2274995.0,
       "thumbnail_viewport_height": 391.1875,
-      "thumbnail_wheel_input_frames": 92,
-      "thumbnail_wheel_delta_y": -400.0001,
+      "thumbnail_wheel_input_frames": 77,
+      "thumbnail_wheel_delta_y": -400.00006,
       "resident_thumbnails": 48,
       "thumbnail_cache_bytes": 786432
     },

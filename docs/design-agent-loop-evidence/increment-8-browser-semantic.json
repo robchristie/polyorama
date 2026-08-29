@@ -3738,7 +3738,68 @@
       "application.bar.preferences.font_scale.value",
       "application.bar.preferences.motion.full",
       "application.bar.preferences.motion.reduced"
+    ],
+    "actions": [
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ],
+      [
+        "appearance_settings"
+      ]
     ]
+  },
+  "display_controls": {
+    "action": "display_settings",
+    "nodes": [
+      {
+        "id": "pane.1.display_map",
+        "role": "combo_box",
+        "actions": [
+          "display_settings"
+        ]
+      },
+      {
+        "id": "pane.1.display_low",
+        "role": "slider",
+        "actions": [
+          "display_settings"
+        ]
+      },
+      {
+        "id": "pane.1.display_high",
+        "role": "slider",
+        "actions": [
+          "display_settings"
+        ]
+      }
+    ]
+  },
+  "viewport_status": {
+    "description": "image      0.0,      0.0  ·  world   500000.0,  7000000.0; L8 · 5 tiles"
   },
   "linked_camera_and_render_plan": {
     "cameras": [
@@ -3941,8 +4002,8 @@
       "in_flight": 0,
       "residency_rejected": 0
     },
-    "frame_before_idle": 60,
-    "frame_after_idle": 60
+    "frame_before_idle": 59,
+    "frame_after_idle": 59
   },
   "physical_pan": {
     "pointer_delta": {
@@ -4687,11 +4748,11 @@
       ],
       "thumbnail_columns": 4,
       "thumbnail_total_rows": 25000,
-      "thumbnail_scroll_offset_y": 1500,
+      "thumbnail_scroll_offset_y": 1499.9998779296875,
       "thumbnail_content_height": 2274995,
       "thumbnail_viewport_height": 391.1875,
       "thumbnail_wheel_input_frames": 37,
-      "thumbnail_wheel_delta_y": -1500,
+      "thumbnail_wheel_delta_y": -1499.9998779296875,
       "resident_thumbnails": 96,
       "thumbnail_cache_bytes": 1572864
     },
@@ -4769,6 +4830,13 @@
       "font_scale": 1.5,
       "motion": "reduced"
     },
+    "physical_controls": [
+      "appearance.light",
+      "contrast.high",
+      "density.compact",
+      "font_scale.1.5",
+      "motion.reduced"
+    ],
     "repaint_reason": "recorded in diagnostics",
     "restored": {
       "schema_version": 1,
@@ -4780,8 +4848,8 @@
     }
   },
   "warmed_idle": {
-    "frame_before": 346,
-    "frame_after": 346,
+    "frame_before": 396,
+    "frame_after": 396,
     "deliberate_continuous_repaint": false
   },
   "worker_unavailable": {
@@ -4792,7 +4860,7 @@
     "in_flight": 0,
     "external_queue": 0,
     "browser_credits_in_use": 0,
-    "frame_before_idle": 8,
-    "frame_after_idle": 8
+    "frame_before_idle": 9,
+    "frame_after_idle": 9
   }
 }
