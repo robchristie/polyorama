@@ -219,15 +219,20 @@ try {
     await page.mouse.click(point.x, point.y, options);
   };
   const preferenceNodeId = (field, value) => `application.bar.preferences.${field}.${value}`;
-  const ensureAppearanceOpen = async () => {
+  const openFreshAppearance = async () => {
     const open = await page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot()
       .ui_snapshot.nodes.some((node) => node.id === 'application.bar.preferences.appearance.light'));
-    if (!open) await clickTarget({ kind: 'action', action: 'appearance_settings' });
+    if (open) {
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes
+        .some((node) => node.id === 'application.bar.preferences.appearance.light'), null, { timeout: 10_000 });
+    }
+    await clickTarget({ kind: 'action', action: 'appearance_settings' });
     await page.waitForFunction(() => window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes
       .some((node) => node.id === 'application.bar.preferences.appearance.light'), null, { timeout: 10_000 });
   };
   const choosePreference = async (field, value) => {
-    await ensureAppearanceOpen();
+    await openFreshAppearance();
     await clickTarget({ kind: 'semantic_id', id: preferenceNodeId(field, value) });
     await page.waitForFunction(
       ({ field, value }) => window.__POLYORAMA_HANDLE.test_snapshot().preferences[field] === value,
@@ -237,7 +242,7 @@ try {
     return semanticSnapshot();
   };
   const chooseFontScale = async (value) => {
-    await ensureAppearanceOpen();
+    await openFreshAppearance();
     const id = preferenceNodeId('font_scale', 'value');
     const start = await targetPoint({ kind: 'semantic_id', id }, 0.15, 0.5);
     const end = await targetPoint({ kind: 'semantic_id', id }, value === 1.5 ? 0.99 : 0.01, 0.5);
