@@ -58,8 +58,11 @@ async function launchBrowser() {
     '--use-angle=vulkan', '--disable-vulkan-surface',
   ];
   if (process.platform !== 'linux' || process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
-    const launchFlags = process.platform === 'linux' ? flags.slice(1) : flags.slice(2);
-    browser = await chromium.launch({ headless: true, args: launchFlags });
+    const headless = process.env.POLYORAMA_BROWSER_HEADFUL !== '1';
+    const launchFlags = (process.platform === 'linux' ? flags.slice(1) : flags.slice(2))
+      .filter((flag) => headless || flag !== '--disable-vulkan-surface');
+    if (!headless && process.platform === 'linux') launchFlags.push('--ozone-platform=x11');
+    browser = await chromium.launch({ headless, args: launchFlags });
     return;
   }
   const installedChromium = chromium.executablePath();

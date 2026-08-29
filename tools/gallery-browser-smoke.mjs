@@ -43,7 +43,12 @@ let browser;
 let browserProcess;
 let browserProfile;
 if (process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
-  browser = await chromium.launch({ headless: true, args: browserFlags.slice(1) });
+  const headless = process.env.POLYORAMA_BROWSER_HEADFUL !== '1';
+  const launchFlags = browserFlags
+    .slice(1)
+    .filter((flag) => headless || flag !== '--disable-vulkan-surface');
+  if (!headless) launchFlags.push('--ozone-platform=x11');
+  browser = await chromium.launch({ headless, args: launchFlags });
 } else {
   browserProfile = await mkdtemp(join(tmpdir(), 'polyorama-gallery-browser-'));
   browserProcess = spawn(headlessShell, [
