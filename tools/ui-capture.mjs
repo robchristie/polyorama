@@ -5,6 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, join, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
 import { chromium } from 'playwright';
+import { hostedLinuxWebGpuLaunchOptions } from './browser-launch.mjs';
 
 const requestFlag = process.argv.indexOf('--request');
 if (requestFlag < 0 || !process.argv[requestFlag + 1]) {
@@ -57,12 +58,14 @@ async function launchBrowser() {
     '--enable-features=Vulkan,CDPScreenshotNewSurface',
     '--use-angle=vulkan', '--disable-vulkan-surface',
   ];
-  if (process.platform !== 'linux' || process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
+  if (process.platform !== 'linux') {
     const headless = process.env.POLYORAMA_BROWSER_HEADFUL !== '1';
-    const launchFlags = (process.platform === 'linux' ? flags.slice(1) : flags.slice(2))
-      .filter((flag) => headless || flag !== '--disable-vulkan-surface');
-    if (!headless && process.platform === 'linux') launchFlags.push('--ozone-platform=x11');
+    const launchFlags = flags.slice(2);
     browser = await chromium.launch({ headless, args: launchFlags });
+    return;
+  }
+  if (process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
+    browser = await chromium.launch(hostedLinuxWebGpuLaunchOptions());
     return;
   }
   const installedChromium = chromium.executablePath();

@@ -5,6 +5,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, dirname, extname, join, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
 import { chromium } from 'playwright';
+import { hostedLinuxWebGpuLaunchOptions } from './browser-launch.mjs';
 
 const root = normalize(join(process.cwd(), 'apps/analytical-workspace-lab/web'));
 const evidenceRoot = normalize(process.env.POLYORAMA_EVIDENCE_DIR
@@ -46,12 +47,7 @@ let browser;
 let browserProcess;
 let browserProfile;
 if (process.env.POLYORAMA_USE_SYSTEM_UI_LIBS === '1') {
-  const headless = process.env.POLYORAMA_BROWSER_HEADFUL !== '1';
-  const launchFlags = browserFlags
-    .slice(1)
-    .filter((flag) => headless || flag !== '--disable-vulkan-surface');
-  if (!headless) launchFlags.push('--ozone-platform=x11');
-  browser = await chromium.launch({ headless, args: launchFlags });
+  browser = await chromium.launch(hostedLinuxWebGpuLaunchOptions());
 } else {
   browserProfile = await mkdtemp(join(tmpdir(), 'polyorama-browser-'));
   browserProcess = spawn(headlessShell, [
