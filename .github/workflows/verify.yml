@@ -18,6 +18,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.97.1
         with:
           targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
 
       - uses: Swatinem/rust-cache@v2
 
@@ -51,7 +52,10 @@ jobs:
         run: command -v wasm-bindgen || cargo install --locked wasm-bindgen-cli --version 0.2.127
 
       - name: Verify
-        run: cargo xtask verify
+        run: |
+          mkdir -p .tools/runtime/verification-evidence
+          set -o pipefail
+          cargo xtask verify 2>&1 | tee .tools/runtime/verification-evidence/cargo-xtask-verify.log
 
       - name: Upload verification evidence
         if: ${{ failure() }}
