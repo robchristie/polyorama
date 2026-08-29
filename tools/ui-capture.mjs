@@ -217,12 +217,6 @@ try {
   await page.waitForTimeout(200);
   const snapshot = await page.evaluate(() => window.__POLYORAMA_GALLERY_HANDLE.snapshot());
   if (snapshot.story !== fixture.story) throw new Error(`story did not settle to ${fixture.story}`);
-  if (snapshot.text_audit.length || snapshot.ui_snapshot.semantic_audit.length) {
-    throw new Error(`fixture audits are not empty: ${JSON.stringify({
-      text: snapshot.text_audit,
-      semantic: snapshot.ui_snapshot.semantic_audit,
-    })}`);
-  }
   if (runtimeErrors.length) throw new Error(runtimeErrors.join('\n'));
 
   const metadata = {

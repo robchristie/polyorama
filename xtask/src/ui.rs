@@ -13,6 +13,7 @@ use serde_json::{Value, json};
 const FIXTURE_MANIFEST: &str = "docs/ui-snapshots/fixtures.json";
 const EXPECTED_ROOT: &str = "docs/ui-snapshots/expected";
 const SCHEMA_VERSION: u32 = 1;
+const OUTPUT_MARKER: &str = ".polyorama-ui-output-v1";
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -58,24 +59,31 @@ struct VisualDiff {
 pub fn run(root: &Path, arguments: Vec<String>) -> Result<()> {
     let arguments = parse_arguments(arguments)?;
     let manifest = load_manifest(root)?;
-    fs::create_dir_all(&arguments.output_directory).with_context(|| {
-        format!(
-            "create UI evidence directory {}",
-            arguments.output_directory.display()
-        )
-    })?;
+    if arguments.action != "verify" {
+        recreate_owned_directory(root, &arguments.output_directory)?;
+    }
 
     match arguments.action.as_str() {
         "list" => list(&manifest, &arguments.output_directory),
         "render" | "inspect" => {
             let fixture = selected_fixture(&manifest, arguments.fixture.as_deref())?;
-            capture(root, fixture, &arguments.output_directory, None)?;
-            write_summary(
-                &arguments.output_directory,
-                &arguments.action,
-                "passed",
-                json!({ "fixture": fixture.id }),
-            )
+            match capture(root, fixture, &arguments.output_directory, None) {
+                Ok(()) => write_summary(
+                    &arguments.output_directory,
+                    &arguments.action,
+                    "passed",
+                    json!({ "fixture": fixture.id }),
+                ),
+                Err(error) => {
+                    write_summary(
+                        &arguments.output_directory,
+                        &arguments.action,
+                        "failed",
+                        json!({ "fixture": fixture.id, "error": format!("{error:#}") }),
+                    )?;
+                    Err(error)
+                }
+            }
         }
         "audit-text" => audit_text(root, &manifest, &arguments),
         "verify" => verify(root, &arguments.output_directory),
@@ -88,43 +96,119 @@ pub fn run(root: &Path, arguments: Vec<String>) -> Result<()> {
 pub fn verify(root: &Path, output_directory: &Path) -> Result<()> {
     let manifest = load_manifest(root)?;
     validate_evaluation_seed(root)?;
-    validate_expected_fixture_set(root, &manifest)?;
+    recreate_owned_directory(root, output_directory)?;
     let captures = output_directory.join("captures");
     let failures = output_directory.join("failures");
-    recreate_directory(&captures)?;
-    recreate_directory(&failures)?;
+    recreate_owned_directory(root, &captures)?;
+    recreate_owned_directory(root, &failures)?;
 
     let mut failure_ids = Vec::new();
     for fixture in &manifest.fixtures {
         let actual = captures.join(&fixture.id);
         let expected = root.join(EXPECTED_ROOT).join(&fixture.id);
         let expected_visual = expected.join("visual.png");
-        if !expected.is_dir() {
+        let expected_visual = expected_visual.is_file().then_some(expected_visual);
+
+        if let Err(error) = capture(root, fixture, &actual, expected_visual.as_deref()) {
             failure_ids.push(fixture.id.clone());
-            write_missing_baseline_failure(&failures, fixture)?;
+            write_unavailable_failure_bundle(
+                root,
+                &failures.join(&fixture.id),
+                fixture,
+                &expected,
+                &actual,
+                "capture_failed",
+                &format!("{error:#}"),
+            )?;
             continue;
         }
 
-        capture(root, fixture, &actual, Some(&expected_visual))?;
-        let mut fixture_failed = false;
-        let failure = failures.join(&fixture.id);
-        for name in ["metadata.json", "semantic.json", "text.json"] {
-            let expected_value = read_json(&expected.join(name))?;
-            let actual_value = read_json(&actual.join(name))?;
-            if expected_value != actual_value {
-                fixture_failed = true;
+        if !has_complete_evidence(&expected) {
+            failure_ids.push(fixture.id.clone());
+            write_unavailable_failure_bundle(
+                root,
+                &failures.join(&fixture.id),
+                fixture,
+                &expected,
+                &actual,
+                "missing_checked_in_baseline",
+                "Checked-in expected evidence is incomplete. Verification never creates or updates baselines.",
+            )?;
+            continue;
+        }
+
+        let comparison = (|| -> Result<(bool, VisualDiff)> {
+            let mut failed = false;
+            for name in ["metadata.json", "semantic.json", "text.json"] {
+                if read_json(&expected.join(name))? != read_json(&actual.join(name))? {
+                    failed = true;
+                }
+            }
+            let semantic = read_json(&actual.join("semantic.json"))?;
+            let text = read_json(&actual.join("text.json"))?;
+            if has_findings(&semantic, "semantic_audit")? || has_findings(&text, "audit")? {
+                failed = true;
+            }
+            let visual_diff: VisualDiff =
+                serde_json::from_value(read_json(&actual.join("visual-diff.json"))?)?;
+            if !visual_diff.dimensions_equal || visual_diff.differing_pixels != 0 {
+                failed = true;
+            }
+            Ok((failed, visual_diff))
+        })();
+
+        match comparison {
+            Ok((false, _)) => {}
+            Ok((true, visual_diff)) => {
+                failure_ids.push(fixture.id.clone());
+                populate_failure_bundle(
+                    root,
+                    &failures.join(&fixture.id),
+                    &expected,
+                    &actual,
+                    &visual_diff,
+                )?;
+            }
+            Err(error) => {
+                failure_ids.push(fixture.id.clone());
+                write_unavailable_failure_bundle(
+                    root,
+                    &failures.join(&fixture.id),
+                    fixture,
+                    &expected,
+                    &actual,
+                    "comparison_failed",
+                    &format!("{error:#}"),
+                )?;
             }
         }
-        let visual_diff: VisualDiff =
-            serde_json::from_value(read_json(&actual.join("visual-diff.json"))?)?;
-        if !visual_diff.dimensions_equal || visual_diff.differing_pixels != 0 {
-            fixture_failed = true;
-        }
-        if fixture_failed {
-            failure_ids.push(fixture.id.clone());
-            populate_failure_bundle(&failure, &expected, &actual, &visual_diff)?;
-        }
     }
+
+    let (unexpected_baselines, inventory_error) =
+        match unexpected_expected_fixtures(root, &manifest) {
+            Ok(unexpected) => {
+                if !unexpected.is_empty() {
+                    failure_ids.extend(
+                        unexpected
+                            .iter()
+                            .map(|id| format!("unexpected-baseline:{id}")),
+                    );
+                    write_inventory_failure(root, &failures, &unexpected)?;
+                }
+                (unexpected, None)
+            }
+            Err(error) => {
+                let error = format!("{error:#}");
+                failure_ids.push("baseline-inventory".into());
+                write_global_failure_bundle(
+                    root,
+                    &failures.join("baseline-inventory"),
+                    "baseline_inventory_failed",
+                    &error,
+                )?;
+                (BTreeSet::new(), Some(error))
+            }
+        };
 
     let status = if failure_ids.is_empty() {
         "passed"
@@ -138,6 +222,8 @@ pub fn verify(root: &Path, output_directory: &Path) -> Result<()> {
         json!({
             "fixture_count": manifest.fixtures.len(),
             "failed_fixtures": failure_ids,
+            "unexpected_baselines": unexpected_baselines,
+            "baseline_inventory_error": inventory_error,
             "baseline_updates_allowed": false
         }),
     )?;
@@ -320,30 +406,30 @@ fn validate_evaluation_seed(root: &Path) -> Result<()> {
     Ok(())
 }
 
-fn validate_expected_fixture_set(root: &Path, manifest: &FixtureManifest) -> Result<()> {
+fn unexpected_expected_fixtures(
+    root: &Path,
+    manifest: &FixtureManifest,
+) -> Result<BTreeSet<String>> {
     let expected_root = root.join(EXPECTED_ROOT);
     let expected_ids = fs::read_dir(&expected_root)
         .with_context(|| format!("read expected UI snapshots {}", expected_root.display()))?
-        .filter_map(|entry| entry.ok())
-        .filter_map(|entry| {
-            entry
-                .file_type()
-                .ok()
-                .filter(|file_type| file_type.is_dir())
-                .map(|_| entry.file_name().to_string_lossy().into_owned())
+        .map(|entry| -> Result<Option<String>> {
+            let entry = entry?;
+            Ok(entry
+                .file_type()?
+                .is_dir()
+                .then(|| entry.file_name().to_string_lossy().into_owned()))
         })
+        .collect::<Result<Vec<_>>>()?
+        .into_iter()
+        .flatten()
         .collect::<BTreeSet<_>>();
     let fixture_ids = manifest
         .fixtures
         .iter()
         .map(|fixture| fixture.id.clone())
         .collect::<BTreeSet<_>>();
-    if expected_ids != fixture_ids {
-        bail!(
-            "expected UI snapshot directories do not match the fixture manifest: expected={expected_ids:?}, fixtures={fixture_ids:?}"
-        );
-    }
-    Ok(())
+    Ok(expected_ids.difference(&fixture_ids).cloned().collect())
 }
 
 fn selected_fixture<'a>(manifest: &'a FixtureManifest, id: Option<&str>) -> Result<&'a UiFixture> {
@@ -374,26 +460,22 @@ fn audit_text(root: &Path, manifest: &FixtureManifest, arguments: &UiArguments) 
         vec![selected_fixture(manifest, arguments.fixture.as_deref())?]
     };
     let mut failed = Vec::new();
+    let mut errors = Vec::new();
     for fixture in &fixtures {
         let output = arguments.output_directory.join(&fixture.id);
-        capture(root, fixture, &output, None)?;
-        let text = read_json(&output.join("text.json"))?;
-        let semantic = read_json(&output.join("semantic.json"))?;
-        let text_findings = text
-            .get("audit")
-            .and_then(Value::as_array)
-            .ok_or_else(|| anyhow!("text capture for {:?} has no audit array", fixture.id))?;
-        let semantic_findings = semantic
-            .get("semantic_audit")
-            .and_then(Value::as_array)
-            .ok_or_else(|| {
-                anyhow!(
-                    "semantic capture for {:?} has no semantic_audit array",
-                    fixture.id
-                )
-            })?;
-        if !text_findings.is_empty() || !semantic_findings.is_empty() {
-            failed.push(fixture.id.clone());
+        let result = (|| -> Result<bool> {
+            capture(root, fixture, &output, None)?;
+            let text = read_json(&output.join("text.json"))?;
+            let semantic = read_json(&output.join("semantic.json"))?;
+            Ok(has_findings(&text, "audit")? || has_findings(&semantic, "semantic_audit")?)
+        })();
+        match result {
+            Ok(false) => {}
+            Ok(true) => failed.push(fixture.id.clone()),
+            Err(error) => {
+                failed.push(fixture.id.clone());
+                errors.push(json!({ "fixture": fixture.id, "error": format!("{error:#}") }));
+            }
         }
     }
     let status = if failed.is_empty() {
@@ -405,7 +487,11 @@ fn audit_text(root: &Path, manifest: &FixtureManifest, arguments: &UiArguments) 
         &arguments.output_directory,
         "audit-text",
         status,
-        json!({ "fixture_count": fixtures.len(), "failed_fixtures": failed }),
+        json!({
+            "fixture_count": fixtures.len(),
+            "failed_fixtures": failed,
+            "capture_errors": errors
+        }),
     )?;
     if status == "failed" {
         bail!("UI text or semantic audit failed")
@@ -419,7 +505,7 @@ fn capture(
     output_directory: &Path,
     expected_visual: Option<&Path>,
 ) -> Result<()> {
-    recreate_directory(output_directory)?;
+    recreate_owned_directory(root, output_directory)?;
     let request = json!({
         "schema_version": SCHEMA_VERSION,
         "fixture": fixture,
@@ -452,11 +538,13 @@ fn capture(
 }
 
 fn populate_failure_bundle(
+    root: &Path,
     failure: &Path,
     expected: &Path,
     actual: &Path,
     visual_diff: &VisualDiff,
 ) -> Result<()> {
+    recreate_owned_directory(root, failure)?;
     for side in ["expected", "actual"] {
         fs::create_dir_all(failure.join(side))?;
     }
@@ -493,27 +581,150 @@ fn populate_failure_bundle(
     copy_directory(&actual.join("logs"), &failure.join("logs"))?;
     write_json(
         &failure.join("summary.json"),
-        &json!({ "schema_version": SCHEMA_VERSION, "status": "failed" }),
+        &json!({
+            "schema_version": SCHEMA_VERSION,
+            "status": "failed",
+            "reason": "snapshot_mismatch"
+        }),
     )
 }
 
-fn write_missing_baseline_failure(failures: &Path, fixture: &UiFixture) -> Result<()> {
-    let failure = failures.join(&fixture.id);
+fn write_unavailable_failure_bundle(
+    root: &Path,
+    failure: &Path,
+    fixture: &UiFixture,
+    expected: &Path,
+    actual: &Path,
+    reason: &str,
+    error: &str,
+) -> Result<()> {
+    recreate_owned_directory(root, failure)?;
+    let expected_missing = copy_available_evidence(expected, &failure.join("expected"))?;
+    let actual_missing = copy_available_evidence(actual, &failure.join("actual"))?;
+    fs::create_dir_all(failure.join("diff"))?;
     fs::create_dir_all(failure.join("logs"))?;
+    if actual.join("logs").is_dir() {
+        copy_directory(&actual.join("logs"), &failure.join("logs"))?;
+    }
+    write_json(
+        &failure.join("expected/unavailable.json"),
+        &json!({ "missing": expected_missing }),
+    )?;
+    write_json(
+        &failure.join("actual/unavailable.json"),
+        &json!({ "missing": actual_missing }),
+    )?;
+    write_json(
+        &failure.join("diff/unavailable.json"),
+        &json!({ "reason": reason, "error": error }),
+    )?;
     write_json(
         &failure.join("summary.json"),
         &json!({
             "schema_version": SCHEMA_VERSION,
             "status": "failed",
-            "reason": "missing_checked_in_baseline",
+            "reason": reason,
+            "error": error,
             "fixture": fixture
         }),
     )?;
     fs::write(
         failure.join("logs/runner.log"),
-        "Checked-in expected evidence is missing. Verification never creates or updates baselines.\n",
+        format!("{reason}: {error}\n"),
     )?;
     Ok(())
+}
+
+fn write_inventory_failure(
+    root: &Path,
+    failures: &Path,
+    unexpected: &BTreeSet<String>,
+) -> Result<()> {
+    let failure = failures.join("unexpected-baselines");
+    recreate_owned_directory(root, &failure)?;
+    for category in ["expected", "actual", "diff", "logs"] {
+        fs::create_dir_all(failure.join(category))?;
+    }
+    let evidence = json!({
+        "reason": "unexpected_checked_in_baselines",
+        "directories": unexpected
+    });
+    for path in [
+        "expected/inventory.json",
+        "actual/unavailable.json",
+        "diff/inventory.json",
+    ] {
+        write_json(&failure.join(path), &evidence)?;
+    }
+    fs::write(
+        failure.join("logs/runner.log"),
+        "Expected snapshot directories must correspond exactly to the closed fixture manifest.\n",
+    )?;
+    write_json(
+        &failure.join("summary.json"),
+        &json!({
+            "schema_version": SCHEMA_VERSION,
+            "status": "failed",
+            "reason": "unexpected_checked_in_baselines",
+            "directories": unexpected
+        }),
+    )
+}
+
+fn write_global_failure_bundle(
+    root: &Path,
+    failure: &Path,
+    reason: &str,
+    error: &str,
+) -> Result<()> {
+    recreate_owned_directory(root, failure)?;
+    for category in ["expected", "actual", "diff", "logs"] {
+        fs::create_dir_all(failure.join(category))?;
+    }
+    let unavailable = json!({ "reason": reason, "error": error });
+    write_json(&failure.join("expected/unavailable.json"), &unavailable)?;
+    write_json(&failure.join("actual/unavailable.json"), &unavailable)?;
+    write_json(&failure.join("diff/unavailable.json"), &unavailable)?;
+    fs::write(
+        failure.join("logs/runner.log"),
+        format!("{reason}: {error}\n"),
+    )?;
+    write_json(
+        &failure.join("summary.json"),
+        &json!({
+            "schema_version": SCHEMA_VERSION,
+            "status": "failed",
+            "reason": reason,
+            "error": error
+        }),
+    )
+}
+
+fn has_complete_evidence(directory: &Path) -> bool {
+    ["metadata.json", "semantic.json", "text.json", "visual.png"]
+        .into_iter()
+        .all(|name| directory.join(name).is_file())
+}
+
+fn has_findings(value: &Value, field: &str) -> Result<bool> {
+    value
+        .get(field)
+        .and_then(Value::as_array)
+        .map(|findings| !findings.is_empty())
+        .ok_or_else(|| anyhow!("captured evidence has no {field} array"))
+}
+
+fn copy_available_evidence(source: &Path, destination: &Path) -> Result<Vec<&'static str>> {
+    fs::create_dir_all(destination)?;
+    let mut missing = Vec::new();
+    for name in ["metadata.json", "semantic.json", "text.json", "visual.png"] {
+        if source.join(name).is_file() {
+            fs::copy(source.join(name), destination.join(name))?;
+        } else {
+            missing.push(name);
+        }
+    }
+    Ok(missing)
 }
 
 fn write_summary(
@@ -549,13 +760,89 @@ fn write_json(path: &Path, value: &impl Serialize) -> Result<()> {
     fs::write(path, bytes).with_context(|| format!("write JSON evidence {}", path.display()))
 }
 
-fn recreate_directory(path: &Path) -> Result<()> {
+fn recreate_owned_directory(root: &Path, path: &Path) -> Result<()> {
+    let path = validated_output_path(root, path)?;
     if path.exists() {
-        fs::remove_dir_all(path)
-            .with_context(|| format!("remove previous UI evidence {}", path.display()))?;
+        if !path.is_dir() {
+            bail!("UI output path is not a directory: {}", path.display());
+        }
+        let marker = path.join(OUTPUT_MARKER);
+        let is_empty = fs::read_dir(&path)?.next().is_none();
+        if !marker.is_file() && !is_empty {
+            bail!(
+                "refusing to delete unowned UI output directory {}; use a new directory beneath .tools",
+                path.display()
+            );
+        }
+        if marker.is_file() {
+            let marker_value = fs::read_to_string(&marker)?;
+            if marker_value != "Polyorama deterministic UI output v1\n" {
+                bail!("invalid UI output ownership marker: {}", marker.display());
+            }
+            fs::remove_dir_all(&path)
+                .with_context(|| format!("remove previous UI evidence {}", path.display()))?;
+        }
     }
-    fs::create_dir_all(path)
-        .with_context(|| format!("create UI evidence directory {}", path.display()))
+    fs::create_dir_all(&path)
+        .with_context(|| format!("create UI evidence directory {}", path.display()))?;
+    fs::write(
+        path.join(OUTPUT_MARKER),
+        "Polyorama deterministic UI output v1\n",
+    )?;
+    Ok(())
+}
+
+fn validated_output_path(root: &Path, path: &Path) -> Result<PathBuf> {
+    let repository_root = normalise_absolute(&absolute(root)?)?;
+    let tools_root = repository_root.join(".tools");
+    let path = normalise_absolute(&absolute(path)?)?;
+    if path == tools_root || !path.starts_with(&tools_root) {
+        bail!(
+            "UI output must be a dedicated directory beneath {}; observed {}",
+            tools_root.display(),
+            path.display()
+        );
+    }
+    if tools_root
+        .symlink_metadata()
+        .is_ok_and(|metadata| metadata.file_type().is_symlink())
+    {
+        bail!("repository .tools directory must not be a symlink");
+    }
+    let relative = path.strip_prefix(&tools_root)?;
+    let mut current = tools_root;
+    for component in relative.components() {
+        current.push(component.as_os_str());
+        if current
+            .symlink_metadata()
+            .is_ok_and(|metadata| metadata.file_type().is_symlink())
+        {
+            bail!(
+                "UI output path must not traverse a symlink: {}",
+                current.display()
+            );
+        }
+    }
+    Ok(path)
+}
+
+fn normalise_absolute(path: &Path) -> Result<PathBuf> {
+    if !path.is_absolute() {
+        bail!("expected an absolute path, observed {}", path.display());
+    }
+    let mut normalised = PathBuf::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => {
+                if !normalised.pop() {
+                    bail!("path escapes the filesystem root: {}", path.display());
+                }
+            }
+            _ => normalised.push(component.as_os_str()),
+        }
+    }
+    Ok(normalised)
 }
 
 fn copy_directory(source: &Path, destination: &Path) -> Result<()> {
@@ -620,14 +907,27 @@ mod tests {
     }
 
     #[test]
+    fn retained_audit_findings_are_classified_as_failures() {
+        assert!(!has_findings(&json!({ "audit": [] }), "audit").unwrap());
+        assert!(
+            has_findings(
+                &json!({ "audit": [{ "kind": "undeclared_overflow" }] }),
+                "audit"
+            )
+            .unwrap()
+        );
+    }
+
+    #[test]
     fn failure_bundle_contains_every_evidence_category() {
-        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../target")
+        let repository_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+        let root = repository_root
+            .join(".tools")
             .join(format!("xtask-ui-bundle-test-{}", std::process::id()));
-        let expected = root.join("expected");
-        let actual = root.join("actual");
-        let failure = root.join("failure");
-        recreate_directory(&root).unwrap();
+        let expected = root.join("fixture-expected");
+        let actual = root.join("fixture-actual");
+        let failure = root.join("fixture-failure");
+        recreate_owned_directory(&repository_root, &root).unwrap();
         fs::create_dir_all(actual.join("logs")).unwrap();
         fs::create_dir_all(&expected).unwrap();
         for name in ["metadata.json", "semantic.json", "text.json"] {
@@ -644,6 +944,7 @@ mod tests {
         fs::write(actual.join("logs/runner.log"), b"evidence\n").unwrap();
 
         populate_failure_bundle(
+            &repository_root,
             &failure,
             &expected,
             &actual,
@@ -667,5 +968,29 @@ mod tests {
             assert!(failure.join(path).is_file(), "missing {path}");
         }
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn destructive_output_is_restricted_to_owned_tools_directories() {
+        let repository_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+        for unsafe_path in [
+            repository_root.clone(),
+            repository_root.join("docs"),
+            repository_root.join(EXPECTED_ROOT),
+            repository_root.join(".tools/../docs/ui-snapshots/expected"),
+        ] {
+            let error = recreate_owned_directory(&repository_root, &unsafe_path).unwrap_err();
+            assert!(error.to_string().contains("beneath"));
+        }
+
+        let unowned = repository_root
+            .join(".tools")
+            .join(format!("xtask-ui-unowned-test-{}", std::process::id()));
+        fs::create_dir_all(&unowned).unwrap();
+        fs::write(unowned.join("user-data"), b"preserve").unwrap();
+        let error = recreate_owned_directory(&repository_root, &unowned).unwrap_err();
+        assert!(error.to_string().contains("refusing to delete unowned"));
+        assert_eq!(fs::read(unowned.join("user-data")).unwrap(), b"preserve");
+        fs::remove_dir_all(unowned).unwrap();
     }
 }
