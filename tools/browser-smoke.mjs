@@ -742,6 +742,20 @@ try {
     await page.mouse.move(target.x, target.y, { steps: 12 }); await page.waitForTimeout(150); await page.mouse.up();
   });
   await page.screenshot({ path: join(evidenceRoot, 'browser-rearranged-dock.png') });
+  await semanticAction({ kind: 'restore_default_workspace' });
+  const lightPreferences = await semanticAction({
+    kind: 'set_ui_preferences',
+    appearance: 'light',
+    contrast: 'standard',
+    density: 'comfortable',
+    font_scale: 1.0,
+    motion: 'full',
+  });
+  if (lightPreferences.preferences.appearance !== 'light'
+      || lightPreferences.preferences.contrast !== 'standard') {
+    throw new Error(`standard light preferences did not apply: ${JSON.stringify(lightPreferences.preferences)}`);
+  }
+  await page.screenshot({ path: join(evidenceRoot, 'browser-light.png') });
   const changedPreferences = await semanticAction({
     kind: 'set_ui_preferences',
     appearance: 'light',
