@@ -218,6 +218,40 @@ try {
     const point = await targetPoint(target);
     await page.mouse.click(point.x, point.y, options);
   };
+  const preferenceNodeId = (field, value) => `application.bar.preferences.${field}.${value}`;
+  const ensureAppearanceOpen = async () => {
+    const open = await page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot()
+      .ui_snapshot.nodes.some((node) => node.id === 'application.bar.preferences.appearance.light'));
+    if (!open) await clickTarget({ kind: 'action', action: 'appearance_settings' });
+    await page.waitForFunction(() => window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes
+      .some((node) => node.id === 'application.bar.preferences.appearance.light'), null, { timeout: 10_000 });
+  };
+  const choosePreference = async (field, value) => {
+    await ensureAppearanceOpen();
+    await clickTarget({ kind: 'semantic_id', id: preferenceNodeId(field, value) });
+    await page.waitForFunction(
+      ({ field, value }) => window.__POLYORAMA_HANDLE.test_snapshot().preferences[field] === value,
+      { field, value },
+      { timeout: 10_000 },
+    );
+    return semanticSnapshot();
+  };
+  const chooseFontScale = async (value) => {
+    await ensureAppearanceOpen();
+    const id = preferenceNodeId('font_scale', 'value');
+    const start = await targetPoint({ kind: 'semantic_id', id }, 0.15, 0.5);
+    const end = await targetPoint({ kind: 'semantic_id', id }, value === 1.5 ? 0.99 : 0.01, 0.5);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForFunction(
+      (expected) => window.__POLYORAMA_HANDLE.test_snapshot().preferences.font_scale === expected,
+      value,
+      { timeout: 10_000 },
+    );
+    return semanticSnapshot();
+  };
   const semanticAction = async (action) => {
     const before = await semanticSnapshot();
     await page.evaluate((value) => window.__POLYORAMA_HANDLE.test_action(value), action);
@@ -237,6 +271,9 @@ try {
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('appearance_settings'))
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('display_settings') && node.pane === 1)
       || !initialSemantic.ui_snapshot.nodes.some((node) => node.actions.includes('fit_view') && node.pane === 1)
+      || !initialSemantic.ui_snapshot.nodes.some((node) => node.id === 'pane.1.image_status'
+        && node.description?.includes('image ')
+        && node.description?.includes(' tiles'))
       || initialSemantic.ui_geometry.tabs.length !== 8
       || initialSemantic.ui_geometry.image_viewports.length < 4
       || initialSemantic.ui_geometry.text_layouts.filter((item) => item.role === 'tab_label').length !== 8
@@ -274,6 +311,7 @@ try {
     .filter((node) => node.id.startsWith('pane.1.display_'));
   if (displayNodes.length !== 3
       || displayMenu.ui_snapshot.semantic_audit.length !== 0
+      || displayNodes.some((node) => !node.actions.includes('display_settings'))
       || displayNodes.some((node) => node.rect.max_x <= node.rect.min_x
         || node.rect.max_y <= node.rect.min_y)) {
     throw new Error(`image display controls are incomplete: ${JSON.stringify(displayNodes)}`);
@@ -292,6 +330,7 @@ try {
     .filter((node) => node.id.startsWith('application.bar.preferences.'));
   if (preferenceNodes.length !== 10
       || preferenceMenu.ui_snapshot.semantic_audit.length !== 0
+      || preferenceNodes.some((node) => !node.actions.includes('appearance_settings'))
       || preferenceNodes.some((node) => node.rect.max_x <= node.rect.min_x
         || node.rect.max_y <= node.rect.min_y)) {
     throw new Error(`appearance controls are incomplete: ${JSON.stringify(preferenceNodes)}`);
@@ -372,6 +411,15 @@ try {
       action: 'appearance_settings',
       node_count: preferenceNodes.length,
       ids: preferenceNodes.map((node) => node.id),
+      actions: preferenceNodes.map((node) => node.actions),
+    },
+    display_controls: {
+      action: 'display_settings',
+      nodes: displayNodes.map((node) => ({ id: node.id, role: node.role, actions: node.actions })),
+    },
+    viewport_status: {
+      description: initialSemantic.ui_snapshot.nodes
+        .find((node) => node.id === 'pane.1.image_status').description,
     },
     linked_camera_and_render_plan: {
       cameras: cameraSemantic.cameras.filter((item) => item.pane === 1 || item.pane === 2),
@@ -743,27 +791,16 @@ try {
   });
   await page.screenshot({ path: join(evidenceRoot, 'browser-rearranged-dock.png') });
   await semanticAction({ kind: 'restore_default_workspace' });
-  const lightPreferences = await semanticAction({
-    kind: 'set_ui_preferences',
-    appearance: 'light',
-    contrast: 'standard',
-    density: 'comfortable',
-    font_scale: 1.0,
-    motion: 'full',
-  });
+  const lightPreferences = await choosePreference('appearance', 'light');
   if (lightPreferences.preferences.appearance !== 'light'
       || lightPreferences.preferences.contrast !== 'standard') {
     throw new Error(`standard light preferences did not apply: ${JSON.stringify(lightPreferences.preferences)}`);
   }
   await page.screenshot({ path: join(evidenceRoot, 'browser-light.png') });
-  const changedPreferences = await semanticAction({
-    kind: 'set_ui_preferences',
-    appearance: 'light',
-    contrast: 'high',
-    density: 'compact',
-    font_scale: 1.5,
-    motion: 'reduced',
-  });
+  await choosePreference('contrast', 'high');
+  await choosePreference('density', 'compact');
+  await chooseFontScale(1.5);
+  const changedPreferences = await choosePreference('motion', 'reduced');
   if (JSON.stringify(changedPreferences.preferences) !== JSON.stringify({
     schema_version: 1,
     appearance: 'light',
@@ -772,11 +809,12 @@ try {
     font_scale: 1.5,
     motion: 'reduced',
   })) {
-    throw new Error(`preference action did not retain the validated value: ${JSON.stringify(changedPreferences.preferences)}`);
+    throw new Error(`physical preference controls did not retain the validated value: ${JSON.stringify(changedPreferences.preferences)}`);
   }
   await page.screenshot({ path: join(evidenceRoot, 'browser-light-high-contrast-150.png') });
   semanticEvidence.preferences = {
     selected: changedPreferences.preferences,
+    physical_controls: ['appearance.light', 'contrast.high', 'density.compact', 'font_scale.1.5', 'motion.reduced'],
     repaint_reason: changedPreferences.ui_snapshot.frame > preferenceMenu.ui_snapshot.frame
       ? 'recorded in diagnostics'
       : 'missing frame advance',

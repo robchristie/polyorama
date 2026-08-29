@@ -1,8 +1,9 @@
 use egui::{Response, RichText, Slider, SliderClamping, TextStyle};
 
 use crate::{
-    AppearancePreference, ContrastPreference, DensityPreference, DesignTokens, MAX_FONT_SCALE,
-    MIN_FONT_SCALE, MotionPreference, SemanticUiId, UiNode, UiPreferences, UiRect, UiRole,
+    ActionId, AppearancePreference, ContrastPreference, DensityPreference, DesignTokens,
+    MAX_FONT_SCALE, MIN_FONT_SCALE, MotionPreference, SemanticUiId, UiNode, UiPreferences, UiRect,
+    UiRole,
 };
 
 /// The result of presenting [`preferences_control`] for one frame.
@@ -215,7 +216,7 @@ fn preference_slider(
         expanded: None,
         pane: None,
         domain_reference: None,
-        actions: Vec::new(),
+        actions: vec![ActionId::AppearanceSettings],
         disabled_reason: None,
     });
 }
@@ -268,7 +269,7 @@ fn preference_radio_node(
         expanded: None,
         pane: None,
         domain_reference: None,
-        actions: Vec::new(),
+        actions: vec![ActionId::AppearanceSettings],
         disabled_reason: None,
     }
 }
@@ -327,6 +328,7 @@ mod tests {
                 node.id.0,
                 node.rect
             );
+            assert_eq!(node.actions, vec![ActionId::AppearanceSettings]);
         }
 
         let snapshot = UiSnapshot {

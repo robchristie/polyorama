@@ -631,6 +631,7 @@ fn toolbar_story(
             "Display map",
             &mut map,
             &[(0, "Viridis"), (1, "Greyscale"), (2, "Threshold")],
+            ActionId::DisplaySettings,
             tokens,
         );
         semantic_nodes.push(map.node);
@@ -642,6 +643,7 @@ fn toolbar_story(
             "Low",
             &mut low,
             0.0..=0.8,
+            ActionId::DisplaySettings,
             tokens,
         );
         semantic_nodes.push(low.node);
@@ -653,6 +655,7 @@ fn toolbar_story(
             "High",
             &mut high,
             0.2..=1.0,
+            ActionId::DisplaySettings,
             tokens,
         );
         semantic_nodes.push(high.node);

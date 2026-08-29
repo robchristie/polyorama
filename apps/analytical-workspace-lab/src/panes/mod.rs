@@ -242,6 +242,15 @@ impl FrameOutput {
                 camera.pixels_per_screen_point.log2().round().max(0.0) as u8,
                 tile_count
             );
+            let status_id = format!("pane.{}.image_status", status.pane.0);
+            if let Some(node) = self
+                .ui_geometry
+                .semantic_nodes
+                .iter_mut()
+                .find(|node| node.id.0 == status_id)
+            {
+                node.description = Some(format!("{coordinates}; {detail}"));
+            }
             self.ui_geometry.text_layouts.extend(paint_image_status(
                 &painter,
                 ImageStatusSpec {

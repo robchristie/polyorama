@@ -244,6 +244,7 @@ pub struct SemanticControlOutput {
 
 /// Present a bounded labelled choice using egui's native combo-box behaviour
 /// while fixing stable Polyorama and AccessKit identity at the recipe boundary.
+#[allow(clippy::too_many_arguments)]
 pub fn choice_control<T: Copy + Eq>(
     ui: &mut egui::Ui,
     semantic_id: SemanticUiId,
@@ -251,6 +252,7 @@ pub fn choice_control<T: Copy + Eq>(
     label: &str,
     value: &mut T,
     options: &[(T, &'static str)],
+    action: crate::ActionId,
     tokens: &DesignTokens,
 ) -> SemanticControlOutput {
     let selected_before = options
@@ -294,7 +296,7 @@ pub fn choice_control<T: Copy + Eq>(
             expanded: None,
             pane: None,
             domain_reference: None,
-            actions: Vec::new(),
+            actions: vec![action],
             disabled_reason: None,
         },
         response,
@@ -311,6 +313,7 @@ pub fn range_control(
     label: &str,
     value: &mut f32,
     range: RangeInclusive<f32>,
+    action: crate::ActionId,
     tokens: &DesignTokens,
 ) -> SemanticControlOutput {
     let minimum = *range.start();
@@ -355,7 +358,7 @@ pub fn range_control(
             expanded: None,
             pane: None,
             domain_reference: None,
-            actions: Vec::new(),
+            actions: vec![action],
             disabled_reason: None,
         },
         response,
@@ -1331,6 +1334,7 @@ mod tests {
                         "Display map",
                         &mut choice,
                         &[(0, "Viridis"), (1, "Greyscale")],
+                        ActionId::DisplaySettings,
                         &tokens,
                     )
                     .node,
@@ -1344,6 +1348,7 @@ mod tests {
                         "Low",
                         &mut low,
                         0.0..=0.8,
+                        ActionId::DisplaySettings,
                         &tokens,
                     )
                     .node,
@@ -1401,6 +1406,11 @@ mod tests {
         assert!(range.supports_action(egui::accesskit::Action::Decrement));
         assert_eq!(control_nodes[0].role, UiRole::ComboBox);
         assert_eq!(control_nodes[1].role, UiRole::Slider);
+        assert!(
+            control_nodes
+                .iter()
+                .all(|node| node.actions == vec![ActionId::DisplaySettings])
+        );
         assert!(observations.len() >= 6);
     }
 

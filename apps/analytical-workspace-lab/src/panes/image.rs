@@ -390,6 +390,7 @@ fn present_display_controls(
     tokens: &DesignTokens,
     outputs: &mut FrameOutput,
 ) {
+    normalise_display_window(display);
     let map = choice_control(
         ui,
         SemanticUiId::new(format!("pane.{}.display_map", pane.0)),
@@ -401,6 +402,7 @@ fn present_display_controls(
             (DisplayMap::Greyscale, "Greyscale"),
             (DisplayMap::Threshold, "Threshold"),
         ],
+        ActionId::DisplaySettings,
         tokens,
     );
     record_display_control(ui, pane, map, outputs);
@@ -410,7 +412,8 @@ fn present_display_controls(
         parent.clone(),
         "Low",
         &mut display.window_low,
-        0.0..=0.8,
+        low_window_range(display.window_high),
+        ActionId::DisplaySettings,
         tokens,
     );
     record_display_control(ui, pane, low, outputs);
@@ -420,10 +423,36 @@ fn present_display_controls(
         parent.clone(),
         "High",
         &mut display.window_high,
-        0.2..=1.0,
+        high_window_range(display.window_low),
+        ActionId::DisplaySettings,
         tokens,
     );
     record_display_control(ui, pane, high, outputs);
+}
+
+const DISPLAY_WINDOW_GAP: f32 = 0.01;
+
+fn normalise_display_window(display: &mut DisplaySettings) {
+    display.window_high = if display.window_high.is_finite() {
+        display.window_high.clamp(DISPLAY_WINDOW_GAP, 1.0)
+    } else {
+        DisplaySettings::default().window_high
+    };
+    display.window_low = if display.window_low.is_finite() {
+        display
+            .window_low
+            .clamp(0.0, display.window_high - DISPLAY_WINDOW_GAP)
+    } else {
+        DisplaySettings::default().window_low
+    };
+}
+
+fn low_window_range(high: f32) -> std::ops::RangeInclusive<f32> {
+    0.0..=(high - DISPLAY_WINDOW_GAP).max(0.0)
+}
+
+fn high_window_range(low: f32) -> std::ops::RangeInclusive<f32> {
+    (low + DISPLAY_WINDOW_GAP).min(1.0)..=1.0
 }
 
 fn record_display_control(
@@ -455,6 +484,33 @@ fn paint_placeholder(ui: &egui::Ui, rect: egui::Rect, pane: PaneId, tokens: &Des
                     tokens.colours.surface_panel,
                 );
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn display_window_controls_always_retain_a_strict_ordering() {
+        for mut display in [
+            DisplaySettings {
+                window_low: 0.9,
+                window_high: 0.1,
+                ..DisplaySettings::default()
+            },
+            DisplaySettings {
+                window_low: f32::INFINITY,
+                window_high: f32::NAN,
+                ..DisplaySettings::default()
+            },
+        ] {
+            normalise_display_window(&mut display);
+            assert!((0.0..display.window_high).contains(&display.window_low));
+            assert!(display.window_high <= 1.0);
+            assert!(low_window_range(display.window_high).contains(&display.window_low));
+            assert!(high_window_range(display.window_low).contains(&display.window_high));
         }
     }
 }
