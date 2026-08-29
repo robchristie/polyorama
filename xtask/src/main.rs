@@ -151,6 +151,30 @@ fn architecture() -> Result<()> {
             bail!("pane API contains forbidden broad access: {forbidden}");
         }
     }
+    let mut production_ui_sources = pane_sources.clone();
+    collect_rust_sources(
+        Path::new("crates/polyorama-ui-egui/src"),
+        &mut production_ui_sources,
+    )?;
+    production_ui_sources.push(Path::new("apps/analytical-workspace-lab/src/app.rs").into());
+    production_ui_sources.sort();
+    production_ui_sources.dedup();
+    for path in &production_ui_sources {
+        let source = fs::read_to_string(path)?;
+        for forbidden in [
+            "title.len()",
+            ".chars().count()",
+            ".len() as f32",
+            ".len() as f64",
+        ] {
+            if source.contains(forbidden) {
+                bail!(
+                    "production UI source {} contains forbidden character-count text sizing pattern {forbidden:?}; use egui galley measurement",
+                    path.display()
+                );
+            }
+        }
+    }
     let pane_root = fs::read_to_string("apps/analytical-workspace-lab/src/panes/mod.rs")?;
     for feature in ["image", "camera_gestures", "annotations", "diagnostics"] {
         let path = format!("apps/analytical-workspace-lab/src/panes/{feature}.rs");
@@ -218,7 +242,7 @@ fn architecture() -> Result<()> {
         bail!("expected exactly one canonical Workspace definition, found {canonical_definitions}");
     }
     println!(
-        "architecture boundaries passed: GPU-free core/reducers, egui-free runtime, narrow panes, one workspace tree, no viewport device creation"
+        "architecture boundaries passed: GPU-free core/reducers, egui-free runtime, narrow panes, measured UI text, one workspace tree, no viewport device creation"
     );
     Ok(())
 }
