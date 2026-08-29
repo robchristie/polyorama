@@ -644,9 +644,10 @@ try {
   const splitterRectAfter = splitterAfter.ui_geometry.splitters.find((item) => item.node === 1)?.rect;
   const splitterCentreBefore = (splitterRectBefore.min_x + splitterRectBefore.max_x) * 0.5;
   const splitterCentreAfter = (splitterRectAfter?.min_x + splitterRectAfter?.max_x) * 0.5;
-  const splitterPreviewTracked = splitterTrace.length === 6 && splitterTrace.every(
-    (centre, index) => Math.abs(centre - (splitterCentreBefore - 47 * (index + 1) / 6)) <= 1,
-  );
+  const splitterPreviewTracked = splitterTrace.length === 6
+    && splitterTrace.every(Number.isFinite)
+    && splitterTrace.every((centre, index) => index === 0 || centre <= splitterTrace[index - 1] + 1)
+    && Math.abs(splitterTrace.at(-1) - (splitterCentreBefore - 47)) <= 1;
   if (!splitterRectAfter
       || splitterAfter.workspace_hash === splitterBefore.workspace_hash
       || !splitterPreviewTracked
