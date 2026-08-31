@@ -35,8 +35,14 @@ impl PaneSurface<'_> {
         };
         let compact_toolbar = ui.available_width() < 720.0;
         let popup_state_id = ui.make_persistent_id("display-popup-open");
+        let frame_nr = ui.ctx().cumulative_frame_nr();
         let mut display_open = compact_toolbar
-            && ui.data(|data| data.get_temp::<bool>(popup_state_id).unwrap_or(false));
+            && ui.data(|data| {
+                data.get_temp::<(u64, bool)>(popup_state_id)
+                    .is_some_and(|(last_frame, open)| {
+                        open && frame_nr.saturating_sub(last_frame) <= 1
+                    })
+            });
         let toolbar = ui.horizontal_wrapped(|ui| {
             if pane.0 <= 2 {
                 for (tool, action, control) in [
@@ -192,7 +198,8 @@ impl PaneSurface<'_> {
                 );
             }
         });
-        ui.data_mut(|data| data.insert_temp(popup_state_id, display_open));
+        // A hidden pane must not restore a popup whose anchor disappeared.
+        ui.data_mut(|data| data.insert_temp(popup_state_id, (frame_nr, display_open)));
         let toolbar_rect = toolbar.response.rect.intersect(pane_rect);
         self.outputs
             .ui_geometry
@@ -511,6 +518,7 @@ mod tests {
 
     #[derive(Default)]
     struct ImagePaneFixture {
+        hidden: bool,
         document: Document,
         session: Session,
         display: BTreeMap<PaneId, DisplaySettings>,
@@ -529,6 +537,9 @@ mod tests {
                         polyorama_ui_egui::DensityVariant::Comfortable,
                     );
                     state.output = FrameOutput::with_ui_geometry(UiGeometry::new(root, 1.0));
+                    if state.hidden {
+                        return;
+                    }
                     let mut virtualisation = VirtualisationMetrics::default();
                     let mut thumbnails = ThumbnailCache::default();
                     let diagnostics = DiagnosticsSnapshot::default();
@@ -577,6 +588,9 @@ mod tests {
         let mut harness = image_pane_harness(640.0);
         harness.get_by_label("Display").click();
         harness.run();
+        harness.get_by_label("Low").click();
+        harness.run();
+        assert!(harness.query_by_label("Display map").is_some());
         harness.get_by_label("Display map").click();
         harness.run();
         assert!(harness.query_by_label("Low").is_some());
@@ -599,6 +613,19 @@ mod tests {
         harness.get_by_label("Display").click();
         harness.run();
         harness.get_by_label("Display").click();
+        harness.run();
+        assert!(harness.query_by_label("Display map").is_none());
+    }
+
+    #[test]
+    fn display_popup_does_not_reopen_after_its_pane_is_hidden() {
+        let mut harness = image_pane_harness(640.0);
+        harness.get_by_label("Display").click();
+        harness.run();
+        assert!(harness.query_by_label("Display map").is_some());
+        harness.state_mut().hidden = true;
+        harness.run_steps(2);
+        harness.state_mut().hidden = false;
         harness.run();
         assert!(harness.query_by_label("Display map").is_none());
     }
