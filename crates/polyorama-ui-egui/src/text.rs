@@ -355,6 +355,61 @@ pub fn paint_measured_text(
     observation
 }
 
+/// Present inert measured content as one accessible label while preserving
+/// Polyorama's allocation, alignment and clipping. Use this only when the text
+/// itself owns its semantics; interactive chrome should retain its aggregate
+/// widget semantics and call [`paint_measured_text`] instead.
+pub fn present_accessible_measured_text(
+    ui: &mut Ui,
+    measured: &MeasuredText,
+    allocated_rect: Rect,
+    component_id: TextComponentId,
+    parent_id: Option<TextComponentId>,
+) -> (egui::Response, TextLayoutObservation) {
+    debug_assert_eq!(
+        measured.spec.interaction,
+        TextInteraction::Inert,
+        "selectable measured text must be presented through present_measured_text"
+    );
+    let (galley_position, observation) = position_measured_text(
+        ui.painter(),
+        measured,
+        allocated_rect,
+        component_id,
+        parent_id,
+    );
+    let mut label_ui = ui.new_child(
+        UiBuilder::new()
+            .id_salt((
+                "polyorama.accessible-measured-text",
+                component_id,
+                parent_id,
+            ))
+            .max_rect(allocated_rect),
+    );
+    label_ui.set_clip_rect(ui.clip_rect().intersect(allocated_rect));
+    let response = label_ui.interact(
+        allocated_rect,
+        Id::new((
+            "polyorama.accessible-measured-text",
+            component_id,
+            parent_id,
+        )),
+        Sense::hover(),
+    );
+    response.widget_info(|| {
+        egui::WidgetInfo::labeled(
+            egui::WidgetType::Label,
+            label_ui.is_enabled(),
+            measured.galley.text(),
+        )
+    });
+    label_ui
+        .painter()
+        .galley(galley_position, measured.galley.clone(), measured.colour);
+    (response, observation)
+}
+
 /// Present measured text while preserving Polyorama's allocation and clipping.
 /// Selectable text delegates cursor, drag, multi-label and copy behaviour to
 /// egui's native label-selection state.

@@ -212,12 +212,28 @@ try {
   }
   releaseObservations.inspector_drag_copy = copiedInspectorValue;
 
+  await page.keyboard.press('Escape');
   current = await selectStory('reference/results');
   if (current.text.some((entry) => entry.interaction !== 'inert')
       || current.ui_snapshot.nodes.some((node) => node.id === 'gallery.story'
         && node.text_selectable === true)) {
     throw new Error(`result rows unexpectedly exposed text selection: ${JSON.stringify(current)}`);
   }
+  const resultText = current.text.find((entry) => entry.component_id.kind === 'result_row');
+  if (!resultText) throw new Error(`result row text observation missing: ${JSON.stringify(current)}`);
+  const clipboardSentinel = 'polyorama-result-row-selection-remains-inert';
+  await page.evaluate((value) => navigator.clipboard.writeText(value), clipboardSentinel);
+  const resultSelectionY = (resultText.allocated_rect.min_y + resultText.allocated_rect.max_y) / 2;
+  await page.mouse.move(resultText.allocated_rect.min_x + 1, resultSelectionY);
+  await page.mouse.down();
+  await page.mouse.move(resultText.allocated_rect.max_x - 1, resultSelectionY, { steps: 12 });
+  await page.mouse.up();
+  await page.keyboard.press('Control+C');
+  const copiedResultValue = await page.evaluate(() => navigator.clipboard.readText());
+  if (copiedResultValue !== clipboardSentinel) {
+    throw new Error(`result row drag unexpectedly copied text: ${JSON.stringify(copiedResultValue)}`);
+  }
+  releaseObservations.result_row_drag_copy = copiedResultValue;
 
   current = await selectStory('tabs/narrow');
   const narrowTextMin = Math.min(...current.text.map((entry) => entry.allocated_rect.min_x));

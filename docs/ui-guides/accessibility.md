@@ -15,6 +15,9 @@ semantic ID. Never target stale pixel coordinates in tests or automation.
 Nodes that contain a supported text-selection surface set `text_selectable`;
 measured-text observations retain the corresponding `TextInteraction` so a
 physical test can resolve the current allocation before dragging.
+Each visible string has one AccessKit owner. Standalone content uses its text
+node; label/value pairs expose adjacent label and value nodes without repeating
+the pair on an aggregate container; interactive chrome owns its painted text.
 
 ## Review checks
 

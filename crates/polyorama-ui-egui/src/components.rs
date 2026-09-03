@@ -8,7 +8,7 @@ use crate::{
     ActionKey, ActionTarget, Availability, DesignTokens, DomainReference, HorizontalTextAlignment,
     SemanticActionId, SemanticUiId, TextComponentId, TextInteraction, TextOverflow, TextRole,
     TextSpec, UiNode, UiRole, VerticalTextAlignment, measure_text, paint_measured_text,
-    present_measured_text,
+    present_accessible_measured_text, present_measured_text,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -514,7 +514,6 @@ pub fn status_badge(
     );
     let (rect, response) =
         ui.allocate_exact_size(egui::vec2(maximum_width, height), Sense::hover());
-    response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Label, true, text));
     let colour: Color32 = match tone {
         StatusTone::Neutral => tokens.colours.text_muted.into(),
         StatusTone::Success => tokens.colours.status_success.into(),
@@ -561,10 +560,7 @@ pub fn property_row(
     } else {
         line_height * 2.0
     };
-    let (rect, response) = ui.allocate_exact_size(egui::vec2(width, height), Sense::hover());
-    response.widget_info(|| {
-        egui::WidgetInfo::labeled(egui::WidgetType::Label, true, format!("{label}: {value}"))
-    });
+    let (rect, _response) = ui.allocate_exact_size(egui::vec2(width, height), Sense::hover());
     let parent = TextComponentId::new(crate::TextComponentKind::PropertyRow, instance);
     let (label_rect, value_rect) = if narrow {
         let label_rect =
@@ -584,7 +580,7 @@ pub fn property_row(
         );
         (label_rect, value_rect)
     };
-    paint_text_observation(
+    let label_response = paint_text_observation(
         ui,
         ComponentTextSpec {
             text: label,
@@ -592,12 +588,13 @@ pub fn property_row(
             spec: TextSpec::single_line(TextRole::Secondary, TextOverflow::Ellipsis),
             component_id: TextComponentId::new(crate::TextComponentKind::PropertyRow, instance * 2),
             parent_id: Some(parent),
+            accessible: true,
         },
         tokens,
         font_scale,
         observations,
     );
-    paint_text_observation(
+    let value_response = paint_text_observation(
         ui,
         ComponentTextSpec {
             text: value,
@@ -617,11 +614,15 @@ pub fn property_row(
                 instance * 2 + 1,
             ),
             parent_id: Some(parent),
+            accessible: false,
         },
         tokens,
         font_scale,
         observations,
     );
+    if let (Some(label_response), Some(value_response)) = (label_response, value_response) {
+        value_response.labelled_by(label_response.id);
+    }
 }
 
 pub struct ResultRowSpec<'a> {
@@ -735,6 +736,7 @@ pub fn result_row(
                     spec.instance * 8 + index as u64,
                 ),
                 parent_id: Some(parent),
+                accessible: false,
             },
             tokens,
             font_scale,
@@ -902,6 +904,7 @@ pub fn thumbnail_cell(
                 spec.instance,
             ),
             parent_id: None,
+            accessible: false,
         },
         tokens,
         font_scale,
@@ -916,6 +919,7 @@ struct ComponentTextSpec<'a> {
     spec: TextSpec,
     component_id: TextComponentId,
     parent_id: Option<TextComponentId>,
+    accessible: bool,
 }
 
 fn paint_text_observation(
@@ -924,7 +928,7 @@ fn paint_text_observation(
     tokens: &DesignTokens,
     font_scale: f32,
     observations: &mut Vec<crate::TextLayoutObservation>,
-) {
+) -> Option<Response> {
     if let Ok(measured) = measure_text(
         ui.painter(),
         text.text,
@@ -933,9 +937,22 @@ fn paint_text_observation(
         font_scale,
         text.rect.width().max(0.5),
     ) {
-        let (_, observation) =
-            present_measured_text(ui, &measured, text.rect, text.component_id, text.parent_id);
+        let (response, observation) = if text.accessible {
+            let (response, observation) = present_accessible_measured_text(
+                ui,
+                &measured,
+                text.rect,
+                text.component_id,
+                text.parent_id,
+            );
+            (Some(response), observation)
+        } else {
+            present_measured_text(ui, &measured, text.rect, text.component_id, text.parent_id)
+        };
         observations.push(observation);
+        response
+    } else {
+        None
     }
 }
 
@@ -1423,6 +1440,37 @@ mod tests {
         assert_eq!(result.role(), egui::accesskit::Role::ListBoxOption);
         assert_eq!(result.is_selected(), Some(true));
         assert!(result.supports_action(egui::accesskit::Action::Click));
+
+        let label_count = |label: &str| {
+            update
+                .nodes
+                .iter()
+                .map(|(_, node)| node)
+                .filter(|node| {
+                    node.role() == egui::accesskit::Role::Label && node.value() == Some(label)
+                })
+                .count()
+        };
+        assert_eq!(label_count("Result identifier"), 1);
+        assert_eq!(label_count("#12"), 1);
+        assert_eq!(label_count("Worker decode failed for tile 12"), 1);
+        assert_eq!(label_count("Result identifier: #12"), 0);
+        let (property_label_id, _) = update
+            .nodes
+            .iter()
+            .find(|(_, node)| {
+                node.role() == egui::accesskit::Role::Label
+                    && node.value() == Some("Result identifier")
+            })
+            .expect("property label node");
+        let (_, property_value) = update
+            .nodes
+            .iter()
+            .find(|(_, node)| {
+                node.role() == egui::accesskit::Role::Label && node.value() == Some("#12")
+            })
+            .expect("property value node");
+        assert_eq!(property_value.labelled_by(), &[*property_label_id]);
 
         let thumbnail = node("polyorama.thumbnail-cell.13");
         assert_eq!(thumbnail.role(), egui::accesskit::Role::ListBoxOption);
