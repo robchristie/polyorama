@@ -6,8 +6,9 @@ use egui::{Color32, Frame, Margin, Painter, Rect, Response, Sense, Stroke};
 use crate::{AccessKitMismatch, UiSnapshot, audit_accesskit, test_actions::TestAction};
 use crate::{
     ActionKey, ActionTarget, Availability, DesignTokens, DomainReference, HorizontalTextAlignment,
-    SemanticActionId, SemanticUiId, TextComponentId, TextOverflow, TextRole, TextSpec, UiNode,
-    UiRole, VerticalTextAlignment, measure_text, paint_measured_text,
+    SemanticActionId, SemanticUiId, TextComponentId, TextInteraction, TextOverflow, TextRole,
+    TextSpec, UiNode, UiRole, VerticalTextAlignment, measure_text, paint_measured_text,
+    present_measured_text,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -236,6 +237,7 @@ pub fn action_semantic_node<A: ActionKey>(
         pane: target.pane,
         domain_reference: target.pane.map(DomainReference::Pane),
         actions: vec![SemanticActionId::from_action(target.action)],
+        text_selectable: false,
         disabled_reason: availability.disabled_reason().map(ToOwned::to_owned),
     }
 }
@@ -305,6 +307,7 @@ pub fn choice_control<T: Copy + Eq, A: ActionKey>(
             pane: None,
             domain_reference: None,
             actions: vec![SemanticActionId::from_action(action)],
+            text_selectable: false,
             disabled_reason: None,
         },
         response,
@@ -368,6 +371,7 @@ pub fn range_control<A: ActionKey>(
             pane: None,
             domain_reference: None,
             actions: vec![SemanticActionId::from_action(action)],
+            text_selectable: false,
             disabled_reason: None,
         },
         response,
@@ -389,11 +393,12 @@ pub struct ImageStatusSpec<'a> {
 
 /// Paint a clipped analytical viewport status strip from semantic tokens.
 pub fn paint_image_status(
-    painter: &Painter,
+    ui: &mut egui::Ui,
     spec: ImageStatusSpec<'_>,
     tokens: &DesignTokens,
     font_scale: f32,
 ) -> Vec<crate::TextLayoutObservation> {
+    let painter = ui.painter().clone();
     painter.rect_filled(spec.rect, 0.0, tokens.colours.surface_panel);
     painter.line_segment(
         [spec.rect.left_top(), spec.rect.right_top()],
@@ -436,18 +441,19 @@ pub fn paint_image_status(
     {
         let text_spec = TextSpec {
             horizontal_alignment: alignment,
+            interaction: TextInteraction::Selectable,
             ..TextSpec::single_line(role, TextOverflow::Ellipsis)
         };
         if let Ok(measured) = measure_text(
-            painter,
+            &painter,
             text,
             text_spec,
             tokens,
             font_scale,
             rect.width().max(0.5),
         ) {
-            observations.push(paint_measured_text(
-                &painter.with_clip_rect(rect),
+            let (_, observation) = present_measured_text(
+                ui,
                 &measured,
                 rect,
                 TextComponentId::new(
@@ -455,7 +461,8 @@ pub fn paint_image_status(
                     spec.instance * 4 + index as u64,
                 ),
                 Some(parent),
-            ));
+            );
+            observations.push(observation);
         }
     }
     observations
@@ -487,6 +494,7 @@ pub fn status_badge(
             TextRole::Status
         },
         overflow: TextOverflow::Wrap,
+        interaction: TextInteraction::Selectable,
         horizontal_alignment: HorizontalTextAlignment::Start,
         vertical_alignment: VerticalTextAlignment::Centre,
         max_lines,
@@ -522,13 +530,14 @@ pub fn status_badge(
     );
     if let Some(measured) = measured {
         let text_rect = rect.shrink2(egui::vec2(tokens.spacing.inline.0, tokens.spacing.block.0));
-        observations.push(paint_measured_text(
-            &ui.painter_at(text_rect),
+        let (_, observation) = present_measured_text(
+            ui,
             &measured,
             text_rect,
             TextComponentId::new(crate::TextComponentKind::StatusBadge, instance),
             None,
-        ));
+        );
+        observations.push(observation);
     }
     response
 }
@@ -594,6 +603,7 @@ pub fn property_row(
             text: value,
             rect: value_rect,
             spec: TextSpec {
+                interaction: TextInteraction::Selectable,
                 max_lines: if narrow { 2 } else { 1 },
                 overflow: if narrow {
                     TextOverflow::Wrap
@@ -909,7 +919,7 @@ struct ComponentTextSpec<'a> {
 }
 
 fn paint_text_observation(
-    ui: &egui::Ui,
+    ui: &mut egui::Ui,
     text: ComponentTextSpec<'_>,
     tokens: &DesignTokens,
     font_scale: f32,
@@ -923,13 +933,9 @@ fn paint_text_observation(
         font_scale,
         text.rect.width().max(0.5),
     ) {
-        observations.push(paint_measured_text(
-            &ui.painter_at(text.rect),
-            &measured,
-            text.rect,
-            text.component_id,
-            text.parent_id,
-        ));
+        let (_, observation) =
+            present_measured_text(ui, &measured, text.rect, text.component_id, text.parent_id);
+        observations.push(observation);
     }
 }
 
@@ -1317,6 +1323,24 @@ mod tests {
                     &mut observations,
                 );
                 assert_eq!(result.id, egui::Id::new(("polyorama.result-row", 12_u64)));
+                property_row(
+                    ui,
+                    14,
+                    "Result identifier",
+                    "#12",
+                    &tokens,
+                    1.0,
+                    &mut observations,
+                );
+                status_badge(
+                    ui,
+                    15,
+                    "Worker decode failed for tile 12",
+                    StatusTone::Error,
+                    &tokens,
+                    1.0,
+                    &mut observations,
+                );
                 let thumbnail = thumbnail_cell(
                     ui,
                     ThumbnailCellSpec {
@@ -1415,6 +1439,28 @@ mod tests {
         assert!(range.supports_action(egui::accesskit::Action::Increment));
         assert!(range.supports_action(egui::accesskit::Action::Decrement));
         assert_eq!(control_nodes[0].role, UiRole::ComboBox);
+        assert!(observations.iter().any(|text| {
+            text.component_id.kind == crate::TextComponentKind::PropertyRow
+                && text.role == TextRole::Body
+                && text.interaction == TextInteraction::Selectable
+        }));
+        assert!(observations.iter().any(|text| {
+            text.component_id.kind == crate::TextComponentKind::StatusBadge
+                && text.interaction == TextInteraction::Selectable
+        }));
+        assert!(
+            observations
+                .iter()
+                .filter(|text| {
+                    matches!(
+                        text.component_id.kind,
+                        crate::TextComponentKind::ActionButton
+                            | crate::TextComponentKind::ResultRow
+                            | crate::TextComponentKind::ThumbnailCell
+                    )
+                })
+                .all(|text| text.interaction == TextInteraction::Inert)
+        );
         assert_eq!(control_nodes[1].role, UiRole::Slider);
         assert!(control_nodes.iter().all(|node| {
             node.actions == vec![SemanticActionId::from_action(TestAction::DisplaySettings)]
@@ -1440,7 +1486,7 @@ mod tests {
                 },
                 |ui| {
                     observations = paint_image_status(
-                        ui.painter(),
+                        ui,
                         ImageStatusSpec {
                             instance: 1,
                             rect: root,
@@ -1455,11 +1501,9 @@ mod tests {
             output.textures_delta.clear();
             assert_eq!(observations.len(), 2);
             assert!(crate::audit_text_layouts(&observations).is_empty());
-            assert!(
-                observations
-                    .iter()
-                    .all(|item| item.allocated_rect.max_x >= item.allocated_rect.min_x)
-            );
+            assert!(observations.iter().all(|item| item.allocated_rect.max_x
+                >= item.allocated_rect.min_x
+                && item.interaction == TextInteraction::Selectable));
         }
     }
 

@@ -2,8 +2,8 @@ use egui::{Rect, Response, Sense};
 
 use crate::{
     DesignTokens, HorizontalTextAlignment, PaneWidthClass, TextComponentId, TextComponentKind,
-    TextLayoutObservation, TextOverflow, TextRole, TextSpec, VerticalTextAlignment, measure_text,
-    paint_measured_text,
+    TextInteraction, TextLayoutObservation, TextOverflow, TextRole, TextSpec,
+    VerticalTextAlignment, measure_text, paint_measured_text, present_measured_text,
 };
 
 /// A measured full-width content label for pane-local status and explanatory
@@ -17,6 +17,7 @@ pub fn measured_content_label(
     role: TextRole,
     overflow: TextOverflow,
     max_lines: u8,
+    interaction: TextInteraction,
     tokens: &DesignTokens,
     font_scale: f32,
     observations: &mut Vec<TextLayoutObservation>,
@@ -32,6 +33,7 @@ pub fn measured_content_label(
         TextSpec {
             role,
             overflow,
+            interaction,
             horizontal_alignment: HorizontalTextAlignment::Start,
             vertical_alignment: VerticalTextAlignment::Centre,
             max_lines,
@@ -41,13 +43,14 @@ pub fn measured_content_label(
         rect.width().max(0.5),
     ) {
         let truncated = measured.truncated();
-        observations.push(paint_measured_text(
-            &ui.painter_at(rect),
+        let (_, observation) = present_measured_text(
+            ui,
             &measured,
             rect,
             TextComponentId::new(TextComponentKind::ContentLabel, instance),
             None,
-        ));
+        );
+        observations.push(observation);
         if truncated {
             response.clone().on_hover_text(text);
         }
@@ -65,6 +68,7 @@ pub fn measured_inline_label(
     text: &str,
     role: TextRole,
     maximum_width: f32,
+    interaction: TextInteraction,
     tokens: &DesignTokens,
     font_scale: f32,
     observations: &mut Vec<TextLayoutObservation>,
@@ -76,7 +80,10 @@ pub fn measured_inline_label(
     );
     let (rect, response) = ui.allocate_exact_size(size, egui::Sense::hover());
     response.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Label, true, text));
-    let spec = TextSpec::single_line(role, TextOverflow::Ellipsis);
+    let spec = TextSpec {
+        interaction,
+        ..TextSpec::single_line(role, TextOverflow::Ellipsis)
+    };
     if let Ok(measured) = measure_text(
         ui.painter(),
         text,
@@ -86,13 +93,14 @@ pub fn measured_inline_label(
         rect.width().max(0.5),
     ) {
         let truncated = measured.truncated();
-        observations.push(paint_measured_text(
-            &ui.painter_at(rect),
+        let (_, observation) = present_measured_text(
+            ui,
             &measured,
             rect,
             TextComponentId::new(TextComponentKind::ApplicationBarLabel, instance),
             None,
-        ));
+        );
+        observations.push(observation);
         if truncated {
             response.clone().on_hover_text(text);
         }
@@ -184,6 +192,7 @@ pub fn diagnostic_row(
         value_rect,
         TextSpec {
             role: TextRole::MonospaceTechnical,
+            interaction: TextInteraction::Selectable,
             overflow: if narrow {
                 TextOverflow::Wrap
             } else {
@@ -236,7 +245,7 @@ fn diagnostic_rects(
 
 #[allow(clippy::too_many_arguments)]
 fn paint(
-    ui: &egui::Ui,
+    ui: &mut egui::Ui,
     text: &str,
     rect: Rect,
     spec: TextSpec,
@@ -257,13 +266,8 @@ fn paint(
         return false;
     };
     let truncated = measured.truncated();
-    observations.push(paint_measured_text(
-        &ui.painter_at(rect),
-        &measured,
-        rect,
-        component,
-        Some(parent),
-    ));
+    let (_, observation) = present_measured_text(ui, &measured, rect, component, Some(parent));
+    observations.push(observation);
     truncated
 }
 
@@ -309,6 +313,10 @@ mod tests {
                 .expect("technical value");
             assert_eq!(value.horizontal_alignment, expected_alignment);
             assert_eq!(value.declared_max_lines, expected_lines);
+            assert_eq!(value.interaction, TextInteraction::Selectable);
+            assert!(observations.iter().any(|item| {
+                item.role == TextRole::Secondary && item.interaction == TextInteraction::Inert
+            }));
             assert!(audit_text_layouts(&observations).is_empty());
         }
     }
