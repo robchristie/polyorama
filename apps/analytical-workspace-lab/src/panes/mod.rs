@@ -8,11 +8,11 @@ use polyorama_render_wgpu::{
     DisplayMap, DisplaySettings, ImageRenderRequest, PhysicalViewport, RenderPlan,
 };
 use polyorama_ui_egui::{
-    ActionButtonSpec, ActionEmphasis, ActionKey, ActionScope, ActionTarget, Availability,
-    DesignTokens, DomainReference, ImagePlanTarget, ImageStatusSpec, PanePresenter, SemanticUiId,
-    TextLayoutObservation, UiNode, UiRole, action_button, allocate_viewport, choice_control,
-    consume_action_shortcut, diagnostic_row, image_status_height, paint_image_status,
-    range_control, section_heading, stage_render_callback,
+    ActionButtonSpec, ActionButtonState, ActionEmphasis, ActionKey, ActionScope, ActionTarget,
+    Availability, DesignTokens, DomainReference, ImagePlanTarget, ImageStatusSpec, PanePresenter,
+    SemanticUiId, TextLayoutObservation, UiNode, UiRole, action_button, allocate_viewport,
+    choice_control, consume_action_shortcut, diagnostic_row, image_status_height,
+    paint_image_status, range_control, section_heading, stage_render_callback,
 };
 use web_time::Instant;
 
@@ -69,12 +69,23 @@ fn present_action(
     {
         return false;
     }
+    let state = if matches!(
+        target.action,
+        LabAction::LinkViews
+            | LabAction::NavigateTool
+            | LabAction::PolygonTool
+            | LabAction::EditVerticesTool
+    ) {
+        ActionButtonState::Toggle { pressed: selected }
+    } else {
+        ActionButtonState::Momentary
+    };
     let response = action_button(
         ui,
         ActionButtonSpec {
             target,
             availability: availability.clone(),
-            selected,
+            state,
             emphasis: ActionEmphasis::Quiet,
             compact,
         },
@@ -92,7 +103,7 @@ fn present_action(
             .control(target.pane, legacy_name, response.rect);
         outputs
             .ui_geometry
-            .action(parent.clone(), target, &availability, selected, &response);
+            .action(parent.clone(), target, &availability, state, &response);
     }
     availability.enabled()
         && (response.clicked() || consume_action_shortcut(ui, target.action, active_pane))
@@ -1178,6 +1189,17 @@ mod tests {
             .expect("enabled application action");
         assert!(save.enabled);
         assert!(save.disabled_reason.is_none());
+        assert!(!save.selected);
+        assert_eq!(save.checked, None);
+        let save_accesskit = rendered
+            .accesskit
+            .nodes
+            .iter()
+            .map(|(_, node)| node)
+            .find(|node| node.author_id() == Some("action.save_layout"))
+            .expect("enabled application AccessKit action");
+        assert_eq!(save_accesskit.toggled(), None);
+        assert_eq!(save_accesskit.is_selected(), None);
 
         let tab = snapshot
             .node(&SemanticUiId::tab(PaneId(1)))
@@ -1214,6 +1236,14 @@ mod tests {
             Some(DomainReference::Pane(PaneId(1)))
         );
         assert!(!viewport.actions.is_empty());
+        let viewport_accesskit = rendered
+            .accesskit
+            .nodes
+            .iter()
+            .map(|(_, node)| node)
+            .find(|node| node.author_id() == Some("pane.1.viewport"))
+            .expect("primary analytical AccessKit viewport");
+        assert_eq!(viewport_accesskit.toggled(), None);
 
         for required_id in [
             SemanticUiId::new("action.undo"),
@@ -1275,7 +1305,26 @@ mod tests {
             .by_action(LabAction::PolygonTool)
             .find(|node| node.pane == Some(PaneId(1)))
             .expect("primary polygon tool action");
-        assert!(polygon_tool.selected);
+        assert!(!polygon_tool.selected);
+        assert_eq!(polygon_tool.checked, Some(true));
+        let polygon_accesskit = updated
+            .accesskit
+            .nodes
+            .iter()
+            .map(|(_, node)| node)
+            .find(|node| {
+                node.author_id()
+                    == Some(
+                        ActionTarget::pane(LabAction::PolygonTool, PaneId(1))
+                            .semantic_id()
+                            .as_str(),
+                    )
+            })
+            .expect("primary polygon AccessKit action");
+        assert_eq!(
+            polygon_accesskit.toggled(),
+            Some(egui::accesskit::Toggled::True)
+        );
         assert!(
             updated
                 .snapshot

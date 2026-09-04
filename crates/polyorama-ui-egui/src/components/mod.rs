@@ -7,7 +7,9 @@ mod status;
 mod thumbnail;
 mod viewport_status;
 
-pub use action_button::{ActionButtonSpec, ActionEmphasis, action_button, action_semantic_node};
+pub use action_button::{
+    ActionButtonSpec, ActionButtonState, ActionEmphasis, action_button, action_semantic_node,
+};
 pub use choice::choice_control;
 pub use property::property_row;
 pub use range::range_control;
@@ -463,7 +465,7 @@ mod tests {
                         availability: Availability::Disabled {
                             reason: "History is empty".into(),
                         },
-                        selected: false,
+                        state: ActionButtonState::Momentary,
                         emphasis: ActionEmphasis::Normal,
                         compact: true,
                     },

@@ -149,15 +149,19 @@ Each image viewport now has a stable Canvas node. Its current description
 includes active/inactive pane state, selected tool, camera link, image-space
 centre and scale, selected result/annotation, relevant shared worker state, and
 the actions currently available. AccessKit custom actions are translated to
-the existing typed application and pane-intent paths. A focused viewport has a
-visible token-derived focus ring. The observational `UiSnapshot` carries the
-same semantic identity and action set without becoming authoritative.
+the existing typed application and pane-intent paths for transports that
+deliver them. The pinned Linux AT-SPI adapter does not enumerate or dispatch
+that custom-action mechanism, so the actual Orca workflow uses the registered
+toolbar controls as its non-pointer route and makes no native Canvas-action
+claim. A focused viewport has a visible token-derived focus ring. The
+observational `UiSnapshot` carries the same semantic identity and action set
+without becoming authoritative.
 
 The five evidence axes remain deliberately separate:
 
 | Axis | Candidate result | What it proves and does not prove |
 | --- | --- | --- |
-| Framework semantic tests | Pass | A production-path representative frame contains the expected application action, disabled reason, dock tabs, splitters, bounded selected result and viewport; the snapshot and generated AccessKit nodes have matching stable identity, role, state, bounds and actions, with no duplicate owners |
+| Framework semantic tests | Pass | A production-path representative frame contains the expected application action, disabled reason, dock tabs, splitters, bounded selected result and viewport; the snapshot and generated AccessKit nodes have matching stable identity, role, state, bounds and actions, with no duplicate owners. These tests exercise AccessKit's framework transport, not Linux AT-SPI custom-action delivery |
 | Keyboard tests | Pass | Deterministic repeated-frame Tab/Shift+Tab traversal reaches application actions, splitters, the active tab, pane tools and viewport; tool shortcuts and result selection update viewport context through existing commands/intents |
 | Platform-adapter integration | Native pass at build/architecture level; browser blocked | The native dependency route is compiled and guarded. Stock eframe 0.36.1 still discards browser AccessKit updates, so no browser adapter claim follows |
 | Automated tree and physical input | Pass within the stated limits | Generated AccessKit updates, bounded virtualisation, dock move/restoration, dynamic state and action routing pass automated tests. Native Xvfb/llvmpipe and Playwright Chromium/WebGPU physically exercise keyboard and pointer workflows, and deterministic UI/text checks pass. These are not actual AT sessions |

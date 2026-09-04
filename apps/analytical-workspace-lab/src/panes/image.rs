@@ -281,7 +281,7 @@ impl PaneSurface<'_> {
                     ActionButtonSpec {
                         target,
                         availability: control_availability.clone(),
-                        selected: false,
+                        state: ActionButtonState::Momentary,
                         emphasis: ActionEmphasis::Quiet,
                         compact: true,
                     },
@@ -302,7 +302,7 @@ impl PaneSurface<'_> {
                         toolbar_id.clone(),
                         target,
                         &control_availability,
-                        false,
+                        ActionButtonState::Momentary,
                         &response,
                     );
                 }
@@ -476,12 +476,7 @@ impl PaneSurface<'_> {
             &available_actions,
         );
         response.widget_info(|| {
-            egui::WidgetInfo::selected(
-                egui::WidgetType::Image,
-                true,
-                self.active_pane == pane,
-                viewport_name.clone(),
-            )
+            egui::WidgetInfo::labeled(egui::WidgetType::Image, true, viewport_name.clone())
         });
         ui.ctx().accesskit_node_builder(response.id, |node| {
             use egui::accesskit::{Action, CustomAction, Role};
@@ -490,6 +485,7 @@ impl PaneSurface<'_> {
             node.set_label(viewport_name.clone());
             node.set_author_id(viewport_id.0.clone());
             node.set_description(description.clone());
+            node.clear_toggled();
             node.set_selected(self.active_pane == pane);
             node.remove_action(Action::Click);
             node.set_custom_actions(
@@ -895,6 +891,7 @@ mod tests {
             viewport.accesskit_node().data().custom_actions().len(),
             initial.actions.len()
         );
+        assert_eq!(viewport.accesskit_node().toggled(), None);
 
         let state = harness.state_mut();
         state.session.selected_result = Some(ResultId(42));

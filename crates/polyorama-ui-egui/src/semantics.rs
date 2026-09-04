@@ -420,7 +420,10 @@ pub fn audit_accesskit(
                 id: semantic.id.clone(),
             });
         }
-        if semantic.role == UiRole::RadioButton {
+        if matches!(
+            semantic.role,
+            UiRole::Button | UiRole::RadioButton | UiRole::Viewport
+        ) {
             let expected = semantic.checked.map(|checked| {
                 if checked {
                     egui::accesskit::Toggled::True

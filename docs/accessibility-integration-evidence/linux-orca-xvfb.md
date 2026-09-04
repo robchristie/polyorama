@@ -49,6 +49,14 @@ observations below came from actual Orca speech output.
 | Bounded result selection | Tab reached Results, Enter activated it, and Tab reached materialised row 1; Space selected it | `#0000001; 81006, 42945; 86.2%; Target`; `selected`; Where Am I repeated the item as `2 of 21` materialised rows |
 | Inspect selection | Tab reached Inspector and Enter activated it; Orca flat review traversed its selection content | `Inspector`; `Selection`; `Result`; `#1`; `Position`. The same live AT-SPI tree exposed position `81006.0, 42945.0`, confidence `86.23%` and category `Target` |
 
+The non-pointer viewport operation deliberately used the registered **Fit
+view** toolbar button. Although the Canvas carries AccessKit custom-action
+metadata for transports that support it, the pinned
+`accesskit_atspi_common 0.18.1` adapter neither enumerates nor dispatches those
+custom actions through AT-SPI. The Linux result therefore proves the discoverable
+Canvas context plus the toolbar alternative; it does not claim that Orca can
+invoke the Canvas custom actions themselves.
+
 The final supporting tree contained 92 children under one application frame,
 including 21 materialised result list items for a logical collection of one
 million rows. It exposed exactly one selected row and described every image

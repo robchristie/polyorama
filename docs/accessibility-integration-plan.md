@@ -61,7 +61,7 @@ the integration. Do not broaden into custom DOM or accessibility frameworks.
 | 2 | Bounded analytical viewport context and non-pointer workflow actions | 1 | Complete | Semantic parity, dynamic-state and custom-action tests |
 | 3 | Focus, dynamic state, virtualisation, dock restoration and physical checks | 1–2 | Complete | Kittest, native/browser harness and deterministic UI evidence |
 | 4 | Actual assistive-technology qualification and exact platform matrix | 1–3 | Partial; direct qualification blocked externally | Actual Orca passed the native workflow in Arch/Xvfb/llvmpipe; a human-operated desktop session remains required, and the browser adapter is unavailable in stock eframe 0.36.1 |
-| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | Complete to human boundary | Local and CI `cargo xtask verify`, independent review and draft PR [#28](https://github.com/robchristie/polyorama/pull/28) pass; merge remains held by increment 4 |
+| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | Repair and requalification in progress | Earlier local and CI `cargo xtask verify` passed, but independent exact-head review found incorrect toggle exposure on momentary controls and Canvas; the same branch is being repaired and must be requalified before review can pass |
 
 ## Acceptance proof
 
@@ -88,11 +88,13 @@ the integration. Do not broaden into custom DOM or accessibility frameworks.
 
 The exploration gate selected eframe's native AccessKit adapter and retained
 the stock WebRunner's discarded AccessKit update as the minimal browser
-blocker. The platform-independent implementation and canonical verification
-are complete, independently reviewed and retained in verified draft PR
-[#28](https://github.com/robchristie/polyorama/pull/28). Actual Orca completed
-the native workflow in an Arch/Xvfb/llvmpipe session, retained as partial rather
-than direct end-user qualification. The human-review hold therefore remains.
+blocker. Independent exact-head review then found that momentary controls and
+Canvas inherited an incorrect toggle state, and confirmed that the pinned
+Linux AT-SPI adapter does not carry Canvas custom actions. The same draft PR
+[#28](https://github.com/robchristie/polyorama/pull/28) is being repaired; its
+actual Orca workflow and canonical verification must be repeated before the
+review result can become terminal. Direct end-user qualification remains a
+human-review hold regardless.
 
 ## Next action
 
