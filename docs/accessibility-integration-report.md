@@ -1,11 +1,14 @@
 # End-user accessibility integration evidence
 
-Status: platform-independent candidate verified; no end-user platform claim
+Status: platform-independent candidate and actual-AT probe verified; no direct
+end-user platform claim
 
 ## Evidence identity
 
 - baseline source:
   `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`;
+- native actual-AT evidence source:
+  `2b62072aa3f527da1baefb0a2166e2c8177a1750`;
 - exploration date: 4 September 2026, Australia/Adelaide;
 - host: Arch Linux rolling, kernel `7.1.3-arch1-1`, x86-64;
 - session: SSH TTY, `XDG_SESSION_TYPE=tty`, no X11 or Wayland display;
@@ -77,7 +80,7 @@ claim browser screen-reader support.
 
 ## Current environment and actual assistive technology
 
-No actual assistive-technology workflow can run in this session:
+The host still has no interactive desktop accessibility environment:
 
 - `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_CURRENT_DESKTOP` and
   `DESKTOP_SESSION` are absent;
@@ -88,22 +91,31 @@ No actual assistive-technology workflow can run in this session:
   Playwright Chromium and Xvfb/llvmpipe, but contains no desktop accessibility
   bus, screen reader or speech stack.
 
-This establishes only environmental unavailability. Automated AccessKit-tree,
-keyboard, pointer and snapshot evidence may qualify implementation behaviour,
-but cannot substitute for a screen reader or justify an end-user support claim.
+The exact release binary was therefore exercised with actual Orca 50.2,
+AT-SPI2 2.60.6 and Speech Dispatcher 0.12.1 in a disposable rootless Arch Linux
+container using Xvfb and Mesa llvmpipe. Orca discovered the application through
+AT-SPI, generated speech for the complete representative workflow, and observed
+dynamic state. The exact configuration, transcript, state checkpoints,
+artefact hashes and limitations are retained in the
+[Linux Orca/Xvfb evidence](accessibility-integration-evidence/linux-orca-xvfb.md).
+
+This advances native evidence beyond tree inspection, but the virtual display,
+synthetic input and recorded speech pipeline do not substitute for a
+human-operated desktop session. The result is partial qualification, not a
+general Linux end-user support claim.
 
 ## Platform qualification matrix
 
 | Environment | Status | Actual AT evidence | Limitation and smallest next action |
 | --- | --- | --- | --- |
-| Linux native | Unavailable in the current environment | None | Run the exact candidate in a real X11 or Wayland desktop with versioned Orca, AT-SPI2 and Speech Dispatcher; record adapter/backend identity and the complete representative workflow |
+| Linux native, Arch/Xvfb/llvmpipe | Partially qualified | Actual Orca 50.2 and Speech Dispatcher completed the representative workflow against the exact release binary; [retained evidence](accessibility-integration-evidence/linux-orca-xvfb.md) | Repeat on a human-operated X11 or Wayland desktop, retain heard speech or braille and exact desktop/backend identity, then decide the direct support claim |
 | Windows native | Unavailable in the current environment | None | Run the exact candidate on versioned Windows with NVDA or Narrator and retain the workflow transcript/tree evidence |
 | macOS native | Unavailable in the current environment | None | Run the exact candidate on versioned macOS with VoiceOver and retain the workflow observations |
 | Browser, any OS/AT pair | Blocked by a retained reproduction | None | A future supported upstream web adapter or separately authorised architecture must first deliver roles, focus and actions; then qualify each browser/OS/AT combination independently |
 
-No row is directly or partially qualified. In particular, compilation,
-`egui_kittest`, semantic snapshots, browser automation and an accessibility
-tree dump alone are not actual assistive-technology use.
+No row is directly qualified; one exact virtual Linux environment is partially
+qualified with actual Orca. Compilation, `egui_kittest`, semantic snapshots,
+browser automation and an accessibility-tree dump alone remain insufficient.
 
 ## Qualification workflow
 
@@ -149,7 +161,7 @@ The five evidence axes remain deliberately separate:
 | Keyboard tests | Pass | Deterministic repeated-frame Tab/Shift+Tab traversal reaches application actions, splitters, the active tab, pane tools and viewport; tool shortcuts and result selection update viewport context through existing commands/intents |
 | Platform-adapter integration | Native pass at build/architecture level; browser blocked | The native dependency route is compiled and guarded. Stock eframe 0.36.1 still discards browser AccessKit updates, so no browser adapter claim follows |
 | Automated tree and physical input | Pass within the stated limits | Generated AccessKit updates, bounded virtualisation, dock move/restoration, dynamic state and action routing pass automated tests. Native Xvfb/llvmpipe and Playwright Chromium/WebGPU physically exercise keyboard and pointer workflows, and deterministic UI/text checks pass. These are not actual AT sessions |
-| Actual assistive technology | Unavailable | No native OS/AT pair and no browser/OS/AT pair was exercised. No end-user platform is qualified |
+| Actual assistive technology | Native partial pass; browser blocked | Orca 50.2 completed the representative native workflow through AT-SPI2 and Speech Dispatcher in Arch/Xvfb/llvmpipe. This is actual AT but not a human-operated desktop qualification; no direct end-user platform is qualified |
 
 On 4 September 2026 the candidate passed `cargo xtask verify` with npm's
 unrelated registry audit request disabled after the registry request stalled.
@@ -161,9 +173,10 @@ retained under the ignored local directory
 `.tools/runtime/verification-evidence`; pull-request evidence must record the
 exact candidate commit because a commit cannot contain its own identifier.
 
-This result completes the platform-independent implementation only. The
-actual-AT row remains a material acceptance blocker and a human-review boundary.
-The smallest external continuation is one real Linux desktop session on the
-exact candidate using versioned Orca, AT-SPI2 and Speech Dispatcher to execute
-the workflow above. Windows/NVDA or Narrator, macOS/VoiceOver and each future
-browser adapter combination remain independently unqualified.
+This result completes the platform-independent implementation and a partial
+native actual-AT qualification. Direct end-user qualification remains a
+material acceptance blocker and human-review boundary. The smallest external
+continuation is one real Linux desktop session on the exact candidate using a
+human Orca user and versioned AT-SPI2/Speech Dispatcher to execute the workflow
+above. Windows/NVDA or Narrator, macOS/VoiceOver and each future browser adapter
+combination remain independently unqualified.
