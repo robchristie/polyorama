@@ -1,6 +1,6 @@
 # End-user accessibility integration plan
 
-Status: platform-independent candidate verified; actual-AT qualification blocked
+Status: verified draft candidate held; actual-AT qualification blocked
 
 Baseline revision: `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`
 
@@ -60,7 +60,7 @@ the integration. Do not broaden into custom DOM or accessibility frameworks.
 | 2 | Bounded analytical viewport context and non-pointer workflow actions | 1 | Complete | Semantic parity, dynamic-state and custom-action tests |
 | 3 | Focus, dynamic state, virtualisation, dock restoration and physical checks | 1–2 | Complete | Kittest, native/browser harness and deterministic UI evidence |
 | 4 | Actual assistive-technology qualification and exact platform matrix | 1–3 | Blocked externally | Current environment has no desktop AT; browser adapter is unavailable in stock eframe 0.36.1 |
-| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | Active | `cargo xtask verify` passed; exact-head review and draft pull request remain |
+| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | Complete to human boundary | Local and CI `cargo xtask verify`, independent review and draft PR [#28](https://github.com/robchristie/polyorama/pull/28) pass; merge remains held by increment 4 |
 
 ## Acceptance proof
 
@@ -88,11 +88,13 @@ the integration. Do not broaden into custom DOM or accessibility frameworks.
 The exploration gate selected eframe's native AccessKit adapter and retained
 the stock WebRunner's discarded AccessKit update as the minimal browser
 blocker. The platform-independent implementation and canonical verification
-are complete. No actual assistive-technology platform is qualified.
+are complete, independently reviewed and retained in verified draft PR
+[#28](https://github.com/robchristie/polyorama/pull/28). No actual
+assistive-technology platform is qualified, so the change is not merged.
 
 ## Next action
 
-Record the exact candidate in pull-request evidence, obtain independent
-exact-head review, and retain the change as a draft held for the documented
-human-review boundary. The first external qualification action is the Linux
-Orca/AT-SPI2 workflow in the accessibility integration report.
+Run the Linux Orca/AT-SPI2 workflow in the accessibility integration report on
+the exact candidate and retain its observations. A human can then decide
+whether that evidence is sufficient to remove the hold for the claimed Linux
+combination; every other platform row remains independently unqualified.
