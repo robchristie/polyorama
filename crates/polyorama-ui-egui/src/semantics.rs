@@ -420,22 +420,17 @@ pub fn audit_accesskit(
                 id: semantic.id.clone(),
             });
         }
-        if matches!(
-            semantic.role,
-            UiRole::Button | UiRole::RadioButton | UiRole::Viewport
-        ) {
-            let expected = semantic.checked.map(|checked| {
-                if checked {
-                    egui::accesskit::Toggled::True
-                } else {
-                    egui::accesskit::Toggled::False
-                }
-            });
-            if node.toggled() != expected {
-                findings.push(AccessKitMismatch::Checked {
-                    id: semantic.id.clone(),
-                });
+        let expected_toggled = semantic.checked.map(|checked| {
+            if checked {
+                egui::accesskit::Toggled::True
+            } else {
+                egui::accesskit::Toggled::False
             }
+        });
+        if node.toggled() != expected_toggled {
+            findings.push(AccessKitMismatch::Checked {
+                id: semantic.id.clone(),
+            });
         }
         let should_click = semantic.enabled
             && matches!(
