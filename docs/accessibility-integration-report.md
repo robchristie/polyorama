@@ -8,7 +8,7 @@ end-user platform claim
 - baseline source:
   `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`;
 - native actual-AT evidence source:
-  `2b62072aa3f527da1baefb0a2166e2c8177a1750`;
+  `17618d5553e845a97dbba38ad44ca994fc117928`;
 - exploration date: 4 September 2026, Australia/Adelaide;
 - host: Arch Linux rolling, kernel `7.1.3-arch1-1`, x86-64;
 - session: SSH TTY, `XDG_SESSION_TYPE=tty`, no X11 or Wayland display;
@@ -144,6 +144,13 @@ The candidate enables eframe's native `accesskit` feature and locks
 removed. Eframe therefore owns native platform-adapter activation and update
 submission; Polyorama continues to emit its existing immediate-mode AccessKit
 tree and does not add another state or widget model.
+
+The shared action component distinguishes momentary controls from pressed
+tool/link modes. Generated semantics expose ordinary buttons without selected
+or toggled state, mode controls with a deliberate toggled state, and
+selection-only tabs, result rows, thumbnails and Canvas nodes without a false
+checkable state. The AccessKit parity audit rejects any unexpected toggled
+state across the complete audited control set.
 
 Each image viewport now has a stable Canvas node. Its current description
 includes active/inactive pane state, selected tool, camera link, image-space
