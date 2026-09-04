@@ -1,0 +1,169 @@
+# End-user accessibility integration evidence
+
+Status: platform-independent candidate verified; no end-user platform claim
+
+## Evidence identity
+
+- baseline source:
+  `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`;
+- exploration date: 4 September 2026, Australia/Adelaide;
+- host: Arch Linux rolling, kernel `7.1.3-arch1-1`, x86-64;
+- session: SSH TTY, `XDG_SESSION_TYPE=tty`, no X11 or Wayland display;
+- Rust: `rustc 1.97.1 (8bab26f4f 2026-07-14)`, Cargo 1.97.1;
+- Node/npm: 25.8.2 / 11.11.1; `wasm-bindgen-cli 0.2.127`;
+- framework: crates.io eframe, egui and egui-wgpu 0.36.1, winit
+  0.30.13, and AccessKit 0.24.1; and
+- baseline graphics evidence: the earlier design-system qualification used
+  native GL/Mesa llvmpipe and browser WebGPU. This TTY has no current renderer
+  identity and does not inherit that earlier qualification.
+
+The locked crate checksums are
+`eframe 2afc0cbcdb6896b7bfb1dbbebaf7b9af9635ff38fd01e89bdd0174c1717b1857`,
+`egui c977ac91dfaa651633fd9722e4ce9ccb32cda4c748b89a5cb57e504036e37c13`,
+`egui-winit 9327fc8edef2c57db9bcbcacc82c8a4b1e8cc64cd41a67db4419dcf643d88c83`,
+and
+`accesskit d3b7f7f85a7e5f68090000ed7622545829afd484d210358702ae4cb97dd0c320`.
+
+## Exploration question and representative probe
+
+Question:
+
+> Can egui/eframe 0.36.1 expose Polyorama's existing AccessKit tree to native
+> and browser assistive technologies without a second authoritative UI or
+> application-state model?
+
+The selected probe is one current application frame containing an enabled
+application action, a disabled action and reason, a dock tab, an adjustable
+splitter, a selected materialised result, and an image viewport whose semantic
+context names its pane, active tool, selection and available actions. The
+framework tree is compared with the bounded observational `UiSnapshot`; the
+snapshot remains neither a retained widget tree nor an action/state authority.
+
+## Route observations and decisions
+
+| Route | Exact configuration or observation | Result | Decision |
+| --- | --- | --- | --- |
+| Native eframe/winit AccessKit | Workspace eframe 0.36.1 with feature `accesskit`, which enables `egui-winit/accesskit` and `accesskit_winit 0.32.x` | Eframe initialises the platform adapter, enables egui tree generation on `InitialTreeRequested`, forwards AT actions as egui input, repaints for activation/action only, and submits each generated tree update through `update_if_active` | Retain and implement; it consumes the existing immediate-mode frame semantics without another Polyorama model |
+| Browser AccessKit through stock `WebRunner` | Eframe 0.36.1 `web/app_runner.rs:394` destructures `accesskit_update: _` with `not currently implemented`; no web AccessKit adapter is present in the locked graph | The application cannot configure, intercept or forward the generated update through this private runner path | Reject for this stack; retained upstream blocker |
+| Eframe `web_screen_reader` | Optional Web Speech synthesis speaks `PlatformOutput::events_description()` only when egui's `screen_reader` option is true | No browsable roles/tree, virtual cursor, platform-AT focus, or AT-originated action route; it is not an AccessKit adapter | Reject as proof of browser accessibility; do not mislabel synthesised event speech as browser AT integration |
+| Custom DOM/ARIA mirror | Would require application-owned DOM projection and browser event plumbing outside stock eframe | Could create duplicate semantic ownership and exceeds the bounded upstream probe | Out of scope: the objective explicitly forbids expanding into a custom DOM or accessibility framework merely to avoid recording this limitation |
+
+The native path answers **yes**. The browser path answers **no for the stock
+0.36.1 runner**. The coherent browser outcome is therefore the retained blocker,
+not a replacement accessibility tree.
+
+## Retained browser blocker reproduction
+
+Run from the exact source revision:
+
+```sh
+cargo tree -e features -i eframe
+cargo tree -e features -i egui-winit
+rg -n 'accesskit_update: _.*not currently implemented' \
+  /home/rob/.cargo/registry/src/index.crates.io-*/eframe-0.36.1/src/web/app_runner.rs
+rg -n 'accesskit_winit' Cargo.lock
+```
+
+At the baseline, neither eframe nor egui-winit enables its native `accesskit`
+feature, `Cargo.lock` has no `accesskit_winit`, and the source probe returns:
+
+```text
+394:            accesskit_update: _,        // not currently implemented
+```
+
+Enabling the native feature is deliberately not presented as changing this Wasm
+path. The implementation candidate must retain this probe result and must not
+claim browser screen-reader support.
+
+## Current environment and actual assistive technology
+
+No actual assistive-technology workflow can run in this session:
+
+- `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_CURRENT_DESKTOP` and
+  `DESKTOP_SESSION` are absent;
+- Orca, Accerciser, AT-SPI registry/launcher, Speech Dispatcher, espeak-ng and
+  their user services are absent;
+- no system Firefox, Chromium/Chrome or browser driver is installed; and
+- the repository's isolated Ubuntu compatibility environment can run
+  Playwright Chromium and Xvfb/llvmpipe, but contains no desktop accessibility
+  bus, screen reader or speech stack.
+
+This establishes only environmental unavailability. Automated AccessKit-tree,
+keyboard, pointer and snapshot evidence may qualify implementation behaviour,
+but cannot substitute for a screen reader or justify an end-user support claim.
+
+## Platform qualification matrix
+
+| Environment | Status | Actual AT evidence | Limitation and smallest next action |
+| --- | --- | --- | --- |
+| Linux native | Unavailable in the current environment | None | Run the exact candidate in a real X11 or Wayland desktop with versioned Orca, AT-SPI2 and Speech Dispatcher; record adapter/backend identity and the complete representative workflow |
+| Windows native | Unavailable in the current environment | None | Run the exact candidate on versioned Windows with NVDA or Narrator and retain the workflow transcript/tree evidence |
+| macOS native | Unavailable in the current environment | None | Run the exact candidate on versioned macOS with VoiceOver and retain the workflow observations |
+| Browser, any OS/AT pair | Blocked by a retained reproduction | None | A future supported upstream web adapter or separately authorised architecture must first deliver roles, focus and actions; then qualify each browser/OS/AT combination independently |
+
+No row is directly or partially qualified. In particular, compilation,
+`egui_kittest`, semantic snapshots, browser automation and an accessibility
+tree dump alone are not actual assistive-technology use.
+
+## Qualification workflow
+
+Every future claimed environment must exercise and record:
+
+1. locate the application and current status;
+2. move through application bar, dock tabs and pane content;
+3. activate an application action and discover a disabled action with its
+   reason;
+4. select and activate a pane, then adjust a splitter;
+5. focus an image viewport and identify pane/activity, tool, camera link,
+   selection, state and actions;
+6. select a result through the bounded list and inspect it;
+7. perform one annotation or viewport action without a pointer; and
+8. observe a dynamic loading, availability, selection or tool change.
+
+Evidence must name OS, AT, browser where applicable, graphics/backend, exact
+source revision, steps, observations, failures and retained tree/transcript/
+recording/screenshots. Non-qualified rows remain explicit until that evidence
+exists.
+
+## Implementation and verification status
+
+The candidate enables eframe's native `accesskit` feature and locks
+`accesskit_winit 0.32.2`. The architecture gate now fails if that feature is
+removed. Eframe therefore owns native platform-adapter activation and update
+submission; Polyorama continues to emit its existing immediate-mode AccessKit
+tree and does not add another state or widget model.
+
+Each image viewport now has a stable Canvas node. Its current description
+includes active/inactive pane state, selected tool, camera link, image-space
+centre and scale, selected result/annotation, relevant shared worker state, and
+the actions currently available. AccessKit custom actions are translated to
+the existing typed application and pane-intent paths. A focused viewport has a
+visible token-derived focus ring. The observational `UiSnapshot` carries the
+same semantic identity and action set without becoming authoritative.
+
+The five evidence axes remain deliberately separate:
+
+| Axis | Candidate result | What it proves and does not prove |
+| --- | --- | --- |
+| Framework semantic tests | Pass | A production-path representative frame contains the expected application action, disabled reason, dock tabs, splitters, bounded selected result and viewport; the snapshot and generated AccessKit nodes have matching stable identity, role, state, bounds and actions, with no duplicate owners |
+| Keyboard tests | Pass | Deterministic repeated-frame Tab/Shift+Tab traversal reaches application actions, splitters, the active tab, pane tools and viewport; tool shortcuts and result selection update viewport context through existing commands/intents |
+| Platform-adapter integration | Native pass at build/architecture level; browser blocked | The native dependency route is compiled and guarded. Stock eframe 0.36.1 still discards browser AccessKit updates, so no browser adapter claim follows |
+| Automated tree and physical input | Pass within the stated limits | Generated AccessKit updates, bounded virtualisation, dock move/restoration, dynamic state and action routing pass automated tests. Native Xvfb/llvmpipe and Playwright Chromium/WebGPU physically exercise keyboard and pointer workflows, and deterministic UI/text checks pass. These are not actual AT sessions |
+| Actual assistive technology | Unavailable | No native OS/AT pair and no browser/OS/AT pair was exercised. No end-user platform is qualified |
+
+On 4 September 2026 the candidate passed `cargo xtask verify` with npm's
+unrelated registry audit request disabled after the registry request stalled.
+The canonical gate itself completed format checks, strict native and Wasm
+clippy, all 177 tests, architecture checks, native and Wasm release builds,
+five deterministic UI fixtures, Chromium browser smokes for both applications,
+and Xvfb/llvmpipe native smokes for both applications. The runtime evidence is
+retained under the ignored local directory
+`.tools/runtime/verification-evidence`; pull-request evidence must record the
+exact candidate commit because a commit cannot contain its own identifier.
+
+This result completes the platform-independent implementation only. The
+actual-AT row remains a material acceptance blocker and a human-review boundary.
+The smallest external continuation is one real Linux desktop session on the
+exact candidate using versioned Orca, AT-SPI2 and Speech Dispatcher to execute
+the workflow above. Windows/NVDA or Narrator, macOS/VoiceOver and each future
+browser adapter combination remain independently unqualified.
