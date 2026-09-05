@@ -1,8 +1,8 @@
 # Text hierarchy and attention UI
 
-Status: active
+Status: complete
 
-Next action: Record the terminal coordination pull request, complete this plan and finish its independent review, verification and landing.
+Delivery: [Terminal coordination PR #31](https://github.com/robchristie/polyorama/pull/31), following [library #30](https://github.com/robchristie/polyorama/pull/30) and [Bokkie #17](https://github.com/robchristie/bokkie/pull/17).
 
 ## Delivered outcome
 
@@ -58,6 +58,11 @@ confirmation inspection and keyboard focus, with its durable mutation submitted
 through a conditional harness HTTP request. Browser evidence separately proves
 UI submission. These results do not establish screen-reader certification,
 physical-GPU performance or deployment.
+
+Native/browser qualification was repeated successfully from merged Bokkie
+`35a5a0df9eee13ea39a41f216446e120e071e858`, consuming merged Polyorama
+`d10b6864ef278fe98fa927111f97d6d142344aab`. The qualification report identifies
+the merged source revision, seven passing browser journeys and native smoke.
 
 The task worktrees, implementation/coordination branches and generated probes
 are ephemeral campaign resources. Final exact-head review, PR and post-merge
