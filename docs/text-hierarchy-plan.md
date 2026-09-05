@@ -1,0 +1,64 @@
+# Text hierarchy and attention UI
+
+Status: active
+
+Next action: Select and verify the Polyorama text contract, land it, then update and qualify Bokkie against the merged owner revision.
+
+## Outcome and ownership
+
+Implement a visible semantic type hierarchy with real regular and semibold
+faces, explicit content-sized and fixed-slot text geometry, and observable
+layout failures. In Bokkie, organise attention around identity, reason, next
+action and supporting evidence; provide a selectable scrollable evidence reader.
+
+Polyorama owns fonts, tokens, measured/native type resolution, component layout
+and text diagnostics. Bokkie owns application composition, virtual row recipes,
+attention emphasis, dependency pin and long-evidence interaction proof. Both
+repositories are public source; there is no separate system control plane for
+this pair. This plan is the coordination record and contains only source and
+synthetic-fixture evidence. No deployment, release or live-data work is included.
+
+## Acceptance
+
+- Semantic headings differ visibly from reading text through size, actual face,
+  line height and emphasis; measured and native controls resolve consistently.
+- Keep dense library defaults appropriate; evaluate Bokkie's page title at
+  20–22 points, section heading at 14–16, body at 14 and metadata at 12–13.
+- A short content label with a two-line maximum consumes one measured line;
+  fixed-slot labels explicitly retain their requested geometry.
+- Invalid requests including 24-line bounded labels produce diagnostics,
+  visible fallback and failing development/qualification audit evidence.
+  Coverage distinguishes attempted, successful and failed components.
+- Bokkie prioritises meaningful current actions and evidence, retains technical
+  identities in disclosures/confirmation, omits routine absent-error/evidence
+  noise and chooses emphasis according to attention kind.
+- Virtual row height follows its recipe, typography, density and font scale;
+  enlarged text does not overlap or silently disappear.
+- Open Raw durable evidence and prove actual content near the end of a long
+  synthetic fixture is rendered and selectable through a scrollable reader.
+- Run each repository's canonical checks, relevant native/WASM builds, focused
+  regressions and browser/semantic evidence. Independently review each exact
+  candidate and land Polyorama before pinning and landing Bokkie.
+
+## Calibration
+
+Question: which token-backed hierarchy and row recipe preserve dense-tool
+usability while making headings and task information visibly distinct?
+Smallest probe: representative headings/body/one-line wrapped labels and one
+attention row at 100% and 150% scale, plus the long-evidence disclosure.
+Evidence owners: Polyorama's text tests/gallery and Bokkie's UI qualification.
+Exit: select one coherent candidate with measured bounds, actual font-face and
+semantic evidence; reject clipping, invented whitespace and missing content.
+
+## Delivery checkpoint
+
+| Increment | Owner revision | Consumer revision | Result | Status | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| Library typography/layout/diagnostics | Base `4330e1a596b71d2ed632adbbfa823ea02efbe16b` | — | Implementation underway | Active | Text tests and gallery |
+| Attention composition and evidence | — | Base `b2575d6` | Mapping underway | Active | Bokkie UI qualification |
+
+Task worktrees: `/nvme/development/polyorama-text-hierarchy` and
+`/nvme/development/bokkie-worktrees/text-hierarchy`, each on
+`codex/text-hierarchy`. Canonical checks are `cargo xtask verify` and Bokkie's
+`tools/check.sh` plus `tools/check-ui.sh`. Generated probes stay under each
+worktree's ignored `target/text-hierarchy/`; cleanup belongs to landing evidence.
