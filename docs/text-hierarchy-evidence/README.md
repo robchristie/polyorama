@@ -47,6 +47,9 @@ retains the upstream revision, SHA-256 identities, copyright and SIL Open Font
 Licence. Defaults retain egui's existing proportional fallback font chain.
 
 Focused tests, workspace tests, relevant Clippy, token drift checking, the
-release native gallery build and release WASM build passed. Canonical final
-verification and accepted existing snapshot baseline changes remain part of the
-coordinating landing work; these calibration files do not replace those gates.
+release native gallery build and release WASM build passed. `cargo xtask verify` also passed formatting, lint, workspace tests, architecture,
+release native/WASM builds, both browser smokes, all five deliberately inspected
+snapshot baselines and both native smokes. Snapshot semantic identities, names,
+roles, actions and enabled states were preserved. Exact review and landing
+identities belong in the owning pull request; these calibration files do not
+replace those gates.

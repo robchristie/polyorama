@@ -2,7 +2,7 @@
 
 Status: active
 
-Next action: Finish the Polyorama candidate verification and reviewed landing, then pin and qualify Bokkie against its merged revision.
+Next action: Complete independent review and landing of the verified Polyorama candidate, then pin and qualify Bokkie against its merged revision.
 
 ## Outcome and ownership
 
@@ -54,8 +54,8 @@ semantic evidence; reject clipping, invented whitespace and missing content.
 
 | Increment | Owner revision | Consumer revision | Result | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Library typography/layout/diagnostics | Base `4330e1a596b71d2ed632adbbfa823ea02efbe16b` | — | Component/workspace tests, browser smokes and inspected snapshot candidate pass; final canonical verification underway | Active | [Owner evidence](text-hierarchy-evidence/README.md) |
-| Attention composition and evidence | — | Base `b2575d6` | 42 focused tests and strict lint pass; physical long-evidence journey under calibration | Active | Bokkie UI qualification |
+| Library typography/layout/diagnostics | Base `4330e1a596b71d2ed632adbbfa823ea02efbe16b` | — | Full canonical verification passes, including inspected snapshot baselines and native/browser smokes | Active | [Owner evidence](text-hierarchy-evidence/README.md) |
+| Attention composition and evidence | — | Base `b2575d6` | 42 focused tests, strict lint and physical long-evidence browser journey pass; final consumer composition and qualification underway | Active | Bokkie UI qualification |
 
 Task worktrees: `/nvme/development/polyorama-text-hierarchy` and
 `/nvme/development/bokkie-worktrees/text-hierarchy`, each on
