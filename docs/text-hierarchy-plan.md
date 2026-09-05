@@ -2,7 +2,7 @@
 
 Status: active
 
-Next action: Select and verify the Polyorama text contract, land it, then update and qualify Bokkie against the merged owner revision.
+Next action: Finish the Polyorama candidate verification and reviewed landing, then pin and qualify Bokkie against its merged revision.
 
 ## Outcome and ownership
 
@@ -54,11 +54,14 @@ semantic evidence; reject clipping, invented whitespace and missing content.
 
 | Increment | Owner revision | Consumer revision | Result | Status | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| Library typography/layout/diagnostics | Base `4330e1a596b71d2ed632adbbfa823ea02efbe16b` | — | Implementation underway | Active | Text tests and gallery |
-| Attention composition and evidence | — | Base `b2575d6` | Mapping underway | Active | Bokkie UI qualification |
+| Library typography/layout/diagnostics | Base `4330e1a596b71d2ed632adbbfa823ea02efbe16b` | — | Component/workspace tests, browser smokes and inspected snapshot candidate pass; final canonical verification underway | Active | [Owner evidence](text-hierarchy-evidence/README.md) |
+| Attention composition and evidence | — | Base `b2575d6` | 42 focused tests and strict lint pass; physical long-evidence journey under calibration | Active | Bokkie UI qualification |
 
 Task worktrees: `/nvme/development/polyorama-text-hierarchy` and
 `/nvme/development/bokkie-worktrees/text-hierarchy`, each on
 `codex/text-hierarchy`. Canonical checks are `cargo xtask verify` and Bokkie's
-`tools/check.sh` plus `tools/check-ui.sh`. Generated probes stay under each
-worktree's ignored `target/text-hierarchy/`; cleanup belongs to landing evidence.
+`tools/check.sh` plus `tools/check-ui.sh`. Polyorama probes use its owned ignored `.tools/runtime/text-hierarchy/`;
+Bokkie probes use `target/text-hierarchy/`. Worktree `target` links reuse existing
+repository caches, and browser dependencies/sysroot are reused without claiming
+ownership. Cleanup covers only task-owned probe outputs and links, never shared
+caches; its evidence belongs to landing records.
