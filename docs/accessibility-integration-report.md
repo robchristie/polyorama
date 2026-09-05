@@ -1,7 +1,7 @@
 # End-user accessibility integration evidence
 
-Status: platform-independent candidate and actual-AT probe verified; no direct
-end-user platform claim
+Status: platform-independent candidate verified; one exact Linux GNOME/Orca
+environment directly qualified
 
 ## Evidence identity
 
@@ -9,6 +9,8 @@ end-user platform claim
   `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`;
 - native actual-AT evidence source:
   `17618d5553e845a97dbba38ad44ca994fc117928`;
+- human-operated Linux qualification executable source:
+  `fb6c9f3773a88a87a5bf5be7da8453c8a89c6c24`;
 - exploration date: 4 September 2026, Australia/Adelaide;
 - host: Arch Linux rolling, kernel `7.1.3-arch1-1`, x86-64;
 - session: SSH TTY, `XDG_SESSION_TYPE=tty`, no X11 or Wayland display;
@@ -99,23 +101,29 @@ dynamic state. The exact configuration, transcript, state checkpoints,
 artefact hashes and limitations are retained in the
 [Linux Orca/Xvfb evidence](accessibility-integration-evidence/linux-orca-xvfb.md).
 
-This advances native evidence beyond tree inspection, but the virtual display,
-synthetic input and recorded speech pipeline do not substitute for a
-human-operated desktop session. The result is partial qualification, not a
-general Linux end-user support claim.
+That virtual display, synthetic input and recorded speech pipeline remain a
+partial result on their own. A subsequent persistent Debian 13 VM combined a
+repeatable guest-native probe with a human-operated GNOME 48 remote-login
+desktop. The exact release binary completed the automated state/input journey,
+and the human operator confirmed that Orca 48.1 audibly read the workflow over
+RDP. The environment, attestation and artefact identities are retained in the
+[Debian GNOME/Orca RDP evidence](accessibility-integration-evidence/linux-gnome-rdp.md).
+This directly qualifies that exact combination, not Linux generally.
 
 ## Platform qualification matrix
 
 | Environment | Status | Actual AT evidence | Limitation and smallest next action |
 | --- | --- | --- | --- |
 | Linux native, Arch/Xvfb/llvmpipe | Partially qualified | Actual Orca 50.2 and Speech Dispatcher completed the representative workflow against the exact release binary; [retained evidence](accessibility-integration-evidence/linux-orca-xvfb.md) | Repeat on a human-operated X11 or Wayland desktop, retain heard speech or braille and exact desktop/backend identity, then decide the direct support claim |
+| Linux native, Debian 13/GNOME 48/RDP/Orca 48.1 | Qualified for this exact environment | The repeatable VM probe completed the workflow and a human operator confirmed audible Orca output in the GNOME remote-login desktop; [retained evidence](accessibility-integration-evidence/linux-gnome-rdp.md) | Keep the claim limited to this versioned remote-desktop configuration; qualify other distributions, desktops, local-seat sessions and Orca versions independently |
 | Windows native | Unavailable in the current environment | None | Run the exact candidate on versioned Windows with NVDA or Narrator and retain the workflow transcript/tree evidence |
 | macOS native | Unavailable in the current environment | None | Run the exact candidate on versioned macOS with VoiceOver and retain the workflow observations |
 | Browser, any OS/AT pair | Blocked by a retained reproduction | None | A future supported upstream web adapter or separately authorised architecture must first deliver roles, focus and actions; then qualify each browser/OS/AT combination independently |
 
-No row is directly qualified; one exact virtual Linux environment is partially
-qualified with actual Orca. Compilation, `egui_kittest`, semantic snapshots,
-browser automation and an accessibility-tree dump alone remain insufficient.
+One exact human-operated Linux environment is directly qualified and the Arch
+virtual environment remains partially qualified with actual Orca. Compilation,
+`egui_kittest`, semantic snapshots, browser automation and an accessibility-
+tree dump alone remain insufficient.
 
 ## Qualification workflow
 
@@ -172,7 +180,7 @@ The five evidence axes remain deliberately separate:
 | Keyboard tests | Pass | Deterministic repeated-frame Tab/Shift+Tab traversal reaches application actions, splitters, the active tab, pane tools and viewport; tool shortcuts and result selection update viewport context through existing commands/intents |
 | Platform-adapter integration | Native pass at build/architecture level; browser blocked | The native dependency route is compiled and guarded. Stock eframe 0.36.1 still discards browser AccessKit updates, so no browser adapter claim follows |
 | Automated tree and physical input | Pass within the stated limits | Generated AccessKit updates, bounded virtualisation, dock move/restoration, dynamic state and action routing pass automated tests. Native Xvfb/llvmpipe and Playwright Chromium/WebGPU physically exercise keyboard and pointer workflows, and deterministic UI/text checks pass. These are not actual AT sessions |
-| Actual assistive technology | Native partial pass; browser blocked | Orca 50.2 completed the representative native workflow through AT-SPI2 and Speech Dispatcher in Arch/Xvfb/llvmpipe. This is actual AT but not a human-operated desktop qualification; no direct end-user platform is qualified |
+| Actual assistive technology | One exact native environment qualified; browser blocked | The repeatable Debian VM journey plus human-confirmed audible Orca output directly qualify Debian 13/GNOME 48/RDP/Orca 48.1. Arch/Xvfb remains partial, and no claim extends to other native environments or browsers |
 
 On 4 September 2026 the candidate passed `cargo xtask verify` with npm's
 unrelated registry audit request disabled after the registry request stalled.
@@ -184,10 +192,8 @@ retained under the ignored local directory
 `.tools/runtime/verification-evidence`; pull-request evidence must record the
 exact candidate commit because a commit cannot contain its own identifier.
 
-This result completes the platform-independent implementation and a partial
-native actual-AT qualification. Direct end-user qualification remains a
-material acceptance blocker and human-review boundary. The smallest external
-continuation is one real Linux desktop session on the exact candidate using a
-human Orca user and versioned AT-SPI2/Speech Dispatcher to execute the workflow
-above. Windows/NVDA or Narrator, macOS/VoiceOver and each future browser adapter
-combination remain independently unqualified.
+This result completes the platform-independent implementation and directly
+qualifies the exact Debian 13/GNOME 48/RDP/Orca 48.1 environment. The former
+human-operated Linux acceptance blocker is closed for that combination.
+Windows/NVDA or Narrator, macOS/VoiceOver, other Linux configurations and each
+future browser adapter combination remain independently unqualified.

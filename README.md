@@ -194,15 +194,17 @@ does not update them automatically.
 ## Current limits
 
 Polyorama compiles eframe's native AccessKit adapter and is
-**AccessKit-semantic and keyboard-tested**. Its tests cover roles, names,
-states, bounds, actions, semantic parity and keyboard operation, but this is not
-evidence of working screen-reader support on Windows, macOS or Linux until the
-representative workflow is exercised there with actual assistive technology.
+**AccessKit-semantic and keyboard-tested**. The representative workflow is
+directly qualified with human-confirmed audible Orca output for the exact
+Debian 13/GNOME 48/RDP/Orca 48.1 environment. Its tests cover roles, names,
+states, bounds, actions, semantic parity and keyboard operation, but that one
+versioned result is not evidence of screen-reader support on Windows, macOS,
+other Linux configurations or browsers.
 Stock eframe 0.36.1 discards browser AccessKit updates and provides no web
 accessibility-tree adapter; the retained upstream reproduction and exact
 qualification state are in the
 [accessibility integration evidence](docs/accessibility-integration-report.md).
-No platform is currently claimed as end-user screen-reader accessible.
+The exact qualification and remaining platform boundaries are recorded there.
 
 The synthetic source and decoder demonstrate the architecture; they are not
 production image codecs or remote data integrations. Production geospatial

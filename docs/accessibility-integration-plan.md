@@ -1,7 +1,7 @@
 # End-user accessibility integration plan
 
-Status: verified draft candidate held; native actual-AT partial, direct
-qualification blocked
+Status: exact Debian GNOME/Orca environment qualified; final reconciliation
+and landing in progress
 
 Baseline revision: `0e725f5a97a6d99a6bc4c961dfc05b4e9252ba1d`
 
@@ -60,8 +60,8 @@ the integration. Do not broaden into custom DOM or accessibility frameworks.
 | 1 | Selected adapter route, honest availability and update propagation | 0 | Complete | Feature graph, architecture gate, native/Wasm builds and retained browser reproduction |
 | 2 | Bounded analytical viewport context and non-pointer workflow actions | 1 | Complete | Semantic parity, dynamic-state and custom-action tests |
 | 3 | Focus, dynamic state, virtualisation, dock restoration and physical checks | 1–2 | Complete | Kittest, native/browser harness and deterministic UI evidence |
-| 4 | Actual assistive-technology qualification and exact platform matrix | 1–3 | Partial; direct qualification blocked externally | Actual Orca passed the native workflow in Arch/Xvfb/llvmpipe; a human-operated desktop session remains required, and the browser adapter is unavailable in stock eframe 0.36.1 |
-| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | Complete to human boundary | Repaired controls and selection semantics passed the repeated Orca workflow and local `cargo xtask verify`; independent repair review found no remaining code, AT evidence or claim-boundary issue; draft PR [#28](https://github.com/robchristie/polyorama/pull/28) remains held by increment 4 |
+| 4 | Actual assistive-technology qualification and exact platform matrix | 1–3 | Complete for one exact native environment | The repeatable Debian 13 VM workflow passed and a human operator confirmed audible Orca 48.1 output in GNOME 48 over RDP; Arch/Xvfb remains partial and the browser adapter is unavailable in stock eframe 0.36.1 |
+| 5 | Canonical verification, report reconciliation, exact-head review and landing | 0–4 | In progress | The former human hold is closed for the exact Debian/GNOME/RDP/Orca combination; reconcile the evidence on draft PR [#28](https://github.com/robchristie/polyorama/pull/28), repeat canonical verification and exact-head review, then land if every gate passes |
 
 ## Acceptance proof
 
@@ -94,13 +94,14 @@ that the pinned Linux AT-SPI adapter does not carry Canvas custom actions. The
 same draft PR [#28](https://github.com/robchristie/polyorama/pull/28) now
 distinguishes deliberate pressed modes from momentary and selected controls;
 the repeated actual Orca workflow, refreshed evidence, canonical verification
-and repair review pass to the human boundary. Direct end-user qualification
-remains a human-review hold regardless.
+and repair review passed to the former human boundary. A persistent Debian 13
+VM then completed the repeatable workflow, and a human operator confirmed
+audible Orca 48.1 output in its GNOME 48 RDP desktop. That directly qualifies
+the exact environment without extending the claim to other platforms.
 
 ## Next action
 
-Repeat the retained Linux Orca/AT-SPI2 workflow on a human-operated X11 or
-Wayland desktop using the exact candidate, and retain heard speech or braille
-plus desktop/backend identity. A human can then decide whether to remove the
-hold for that exact Linux combination; every other platform row remains
-independently unqualified.
+Re-run canonical verification, obtain independent review of the reconciled
+exact head and complete the pull-request landing loop. Every platform outside
+the qualified Debian 13/GNOME 48/RDP/Orca 48.1 row remains independently
+unqualified.

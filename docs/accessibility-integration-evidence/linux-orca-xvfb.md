@@ -3,6 +3,12 @@
 Status: partially qualified with actual assistive technology; not a direct
 end-user platform claim
 
+A later human-operated Debian GNOME/RDP session directly qualified its exact
+environment; see the
+[Debian GNOME/Orca RDP evidence](linux-gnome-rdp.md). The Arch/Xvfb result below
+remains partial and independently useful as the richer retained Orca
+transcript.
+
 ## Evidence identity
 
 - source revision: `17618d5553e845a97dbba38ad44ca994fc117928`;
