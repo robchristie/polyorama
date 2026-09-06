@@ -29,6 +29,17 @@ def documentation_only(root, base):
         if not isinstance(base, str) or not base or base.startswith("-"):
             return False
         base = git(root, "rev-parse", "--verify", base + "^{commit}").decode().strip()
+        # Git diffs deliberately trust these index flags and can hide modified
+        # tracked bytes. Reject the flags themselves, even on allowlisted prose.
+        entries = git(root, "ls-files", "-v", "-z").split(b"\0")
+        if entries.pop() != b"" or any(not entry.startswith(b"H ") for entry in entries):
+            return False
+        try:
+            if git(root, "config", "--bool", "core.sparseCheckout").strip() != b"false":
+                return False
+        except subprocess.CalledProcessError as error:
+            if error.returncode != 1:  # An unset option is the normal full checkout.
+                return False
         # Inspect committed, staged and unstaged changes independently: a staged
         # code edit hidden by a working-tree reversal must not evade the guard.
         for arguments in ((base, "HEAD"), ("--cached", "HEAD"), ()):

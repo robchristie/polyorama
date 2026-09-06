@@ -35,7 +35,9 @@ Retain the Git-derived verification guard. Only `README.md`,
 verification. All other paths, unsupported modes and unknown state select full
 verification. Separate committed, staged and unstaged comparisons prevent a
 working-tree reversal from hiding a staged code edit; untracked files are also
-classified. Renames are inspected as deletion plus addition. CI obtains its
+classified. Tracked assume-unchanged and skip-worktree flags and enabled
+sparse checkout also select full verification, because ordinary Git diffs can
+hide changed tracked bytes in those states. Renames are inspected as deletion plus addition. CI obtains its
 comparison from the GitHub PR or push event, fetches history and completes the
 same required `verify` job. The execution step reclassifies rather than trusting
 a previously reported route. `cargo xtask verify` retains its complete surface
@@ -48,7 +50,7 @@ and now includes the new tool regressions.
 - Shared lifecycle regression: normal and repeated success, failure, application
   restart, SIGTERM and SIGINT all left no recorded descendant in `/proc`; the
   unrelated sentinel remained alive.
-- Focused Python suite: 11 tests passed, including mixed and hidden staged code,
+- Initial focused Python suite: 11 tests passed, including mixed and hidden staged code,
   dirty/untracked files, rename/deletion boundaries, symlink/executable modes,
   unresolved index, missing/invalid base, and PR/push/malformed event payloads.
 - Both standalone native smokes passed using the existing release binaries and
@@ -62,8 +64,19 @@ and now includes the new tool regressions.
 - After canonical completion, process inspection found no worktree-owned
   supervisor, sandbox, Xvfb or native application remaining.
 
+Independent review of candidate `4c94b7d9e481e4b931ba80e109f56387730fab82` reproduced
+an additional boundary defect: an assume-unchanged flag hid modified source
+bytes from the Git diff while a README delta selected the docs route. Retain
+the repair that rejects flag presence itself, including on prose, and enabled
+sparse checkout. The repaired focused suite passed all 14 tests, including both
+flags with unchanged and modified bytes, normal clean/prose scope and sparse
+checkout. A disposable repository exercised the production CLI: normal README
+change selected `docs`, each flagged hidden source change selected `full`, and
+clearing the flags/restoring source returned to `docs`. This classifier-only
+repair did not require repeating native runtime qualification.
+
 The final implementation source bundle is identified by SHA-256
-`87856167985da693c01120efbdb787b40f2c67cc0e89132e90129dfa425ea06c`.
+`3daffa0dbbfc57e4d2c108a13ac617125f45c4769c10997df4870b85a71c3f4a`.
 This hashes the ordered `sha256  path\n` manifest for `.github/workflows/verify.yml`,
 `tools/native-smoke.sh`, `tools/gallery-native-smoke.sh`,
 `tools/native-smoke-lifecycle.sh`, `tools/owned-process.py`, `tools/verify.py`,
@@ -76,7 +89,8 @@ its representative proof; this calibration does not assert a merge.
 Local logs and the source manifest are registered scratch under
 `.tools/runtime/verification-friction/`: `baseline-lifecycle-probe.log`,
 `focused-tests.log`, `native-smoke.log`, `gallery-smoke.log`,
-`cargo-xtask-verify.log`, `owned-process-audit.log` and `source-manifest.sha256`.
+`cargo-xtask-verify.log`, `owned-process-audit.log`, `review-repair-tests.log`,
+`review-repair-guard-proof.log` and `source-manifest.sha256`.
 Canonical runtime artefacts are under `.tools/runtime/verification-evidence/`.
 These generated artefacts are ignored; this report retains their material
 observations.

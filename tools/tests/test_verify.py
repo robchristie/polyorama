@@ -45,6 +45,34 @@ class ScopeTests(unittest.TestCase):
         self.write("docs/closeout-plan.md")
         self.assertTrue(self.scoped())
 
+    def test_clean_scope_without_hidden_index_flags(self):
+        self.assertTrue(self.scoped())
+        self.write("README.md", "changed\n")
+        self.assertTrue(self.scoped())
+
+    def test_hidden_index_flags_fail_closed(self):
+        self.write("README.md", "changed\n")
+        for flag in ("assume-unchanged", "skip-worktree"):
+            for path in ("src/main.rs", "README.md"):
+                with self.subTest(flag=flag, path=path):
+                    self.git("update-index", "--" + flag, path)
+                    self.assertFalse(self.scoped(), "flag presence alone must select full verification")
+                    self.write(path, "hidden modified bytes\n")
+                    self.assertFalse(self.scoped())
+                    self.git("update-index", "--no-" + flag, path)
+                    self.write(path, "changed\n" if path == "README.md" else "initial\n")
+                    self.assertTrue(self.scoped())
+
+    def test_sparse_checkout_fails_closed(self):
+        self.git("sparse-checkout", "set", "--no-cone", "/README.md")
+        self.assertFalse((self.root / "src/main.rs").exists())
+        self.assertFalse(self.scoped())
+        self.git("sparse-checkout", "disable")
+        self.assertTrue(self.scoped())
+        # Reject sparse mode even when every tracked file is materialised.
+        self.git("config", "--worktree", "core.sparseCheckout", "true")
+        self.assertFalse(self.scoped())
+
     def test_mixed_and_hidden_staged_code(self):
         self.write("README.md", "changed\n")
         self.write("src/main.rs", "changed\n")
