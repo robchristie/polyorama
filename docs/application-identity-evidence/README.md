@@ -5,8 +5,9 @@ It repairs the enlarged-text gallery entry from
 `ab86d64f7805b01d43b70154aa73318a6365d9ca`, which extended checkpoint
 `8f0d92292df67ebbb4e639754a82f7fffb9b24c7`;
 the original comparison base is `d469d74a14f0bc4494fdfc44504f12462ee50841`.
-This is a provisional calibration candidate, not a landed or visually approved
-release. Bokkie's application-owned values and comparison evidence remain in
+The user explicitly approved the five candidate baseline images and associated
+native-control coverage updates on 2026-09-07. This records source qualification,
+not a release or deployment. Bokkie's application-owned values and comparison evidence remain in
 Bokkie's repository.
 
 The calibration question was whether the intended single-colour foreground
@@ -28,13 +29,14 @@ The gallery has 9 passing tests and the UI crate has 61. The new gallery test
 renders the real reference shell and open workbench for three authored themes
 in all four mode/contrast combinations with no text audit findings.
 
-**Canonical verification remains failed:** every one of the five approved
-visual baselines differs. All five retain identical semantic and metadata snapshots and identical
+**Historical pre-approval verification failed:** all five previous
+visual baselines differed. All five retain identical semantic and metadata snapshots and identical
 measured-text observations, with empty audits. Text coverage now honestly counts
 the native workbench entry: 26 native controls instead of 25, and the explicit
 `native_button_text` exclusion. This deliberate coverage delta also requires
-baseline acceptance. Expected images under
-`docs/ui-snapshots/expected/` were not changed. The [summary](summary.json)
+baseline acceptance, supplied explicitly by the user on 2026-09-07. The accepted
+images and text coverage records now replace those five files pairs under
+`docs/ui-snapshots/expected/`. The [summary](summary.json)
 records pixel counts and the exact Wasm identity; [artefact hashes](artefact-hashes.json)
 bind the retained evidence files.
 
@@ -56,9 +58,9 @@ technology qualification.
 | Keyboard focus | [Actual](snapshots/button-keyboard-focus/actual.png) | [Diff](snapshots/button-keyboard-focus/diff.png) | [Approved](../ui-snapshots/expected/button-keyboard-focus/visual.png) |
 
 The differences include the workbench entry control, token-derived native
-foregrounds and fills, and corrected primary/pressed treatment. They need
-explicit visual acceptance before copying any candidate into the approved
-baseline tree. No automatic approval or weakened threshold is proposed.
+foregrounds and fills, and corrected primary/pressed treatment. The user accepted these
+exact candidates and their coverage updates before they were copied into the
+baseline tree. Comparison thresholds remain unchanged.
 
 ## Live workbench journey
 
@@ -99,7 +101,8 @@ The regenerated [150% high-contrast candidate](snapshots/diagnostics-high-contra
 shows the complete entry within the sidebar. All five candidate bundles were
 regenerated from the `a3eb846` release Wasm, rather than reusing the earlier
 images. Their unchanged text observations and intentional inventory delta are
-recorded in the machine-readable summary. Approved baselines remain untouched.
+recorded in the historical machine-readable summary. These five replacements
+were subsequently accepted explicitly by the user.
 
 The retained export is a development example, not Bokkie's theme. It is not an
 approved visual baseline. Runtime theme validation proves bounded text,
@@ -107,7 +110,7 @@ focus/selection and opacity contracts; meaningful control-boundary contrast
 still requires application checks because the analytical reference preserves
 its historical border values. Bokkie owns the corresponding graphite checks.
 
-Retain the implementation candidate and evidence for review. The next action
-is visual acceptance of the affected candidates, then ordinary exact-revision
-review, canonical verification and landing. The complete goal remains open
-until owner and consumer qualification and delivery are reconciled.
+The retained logs and summary describe the pre-approval checkpoint. Final
+canonical verification, exact-revision review and landing evidence are recorded
+in [Polyorama #33](https://github.com/robchristie/polyorama/pull/33). Bokkie owns
+final consumer integration and the complete objective’s closeout.
