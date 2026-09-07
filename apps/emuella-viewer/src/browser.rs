@@ -4,13 +4,6 @@ use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 fn encode_message(value: &serde_json::Value) -> Result<JsValue, serde_wasm_bindgen::Error> {
     value.serialize(&serde_wasm_bindgen::Serializer::json_compatible())
 }
-#[derive(Deserialize)]
-struct Fields {
-    tid: String,
-    frame: [u32; 2],
-    offset: [u32; 2],
-    size: [u32; 2],
-}
 use crate::engine::{Event, Job, WorkerMetrics};
 use polyorama_runtime::RegionalRequest;
 use wasm_bindgen::{JsCast, JsValue, closure::Closure};
@@ -134,7 +127,7 @@ impl Drop for Executor {
 }
 
 use crate::engine::Engine;
-use emuella_viewer_source::{Manifest, jpip::ResponseFields};
+use emuella_viewer_source::Manifest;
 use wasm_bindgen::prelude::*;
 fn js(error: impl std::fmt::Display) -> JsValue {
     JsValue::from_str(&error.to_string())
@@ -188,17 +181,18 @@ impl WorkerClient {
         .map_err(js)
     }
     pub fn begin(&mut self, tid: &str, value: JsValue) -> Result<(), JsValue> {
-        let f: Fields = serde_wasm_bindgen::from_value(value)?;
-        let fields = ResponseFields {
-            tid: f.tid,
-            frame: f.frame,
-            offset: f.offset,
-            size: f.size,
-        };
+        // A rejected response must not leave an earlier reader available for admission.
+        self.reader = None;
+        let headers: Vec<(String, String)> = serde_wasm_bindgen::from_value(value)?;
         self.reader = Some(
             self.engine
                 .client
-                .begin_response(tid, &fields)
+                .begin_response_headers(
+                    tid,
+                    headers
+                        .iter()
+                        .map(|(name, value)| (name.as_str(), value.as_str())),
+                )
                 .map_err(js)?,
         );
         Ok(())

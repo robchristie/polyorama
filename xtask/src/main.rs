@@ -480,7 +480,7 @@ fn build_viewer_web() -> Result<()> {
     let output =
         env::var("POLYORAMA_VIEWER_WEB_DIR").unwrap_or_else(|_| ".tools/runtime/viewer-web".into());
     fs::create_dir_all(&output)?;
-    for asset in ["index.html", "bootstrap.js", "worker.js"] {
+    for asset in ["index.html", "bootstrap.js", "worker.js", "response.js"] {
         fs::copy(
             Path::new("apps/emuella-viewer/web").join(asset),
             Path::new(&output).join(asset),
@@ -497,6 +497,7 @@ fn build_viewer_web() -> Result<()> {
             "target/wasm32-unknown-unknown/release/emuella_viewer.wasm",
         ],
     )?;
+    run("node", &["tools/viewer-response-headers.mjs", &output])?;
     println!("Serve the viewer's complete static root: {output}");
     Ok(())
 }

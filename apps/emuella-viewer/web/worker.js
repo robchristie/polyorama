@@ -1,3 +1,4 @@
+import { beginResponse } from './response.js';
 import init, { WorkerClient } from './pkg/emuella_viewer.js';
 let wasm;
 const ready = init().then(value => { wasm = value; });
@@ -53,9 +54,8 @@ async function work(job) {
       if (attempt > 0) transport.retries++;
       const response = await get(`/jpip?${client.query(job)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const pair = name => response.headers.get(name).split(',').slice(0, 2).map(Number);
       stopped();
-      client.begin(job.manifest.tid, { tid: response.headers.get('JPIP-tid'), frame: pair('JPIP-fsiz'), offset: pair('JPIP-roff'), size: pair('JPIP-rsiz') });
+      beginResponse(client, job.manifest.tid, response.headers);
       await bounded(response, limit, bytes => { stopped(); client.receive(bytes); });
       client.finish(); stopped();
       if (client.ready(job)) pixels = client.decode(job);

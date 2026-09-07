@@ -111,3 +111,8 @@ benchmark trace export, baseline selection and recovery evidence, use the
 [composed calibration guide](../../docs/emuella-viewer-calibration.md). Native
 scripted phases now require all distinct demands to become GPU resident and fail
 after 60 seconds; they no longer advance after an unsettled timeout.
+
+The [public candidate qualification](../../docs/emuella-viewer-qualification.md)
+records measured limits, exact build/input identities, complete-tile reference
+comparisons and the remaining representative real-image proof. It separates
+public candidate evidence from final system acceptance.

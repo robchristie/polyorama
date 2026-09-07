@@ -1,6 +1,6 @@
 use crate::engine::{CATALOGUE_LIMIT, Engine, Event, HTTP_LIMIT, Job};
 use anyhow::{Result, anyhow, ensure};
-use emuella_viewer_source::{Manifest, jpip::ResponseFields};
+use emuella_viewer_source::{Manifest, ResponseReader, SharedClient};
 use polyorama_runtime::{RegionalRequest, RequestToken};
 use std::{
     collections::BTreeSet,
@@ -121,23 +121,12 @@ impl Executor {
                                 ))
                                 .send()?
                                 .error_for_status()?;
-                            let header = |name: &str| -> Result<String> {
-                                Ok(response
-                                    .headers()
-                                    .get(name)
-                                    .ok_or_else(|| anyhow!("missing {name}"))?
-                                    .to_str()?
-                                    .to_owned())
-                            };
-                            let fields = ResponseFields {
-                                tid: header("JPIP-tid")?,
-                                frame: pair(&header("JPIP-fsiz")?)?,
-                                offset: pair(&header("JPIP-roff")?)?,
-                                size: pair(&header("JPIP-rsiz")?)?,
-                            };
                             ensure!(!stopped(), "cancelled");
-                            let mut reader =
-                                engine.client.begin_response(&job.manifest.tid, &fields)?;
+                            let mut reader = begin_response(
+                                &mut engine.client,
+                                &job.manifest.tid,
+                                response.headers(),
+                            )?;
                             let mut chunk = [0; 8192];
                             let mut received = 0;
                             loop {
@@ -242,12 +231,177 @@ fn body(response: reqwest::blocking::Response, limit: usize) -> Result<Vec<u8>> 
     ensure!(bytes.len() <= limit, "HTTP body exceeds bound");
     Ok(bytes)
 }
-fn pair(text: &str) -> Result<[u32; 2]> {
-    let parts = text
-        .split(',')
-        .take(2)
-        .map(str::parse)
-        .collect::<std::result::Result<Vec<_>, _>>()?;
-    ensure!(parts.len() == 2, "invalid JPIP geometry header");
-    Ok([parts[0], parts[1]])
+fn begin_response(
+    client: &mut SharedClient,
+    tid: &str,
+    headers: &reqwest::header::HeaderMap,
+) -> Result<ResponseReader> {
+    let mut fields = Vec::new();
+    for name in ["JPIP-tid", "JPIP-fsiz", "JPIP-roff", "JPIP-rsiz"] {
+        for value in headers.get_all(name) {
+            fields.push((name, value.to_str()?));
+        }
+    }
+    client.begin_response_headers(tid, fields)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use emuella_viewer_source::{ClientLimits, Identity, Profile, jpip};
+    use reqwest::header::{HeaderMap, HeaderValue};
+
+    fn client() -> (SharedClient, String) {
+        let mut manifest = Manifest {
+            target: "response-test".into(),
+            tid: String::new(),
+            identity: Identity {
+                source_sha256: "test-source".into(),
+                bands: vec![0],
+                profile: Profile {
+                    width: 256,
+                    height: 256,
+                    tile_edge: 256,
+                    decomposition_levels: 2,
+                    bits_per_sample: 8,
+                    components: 1,
+                    bits_per_pixel: 2.5,
+                },
+                codec_revision: "test".into(),
+                encoding_contract: "test".into(),
+                spatial_policy_sha256: "test".into(),
+                payload_sha256: "test".into(),
+                descriptor_format: "test".into(),
+            },
+            encoded_bytes: 1024,
+            main_header_bytes: 128,
+            descriptor_sha256: vec!["test".into()],
+        };
+        manifest.seal().unwrap();
+        let tid = manifest.tid.clone();
+        let mut client = SharedClient::new(ClientLimits::default());
+        client.register(manifest).unwrap();
+        (client, tid)
+    }
+    fn headers(tid: &str) -> HeaderMap {
+        let mut headers = HeaderMap::new();
+        for (name, value) in [
+            ("jPiP-tId", tid),
+            ("JpIp-FsIz", "128,128"),
+            ("jPIP-roFF", "3,4"),
+            ("JPIP-rsiZ", "100,101"),
+        ] {
+            headers.append(
+                reqwest::header::HeaderName::from_bytes(name.as_bytes()).unwrap(),
+                HeaderValue::from_str(value).unwrap(),
+            );
+        }
+        headers
+    }
+    fn payload() -> Vec<u8> {
+        let mut bytes = jpip::encode_message(jpip::DataMessage {
+            key: jpip::BinKey::new(0, 1).unwrap(),
+            offset: 0,
+            final_bin: true,
+            auxiliary: None,
+            bytes: &[7, 8, 9],
+        })
+        .unwrap();
+        bytes.extend(jpip::encode_end(2));
+        bytes
+    }
+    fn rejects_without_admission(client: &mut SharedClient, tid: &str, headers: &HeaderMap) {
+        let before = client.resident_bytes();
+        let received = client.metrics.received_jpp_bytes;
+        let result = begin_response(client, tid, headers);
+        assert!(result.is_err(), "invalid headers created a response reader");
+        assert_eq!(client.resident_bytes(), before);
+        assert_eq!(client.metrics.received_jpp_bytes, received);
+    }
+    #[test]
+    fn response_headers_reject_conflicting_occurrences_before_admission() {
+        let (mut client, tid) = client();
+        for (name, value) in [
+            ("jpip-tid", "another-target"),
+            ("jpip-fsiz", "256,256"),
+            ("jpip-roff", "0,0"),
+            ("jpip-rsiz", "1,1"),
+        ] {
+            let mut fields = headers(&tid);
+            fields.append(name, HeaderValue::from_str(value).unwrap());
+            rejects_without_admission(&mut client, &tid, &fields);
+        }
+    }
+    #[test]
+    fn response_headers_reject_malformed_or_browser_combined_geometry_before_admission() {
+        let (mut client, tid) = client();
+        for name in ["jpip-fsiz", "jpip-roff", "jpip-rsiz"] {
+            for value in [
+                "128,128,256,256",
+                "128,128, 256,256",
+                "128,128,round-down",
+                "128",
+                "128,",
+                "128,x",
+                "-1,1",
+                "1.5,1",
+                "4294967296,1",
+                "1, 1",
+            ] {
+                let mut fields = headers(&tid);
+                fields.insert(name, HeaderValue::from_str(value).unwrap());
+                rejects_without_admission(&mut client, &tid, &fields);
+            }
+        }
+        for (name, value) in [
+            ("jpip-fsiz", "0,128"),
+            ("jpip-rsiz", "0,1"),
+            ("jpip-roff", "4294967295,4"),
+            ("jpip-rsiz", "128,128"),
+        ] {
+            let mut fields = headers(&tid);
+            fields.insert(name, HeaderValue::from_str(value).unwrap());
+            rejects_without_admission(&mut client, &tid, &fields);
+        }
+    }
+    #[test]
+    fn response_headers_reject_missing_non_ascii_and_changed_identity_before_admission() {
+        let (mut client, tid) = client();
+        for name in ["jpip-tid", "jpip-fsiz", "jpip-roff", "jpip-rsiz"] {
+            let mut fields = headers(&tid);
+            fields.remove(name);
+            rejects_without_admission(&mut client, &tid, &fields);
+            fields.insert(name, HeaderValue::from_bytes(&[0xff]).unwrap());
+            rejects_without_admission(&mut client, &tid, &fields);
+            let mut fields = headers(&tid);
+            fields.append(name, HeaderValue::from_bytes(&[0xff]).unwrap());
+            rejects_without_admission(&mut client, &tid, &fields);
+        }
+        let mut fields = headers(&tid);
+        fields.insert("jpip-tid", HeaderValue::from_static("another-target"));
+        rejects_without_admission(&mut client, &tid, &fields);
+    }
+    #[test]
+    fn response_headers_accept_case_insensitive_names_identical_duplicates_and_effective_window() {
+        let (mut client, tid) = client();
+        let mut headers = headers(&tid);
+        headers.append("jpip-fsiz", HeaderValue::from_static("128,128"));
+        let fields = emuella_viewer_source::response_fields(
+            headers
+                .iter()
+                .map(|(name, value)| (name.as_str(), value.to_str().unwrap())),
+        )
+        .unwrap();
+        assert_eq!(fields.frame, [128, 128]);
+        assert_eq!(fields.offset, [3, 4]);
+        assert_eq!(fields.size, [100, 101]);
+        let mut reader = begin_response(&mut client, &tid, &headers).unwrap();
+        let bytes = payload();
+        client.receive(&mut reader, &bytes).unwrap();
+        client.finish(reader).unwrap();
+        assert_eq!(client.resident_bytes().0, 3);
+        assert_eq!(client.metrics.received_jpp_bytes, bytes.len() as u64);
+        headers.append("jpip-tid", HeaderValue::from_static("another-target"));
+        rejects_without_admission(&mut client, &tid, &headers);
+    }
 }

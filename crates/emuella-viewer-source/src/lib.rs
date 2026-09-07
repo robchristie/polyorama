@@ -15,6 +15,37 @@ use std::ops::Range;
 pub fn checked<T, E: std::fmt::Debug>(result: std::result::Result<T, E>) -> Result<T> {
     result.map_err(|e| anyhow!("{e:?}"))
 }
+/// Validate transport header multiplicity before the protocol owner parses values.
+/// Browser-combined values remain intact, so ambiguous geometry cannot be truncated.
+pub fn response_fields<'a>(
+    headers: impl IntoIterator<Item = (&'a str, &'a str)>,
+) -> Result<jpip::ResponseFields> {
+    let names = ["JPIP-tid", "JPIP-fsiz", "JPIP-roff", "JPIP-rsiz"];
+    let mut values = [None; 4];
+    for (name, value) in headers {
+        if let Some(index) = names.iter().position(|n| name.eq_ignore_ascii_case(n)) {
+            if let Some(previous) = values[index] {
+                ensure!(
+                    previous == value,
+                    "conflicting {} response fields",
+                    names[index]
+                );
+            }
+            values[index] = Some(value);
+        }
+    }
+    let mut required = [""; 4];
+    for (index, value) in values.into_iter().enumerate() {
+        required[index] = value.ok_or_else(|| anyhow!("missing {}", names[index]))?;
+    }
+    checked(jpip::ResponseFields::parse(
+        required[0],
+        required[1],
+        required[2],
+        required[3],
+    ))
+}
+
 pub fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -532,6 +563,16 @@ impl SharedClient {
                 .filter(|(k, _)| wanted.contains(k))
                 .collect(),
         })
+    }
+    /// Validate every transport field before creating a reader or touching cache state.
+    /// The caller must still reject stale application generations before this call.
+    pub fn begin_response_headers<'a>(
+        &mut self,
+        tid: &str,
+        headers: impl IntoIterator<Item = (&'a str, &'a str)>,
+    ) -> Result<ResponseReader> {
+        let fields = response_fields(headers)?;
+        self.begin_response(tid, &fields)
     }
     /// Call only after transport generation checks and case-insensitive header parsing.
     pub fn begin_response(
