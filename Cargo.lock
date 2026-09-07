@@ -1108,6 +1108,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "emuella-viewer-tools"
+version = "0.1.6"
+dependencies = [
+ "anyhow",
+ "emuella-viewer-source",
+ "libloading",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+]
+
+[[package]]
 name = "endi"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
