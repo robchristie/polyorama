@@ -145,7 +145,7 @@ ordinary egui labels and each unobserved native text category used in that pass.
 Missing or null coverage is unavailable. Required semantic content must also be
 asserted explicitly; zero findings alone cannot prove a component was submitted.
 
-Native combo boxes, radios, sliders and selectable options are recorded at their
+Native buttons, combo boxes, radios, sliders and selectable options are recorded at their
 recipe or application call sites. The denominator includes submitted clipped
 controls, gallery chrome and open popup options, but not closed popup options
 or virtual items that were never instantiated. A native control is counted once

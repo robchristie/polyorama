@@ -527,18 +527,24 @@ fn gallery_bar(root_ui: &mut egui::Ui, app: &mut GalleryApp, tokens: &DesignToke
         });
 }
 
+/// Keep the development entry within the catalogue at enlarged text sizes.
+/// Native wrapping retains the complete visible and accessible action name.
+fn catalogue_heading(ui: &mut egui::Ui) -> egui::Response {
+    ui.strong("Stories");
+    let response = ui.add(egui::Button::new("Appearance workbench").wrap());
+    record_native_text_control(&response, NativeTextControlKind::Button);
+    response
+}
+
 fn story_navigation(root_ui: &mut egui::Ui, app: &mut GalleryApp) {
     egui::Panel::left("polyorama.gallery.catalogue")
         .exact_size(244.0)
         .resizable(false)
         .show(root_ui, |ui| {
             ui.add_space(8.0);
-            ui.horizontal(|ui| {
-                ui.strong("Stories");
-                if ui.small_button("Appearance workbench").clicked() {
-                    app.workbench.open = true;
-                }
-            });
+            if catalogue_heading(ui).clicked() {
+                app.workbench.open = true;
+            }
             ui.add_space(4.0);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut group = None;
@@ -566,6 +572,77 @@ fn story_navigation(root_ui: &mut egui::Ui, app: &mut GalleryApp) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn workbench_entry_fits_catalogue_at_enlarged_text_and_records_native_coverage() {
+        for font_scale in [1.0, 1.25, 1.5] {
+            let context = egui::Context::default();
+            context.enable_accesskit();
+            let preferences = UiPreferences {
+                font_scale,
+                contrast: ContrastPreference::High,
+                density: DensityPreference::Compact,
+                ..Default::default()
+            };
+            apply_design_system(&context, preferences);
+            let mut button_id = egui::Id::NULL;
+            let mut bounds = egui::Rect::NOTHING;
+            let mut output = context.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(228.0, 150.0),
+                    )),
+                    ..Default::default()
+                },
+                |ui| {
+                    bounds = ui.available_rect_before_wrap();
+                    let response = catalogue_heading(ui);
+                    button_id = response.id;
+                    assert!(
+                        bounds.contains_rect(response.rect),
+                        "entry clipped at {font_scale}"
+                    );
+                    let coverage = polyorama_ui_egui::text_audit_coverage(&context, &[]);
+                    assert_eq!(coverage.native_text_controls, 1);
+                    assert_eq!(coverage.observed_native_controls, 0);
+                    assert!(
+                        coverage
+                            .excluded_categories
+                            .contains(&polyorama_ui_egui::TextExclusion::NativeButtonText)
+                    );
+                },
+            );
+            output.textures_delta.clear();
+            let label = output
+                .shapes
+                .iter()
+                .find_map(|shape| match &shape.shape {
+                    egui::Shape::Text(text) if text.galley.job.text == "Appearance workbench" => {
+                        Some(text)
+                    }
+                    _ => None,
+                })
+                .expect("complete workbench label is painted");
+            assert!(!label.galley.elided);
+            assert!(
+                bounds
+                    .expand(1.0)
+                    .contains_rect(egui::Rect::from_min_size(label.pos, label.galley.size()))
+            );
+            let update = output
+                .platform_output
+                .accesskit_update
+                .expect("native button semantics");
+            let (_, node) = update
+                .nodes
+                .iter()
+                .find(|(id, _)| *id == egui::accesskit::NodeId(button_id.value()))
+                .expect("workbench button node");
+            assert_eq!(node.role(), egui::accesskit::Role::Button);
+            assert_eq!(node.label(), Some("Appearance workbench"));
+        }
+    }
 
     #[test]
     fn configuration_matrix_is_finite_bounded_and_token_resolvable() {

@@ -90,7 +90,9 @@ impl AppearanceWorkbench {
                 }
             }
             if let Some(error) = &self.error { ui.label(format!("Preview retains last valid values: {error}")); }
-            if ui.add_enabled(self.error.is_none(), egui::Button::new("Copy theme JSON")).clicked() {
+            let export = ui.add_enabled(self.error.is_none(), egui::Button::new("Copy theme JSON"));
+            polyorama_ui_egui::record_native_text_control(&export, polyorama_ui_egui::NativeTextControlKind::Button);
+            if export.clicked() {
                 context.copy_text(serde_json::to_string_pretty(&self.theme.colours()).expect("typed theme serialises"));
             }
             ui.label("Export is ThemeColours JSON for checked-in application source. Snapshot baselines require separate review.");
