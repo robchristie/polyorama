@@ -7,7 +7,7 @@ use std::{
     collections::BTreeMap,
     fs::{self, File},
     io::{Read, Seek, SeekFrom, Write},
-    net::{TcpListener, TcpStream},
+    net::{IpAddr, Ipv6Addr, TcpListener, TcpStream},
     path::{Path, PathBuf},
     time::{Duration, Instant},
 };
@@ -264,6 +264,106 @@ impl HttpResponse {
         }
     }
 }
+
+/// Parse the deliberately narrow HTTP authority used by this loopback service.
+/// Names never undergo DNS resolution, including names that resolve to loopback.
+fn loopback_authority(value: &str) -> Result<(String, u16)> {
+    let (host, port) = if let Some(rest) = value.strip_prefix('[') {
+        let (host, suffix) = rest.split_once(']').context("invalid IPv6 authority")?;
+        let address: Ipv6Addr = host.parse().context("invalid IPv6 address")?;
+        ensure!(address.is_loopback(), "loopback Host required");
+        (address.to_string(), suffix)
+    } else {
+        let (host, suffix) = value
+            .split_once(':')
+            .map_or((value, ""), |(host, _)| (host, &value[host.len()..]));
+        let host = if host.eq_ignore_ascii_case("localhost") {
+            "localhost".to_owned()
+        } else {
+            let address: IpAddr = host.parse().context("invalid loopback Host")?;
+            ensure!(
+                address.is_ipv4() && address.is_loopback(),
+                "loopback Host required"
+            );
+            address.to_string()
+        };
+        (host, suffix)
+    };
+    let port = if port.is_empty() {
+        80
+    } else {
+        let port = port.strip_prefix(':').context("invalid authority suffix")?;
+        ensure!(
+            !port.is_empty() && port.bytes().all(|byte| byte.is_ascii_digit()),
+            "invalid authority port"
+        );
+        let port: u16 = port.parse().context("invalid authority port")?;
+        ensure!(port != 0, "invalid authority port");
+        port
+    };
+    Ok((host, port))
+}
+
+fn local_request_target(header: &[u8]) -> Result<&str> {
+    let text = std::str::from_utf8(header)?;
+    let mut lines = text.split("\r\n");
+    let mut parts = lines.next().context("request line")?.split(' ');
+    ensure!(parts.next() == Some("GET"), "GET required");
+    let url = parts.next().context("URL")?;
+    ensure!(
+        url.starts_with('/') && !url.starts_with("//") && !url.chars().any(char::is_control),
+        "origin-form URL required"
+    );
+    ensure!(
+        parts.next() == Some("HTTP/1.1") && parts.next().is_none(),
+        "HTTP version"
+    );
+    let mut host = None;
+    let mut origin = None;
+    let mut fetch_site = None;
+    for line in lines.take_while(|line| !line.is_empty()) {
+        let (name, value) = line.split_once(':').context("invalid HTTP field")?;
+        ensure!(
+            !name.is_empty()
+                && name
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || b"!#$%&'*+-.^_`|~".contains(&byte))
+                && value
+                    .bytes()
+                    .all(|byte| byte == b'\t' || (32..=126).contains(&byte)),
+            "invalid HTTP field"
+        );
+        let value = value.trim_matches([' ', '\t']);
+        let field = if name.eq_ignore_ascii_case("Host") {
+            &mut host
+        } else if name.eq_ignore_ascii_case("Origin") {
+            &mut origin
+        } else if name.eq_ignore_ascii_case("Sec-Fetch-Site") {
+            &mut fetch_site
+        } else {
+            continue;
+        };
+        ensure!(field.replace(value).is_none(), "duplicate boundary field");
+    }
+    let host = loopback_authority(host.context("Host required")?)?;
+    if let Some(origin) = origin {
+        let authority = origin
+            .strip_prefix("http://")
+            .context("HTTP Origin required")?;
+        ensure!(
+            loopback_authority(authority)? == host,
+            "same-origin request required"
+        );
+    }
+    if let Some(site) = fetch_site {
+        ensure!(
+            matches!(site, "same-origin" | "none"),
+            "same-origin fetch required"
+        );
+    }
+    Ok(url)
+}
+
 struct FileBins {
     file: File,
     ranges: BTreeMap<jpip::BinKey, std::ops::Range<u64>>,
@@ -508,21 +608,14 @@ impl Service {
             stream.read_exact(&mut byte)?;
             header.push(byte[0]);
         }
-        let text = std::str::from_utf8(&header)?;
-        let line = text.lines().next().context("request line")?;
-        let mut parts = line.split_whitespace();
-        ensure!(parts.next() == Some("GET"), "GET required");
-        let url = parts.next().context("URL")?;
-        ensure!(
-            parts.next() == Some("HTTP/1.1") && parts.next().is_none(),
-            "HTTP version"
-        );
-        let response = self.route(url).unwrap_or_else(|error| {
-            HttpResponse::new(400, "text/plain", format!("{error:#}\n").into_bytes())
-        });
+        let response = local_request_target(&header)
+            .and_then(|url| self.route(url))
+            .unwrap_or_else(|error| {
+                HttpResponse::new(400, "text/plain", format!("{error:#}\n").into_bytes())
+            });
         write!(
             stream,
-            "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Expose-Headers: JPIP-tid, JPIP-fsiz, JPIP-roff, JPIP-rsiz\r\n",
+            "HTTP/1.1 {} {}\r\nContent-Length: {}\r\nConnection: close\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Content-Type-Options: nosniff\r\n",
             response.status,
             if response.status == 200 {
                 "OK"

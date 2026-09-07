@@ -86,6 +86,26 @@ The bind address must be loopback. The explicit representation list is the
 catalogue whitelist; request target names are never filesystem paths. Static
 assets must resolve inside the supplied web root, including symlink targets.
 
+The browser application and data endpoints use the same HTTP origin. Every
+HTTP/1.1 request requires exactly one `Host`: case-insensitive `localhost`, a
+literal IPv4 address in `127.0.0.0/8`, or bracketed IPv6 loopback `[::1]`, with
+an optional decimal port from 1 to 65535 (omission means 80). Other DNS names
+are rejected without resolution, preventing DNS rebinding through a foreign
+hostname. The authority port need not equal the socket port, so a transparent
+loopback calibration proxy can forward its own authority.
+
+When supplied, `Origin` must be a single HTTP origin matching that `Host` and
+effective port; `null`, foreign origins, HTTPS origins and duplicate boundary
+fields are rejected. Native clients and same-origin browser requests may omit
+`Origin`. Supplied `Sec-Fetch-Site` must be `same-origin` or `none`; even
+`same-site` requests are rejected because another local port is another origin.
+Malformed request fields and boundary violations return HTTP 400 before routing
+or imagery reads. Responses contain `Cross-Origin-Resource-Policy: same-origin`
+and `X-Content-Type-Options: nosniff`, with no CORS permission or exposure fields.
+Standard JPIP response fields remain directly available to the same-origin
+application. This is a local browser boundary, without client authentication;
+local native processes can access the explicitly selected representations.
+
 | Request | Response |
 |---|---|
 | `GET /catalogue` | JSON array of `Manifest` |
@@ -140,7 +160,9 @@ cargo run --release -p emuella-viewer-tools -- measure \
   --x 247 --y 117 --width 769 --height 513 --discard 2 --rounds 2 --len 262144
 ```
 
-Journey tests cover actual HTTP, fragmented partial receipt/retry after restart,
+Journey tests cover actual HTTP, same-origin/native access, foreign origins and
+DNS-rebinding authorities rejected before data reads, malformed/duplicate
+boundary fields, fragmented partial receipt/retry after restart,
 warm compressed reuse without source reads, odd non-origin and edge projection,
 reference equality from the same representation, policy identity invalidation,
 corrupted descriptor/payload rejection and failure-atomic preparation.

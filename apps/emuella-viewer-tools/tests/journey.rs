@@ -163,12 +163,19 @@ fn actual_http_loopback_catalogue_and_jpp() {
     });
     for path in ["/catalogue".to_string(), format!("/jpip?{query}")] {
         let mut stream = TcpStream::connect(address).unwrap();
-        write!(stream, "GET {path} HTTP/1.1\r\nHost: localhost\r\n\r\n").unwrap();
+        write!(
+            stream,
+            "GET {path} HTTP/1.1\r\nHost: {address}\r\nOrigin: http://{address}\r\nSec-Fetch-Site: same-origin\r\n\r\n"
+        )
+        .unwrap();
         let mut bytes = Vec::new();
         stream.read_to_end(&mut bytes).unwrap();
         let end = bytes.windows(4).position(|w| w == b"\r\n\r\n").unwrap() + 4;
         let header = std::str::from_utf8(&bytes[..end]).unwrap();
         assert!(header.starts_with("HTTP/1.1 200"));
+        assert!(!header.to_ascii_lowercase().contains("access-control-"));
+        assert!(header.contains("Cross-Origin-Resource-Policy: same-origin\r\n"));
+        assert!(header.contains("X-Content-Type-Options: nosniff\r\n"));
         if path == "/catalogue" {
             let catalogue: Vec<Manifest> = serde_json::from_slice(&bytes[end..]).unwrap();
             assert_eq!(catalogue[0], manifest);
@@ -193,6 +200,136 @@ fn actual_http_loopback_catalogue_and_jpp() {
             client.finish(reader).unwrap();
             client.decode(&manifest.tid, &region).unwrap();
         }
+    }
+    handle.join().unwrap();
+}
+
+#[test]
+fn actual_http_rejects_foreign_and_malformed_browser_authorities_before_routing() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("rep");
+    let (manifest, _) = fixture(&root, "private-wire", profile(), "fixture-revision").unwrap();
+    let web = dir.path().join("web");
+    std::fs::create_dir(&web).unwrap();
+    std::fs::write(web.join("index.html"), "local viewer").unwrap();
+    let mut service = Service::open(&[root], Some(web), true).unwrap();
+    let mut client = SharedClient::new(ClientLimits::default());
+    install(&mut client, &mut service, &manifest, &region());
+    service.metrics = IoMetrics::default();
+    let query = checked(
+        client
+            .request(&manifest.tid, &region(), 1024)
+            .unwrap()
+            .query(),
+    )
+    .unwrap();
+    let paths = [
+        "/catalogue".to_owned(),
+        format!("/descriptor/private-wire/0?tid={}", manifest.tid),
+        format!("/jpip?{query}"),
+        "/".to_owned(),
+    ];
+    let headers = [
+        "Host: rebound.example:8123\r\n",
+        "Host: 192.0.2.1\r\n",
+        "Host: [2001:db8::1]\r\n",
+        "Host: localhost.attacker.example\r\n",
+        "Host: localhost\r\nOrigin: https://attacker.example\r\n",
+        "Host: localhost\r\nOrigin: null\r\n",
+        "Host: localhost\r\nOrigin: http://localhost:8123\r\n",
+        "Host: localhost\r\nOrigin: http://127.0.0.1\r\n",
+        "Host: localhost\r\nOrigin: https://localhost\r\n",
+        "Host: localhost\r\nOrigin: http://localhost/\r\n",
+        "Host: localhost\r\nOrigin: http://localhost http://localhost\r\n",
+        "Host: localhost\r\nOrigin: http://localhost\r\norigin: http://localhost\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: cross-site\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: same-site\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: invalid\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: none\r\nsec-fetch-site: same-origin\r\n",
+        "Host: localhost\r\nhOsT: localhost\r\n",
+        "Host: localhost, localhost\r\n",
+        "Host: localhost:\r\n",
+        "Host: localhost:65536\r\n",
+        "Host: localhost:0\r\n",
+        "Host: localhost:+80\r\n",
+        "Host: localhost:80:80\r\n",
+        "Host: localhost/path\r\n",
+        "Host: user@localhost\r\n",
+        "Host: localhost#fragment\r\n",
+        "Host: [::1\r\n",
+        "Host: [::1]suffix\r\n",
+        "Host: ::1\r\n",
+        "Host: [::1]:bad\r\n",
+        "Host: \r\n",
+        "",
+        "Host : localhost\r\n",
+        "Host: localhost\r\n folded: value\r\n",
+        "Host: localhost\nOrigin: http://localhost\r\n",
+    ];
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    let count = headers.len() * paths.len();
+    let handle = std::thread::spawn(move || {
+        for _ in 0..count {
+            let (stream, _) = listener.accept().unwrap();
+            service.handle(stream).unwrap();
+        }
+        assert_eq!(service.metrics.logical_read_bytes, 0);
+        assert_eq!(service.metrics.descriptor_read_operations, 0);
+        assert_eq!(service.metrics.jpp_bytes, 0);
+    });
+    for header in headers {
+        for path in &paths {
+            let mut stream = TcpStream::connect(address).unwrap();
+            write!(stream, "GET {path} HTTP/1.1\r\n{header}\r\n").unwrap();
+            let mut bytes = Vec::new();
+            stream.read_to_end(&mut bytes).unwrap();
+            let response = std::str::from_utf8(&bytes).unwrap();
+            assert!(
+                response.starts_with("HTTP/1.1 400"),
+                "{header:?}: {response}"
+            );
+            assert!(!response.to_ascii_lowercase().contains("access-control-"));
+            assert!(!response.contains(&manifest.tid));
+            assert!(!response.contains("local viewer"));
+        }
+    }
+    handle.join().unwrap();
+}
+
+#[test]
+fn actual_http_accepts_native_and_same_origin_loopback_profiles() {
+    let mut service = Service::open(&[], None, false).unwrap();
+    let headers = [
+        "Host: localhost\r\n",
+        "Host: 127.0.0.1:8123\r\n",
+        "Host: [::1]:8123\r\n",
+        "Host: 127.1.2.3\r\n",
+        "hOsT: LOCALHOST:8123\r\noRiGiN: http://localhost:8123\r\n",
+        "Host: localhost:80\r\nOrigin: http://localhost\r\n",
+        "Host: [::1]\r\nOrigin: http://[::1]:80\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: same-origin\r\n",
+        "Host: localhost\r\nSec-Fetch-Site: none\r\n",
+        "Host: 127.0.0.1:8123\r\nOrigin: http://127.0.0.1:8123\r\nSec-Fetch-Site: same-origin\r\n",
+    ];
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    let handle = std::thread::spawn(move || {
+        for _ in 0..headers.len() {
+            let (stream, _) = listener.accept().unwrap();
+            service.handle(stream).unwrap();
+        }
+    });
+    for header in headers {
+        let mut stream = TcpStream::connect(address).unwrap();
+        write!(stream, "GET /catalogue HTTP/1.1\r\n{header}\r\n").unwrap();
+        let mut response = String::new();
+        stream.read_to_string(&mut response).unwrap();
+        assert!(
+            response.starts_with("HTTP/1.1 200"),
+            "{header:?}: {response}"
+        );
+        assert!(response.ends_with("\r\n\r\n[]"));
     }
     handle.join().unwrap();
 }
