@@ -9,6 +9,6 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2 = "0.10"
-# Provisional calibration paths; replace with merged revision pins before delivery.
-emuella-j2k-codestream = { path = "../../../codec/crates/emuella-j2k-codestream" }
-emuella-jpip = { path = "../../../codec/crates/emuella-jpip" }
+# Codec and protocol owner revision from reviewed ordinary landing.
+emuella-j2k-codestream = { git = "https://github.com/emuella/emuella-j2k", rev = "3afcfabb24282645c3e101ab3495810d28212dfd" }
+emuella-jpip = { git = "https://github.com/emuella/emuella-j2k", rev = "3afcfabb24282645c3e101ab3495810d28212dfd" }
