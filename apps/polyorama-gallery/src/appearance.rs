@@ -62,7 +62,7 @@ impl AppearanceWorkbench {
     pub fn show(&mut self, context: &egui::Context, variant: ThemeVariant) -> bool {
         let mut changed = false;
         let mut open = self.open;
-        egui::Window::new("Appearance workbench").open(&mut open).default_width(350.0).show(context, |ui| {
+        egui::Window::new("Appearance workbench").open(&mut open).default_width(350.0).vscroll(true).show(context, |ui| {
             ui.label("Preview authored colours on the selected production story.");
             let previous = self.preset;
             let combo = egui::ComboBox::from_id_salt("workbench.theme").selected_text(["Analytical reference", "Neutral graphite", "Warm paper"][self.preset]).show_ui(ui, |ui| {
