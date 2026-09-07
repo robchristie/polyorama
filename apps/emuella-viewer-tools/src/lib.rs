@@ -13,6 +13,7 @@ use std::{
 };
 pub mod gdal;
 pub mod measure;
+pub mod reference;
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct IoMetrics {

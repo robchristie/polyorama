@@ -4,9 +4,9 @@ use emuella_viewer_tools::{Service, fixture, gdal::Raster, hash_file, prepare};
 use std::{collections::BTreeMap, net::TcpListener, path::PathBuf};
 fn main() -> Result<()> {
     let mut args = std::env::args().skip(1);
-    let command = args
-        .next()
-        .context("fixture | prepare | serve (see docs/emuella-viewer-service.md)")?;
+    let command = args.next().context(
+        "fixture | prepare | serve | measure | reference (see docs/emuella-viewer-service.md)",
+    )?;
     let mut options = BTreeMap::new();
     let mut roots = Vec::new();
     while let Some(key) = args.next() {
@@ -150,6 +150,18 @@ fn main() -> Result<()> {
                 get("--len", "262144").parse()?,
             )?;
             println!("{}", serde_json::to_string_pretty(&result)?);
+        }
+        "reference" => {
+            ensure!(roots.len() == 1, "exactly one --representation required");
+            let report = emuella_viewer_tools::reference::compare_file(
+                &roots[0],
+                &PathBuf::from(options.get("--requests").context("--requests required")?),
+            )?;
+            println!("{}", serde_json::to_string_pretty(&report)?);
+            ensure!(
+                report.mismatched_records == 0,
+                "reference comparison failed"
+            );
         }
         "serve" => {
             ensure!(
