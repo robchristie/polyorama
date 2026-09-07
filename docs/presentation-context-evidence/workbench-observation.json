@@ -8,7 +8,7 @@
   "theme": "unchanged analytical dark",
   "font_scale": 1.5,
   "fixture": "reference/application-shell",
-  "browser_renderer": "Playwright Chromium, software Vulkan WebGPU",
+  "browser_renderer": "Playwright Chromium with Vulkan WebGPU requested; adapter identity was not recorded",
   "behavioural_checks": "passed: physical workbench opening, scrolling and clipboard export of all four authored modes",
   "presentation_checks": "passed: complete compatibility guidance visible at scrolled tail; canonical five strict snapshot baselines unchanged",
   "design_decision": "accepted: preserve analytical appearance; make compatibility guidance reachable",
