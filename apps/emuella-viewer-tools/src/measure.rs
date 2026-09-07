@@ -24,6 +24,8 @@ pub struct Measurement {
 pub struct Stage {
     pub state: String,
     pub elapsed_ms: f64,
+    pub data_ready_ms: f64,
+    pub decode_ms: f64,
     pub requests: u64,
     pub received_bytes: u64,
     pub decoded_width: u32,
@@ -118,9 +120,9 @@ pub fn measure(
             requests += 1;
             client.install_descriptor(&manifest.tid, tile, &bytes)?;
         }
-        let decoded = loop {
+        loop {
             if client.ready(&manifest.tid, &region)? {
-                break client.decode(&manifest.tid, &region)?;
+                break;
             }
             ensure!(requests < 10_000, "request convergence limit");
             let request = client.request(&manifest.tid, &region, response_len)?;
@@ -143,7 +145,11 @@ pub fn measure(
                 client.receive(&mut reader, fragment)?;
             }
             client.finish(reader)?;
-        };
+        }
+        let data_ready_ms = start.elapsed().as_secs_f64() * 1000.;
+        let decode_start = Instant::now();
+        let decoded = client.decode(&manifest.tid, &region)?;
+        let decode_ms = decode_start.elapsed().as_secs_f64() * 1000.;
         let mut planes = Vec::new();
         for plane in &decoded.planes {
             planes.extend_from_slice(plane);
@@ -156,6 +162,8 @@ pub fn measure(
             }
             .into(),
             elapsed_ms: start.elapsed().as_secs_f64() * 1000.,
+            data_ready_ms,
+            decode_ms,
             requests,
             received_bytes: wire.received - before,
             decoded_width: decoded.width,
