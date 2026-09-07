@@ -1,0 +1,14 @@
+[package]
+name = "emuella-viewer-source"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10"
+# Provisional calibration paths; replace with merged revision pins before delivery.
+emuella-j2k-codestream = { path = "../../../codec/crates/emuella-j2k-codestream" }
+emuella-jpip = { path = "../../../codec/crates/emuella-jpip" }
