@@ -182,6 +182,69 @@ mod tests {
     use super::*;
 
     #[test]
+    fn workbench_and_production_shell_render_each_authored_identity() {
+        use polyorama_ui_egui::{DensityVariant, TypographyProfile, UiPreferences};
+        for index in 0..=2 {
+            for variant in [
+                ThemeVariant::Light,
+                ThemeVariant::Dark,
+                ThemeVariant::LightHighContrast,
+                ThemeVariant::DarkHighContrast,
+            ] {
+                let theme = authored_theme(index);
+                let context = egui::Context::default();
+                polyorama_ui_egui::apply_design_system_with_theme(
+                    &context,
+                    UiPreferences::default(),
+                    TypographyProfile::Dense,
+                    &theme,
+                );
+                let tokens = theme.resolve(
+                    variant,
+                    DensityVariant::Comfortable,
+                    TypographyProfile::Dense,
+                );
+                let mut workbench = AppearanceWorkbench {
+                    open: true,
+                    theme: theme.clone(),
+                    colours: theme.colours(),
+                    preset: index,
+                    ..Default::default()
+                };
+                let mut dock =
+                    crate::stories::DockSceneState::new(crate::StoryId::ReferenceApplicationShell);
+                let mut observations = Vec::new();
+                let mut output = context.run_ui(
+                    egui::RawInput {
+                        screen_rect: Some(egui::Rect::from_min_size(
+                            egui::Pos2::ZERO,
+                            egui::vec2(1100.0, 800.0),
+                        )),
+                        ..Default::default()
+                    },
+                    |ui| {
+                        crate::stories::render_story(
+                            ui,
+                            crate::StoryId::ReferenceApplicationShell,
+                            &mut dock,
+                            &tokens,
+                            1.0,
+                            &mut observations,
+                            &mut Vec::new(),
+                            &mut None,
+                        );
+                        assert!(!workbench.show(&context, variant));
+                    },
+                );
+                output.textures_delta.clear();
+                assert!(!observations.is_empty());
+                assert!(polyorama_ui_egui::audit_text_layouts(&observations).is_empty());
+                assert_eq!(workbench.effective_theme(), theme);
+            }
+        }
+    }
+
+    #[test]
     fn authored_presets_and_json_exports_are_validated() {
         for index in 0..=2 {
             let theme = authored_theme(index);

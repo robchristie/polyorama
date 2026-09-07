@@ -118,6 +118,17 @@ fn visuals(theme: Theme, tokens: &DesignTokens) -> Visuals {
     visuals.widgets.active.bg_stroke = Stroke::new(1.0, tokens.colours.focus_ring);
     visuals.widgets.open.bg_fill = raised;
     visuals.widgets.open.bg_stroke = Stroke::new(1.0, border);
+    // Native buttons and combo-box buttons use weak_bg_fill, while other
+    // controls consume bg_fill. Both must resolve the same authored surface.
+    for widget in [
+        &mut visuals.widgets.noninteractive,
+        &mut visuals.widgets.inactive,
+        &mut visuals.widgets.hovered,
+        &mut visuals.widgets.active,
+        &mut visuals.widgets.open,
+    ] {
+        widget.weak_bg_fill = widget.bg_fill;
+    }
     let radius = egui::CornerRadius::same(
         tokens
             .geometry

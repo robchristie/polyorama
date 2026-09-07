@@ -53,6 +53,10 @@ impl ApplicationTheme {
 
     /// Validate opaque semantic text/background pairs in every authored mode.
     /// This establishes token contrast, not whole-application accessibility.
+    /// Control borders must be opaque; their contrast against actual adjacent
+    /// surfaces remains application-qualified. The analytical reference retains
+    /// historical borders below 3:1, so decorative and control roles can split
+    /// without silently changing its palette.
     pub fn new(colours: ThemeColours) -> Result<Self, ThemeValidationError> {
         for (name, colour, minimum) in [
             ("light", colours.light, 4.5),
@@ -60,6 +64,11 @@ impl ApplicationTheme {
             ("light-high-contrast", colours.light_high_contrast, 7.0),
             ("dark-high-contrast", colours.dark_high_contrast, 7.0),
         ] {
+            if colour.border_control.alpha != 255 {
+                return Err(ThemeValidationError(format!(
+                    "{name} control border requires an opaque colour"
+                )));
+            }
             for (role, background) in [
                 ("canvas", colour.surface_canvas),
                 ("panel", colour.surface_panel),
@@ -211,6 +220,14 @@ mod tests {
         let mut colours = theme.colours();
         colours.dark.action_primary_foreground = colours.dark.action_primary_background;
         assert!(ApplicationTheme::new(colours).is_err());
+        let mut transparent_border = theme.colours();
+        transparent_border.light.border_control.alpha = 0;
+        assert!(
+            ApplicationTheme::new(transparent_border)
+                .unwrap_err()
+                .to_string()
+                .contains("control border")
+        );
         assert!(
             theme
                 .with_geometry(ApplicationGeometry {
@@ -302,6 +319,14 @@ mod tests {
                     tokens.colours.surface_panel.into()
                 );
                 assert_eq!(
+                    style.visuals.widgets.inactive.weak_bg_fill,
+                    tokens.colours.surface_raised.into()
+                );
+                assert_eq!(
+                    style.visuals.widgets.active.weak_bg_fill,
+                    tokens.colours.surface_hover.into()
+                );
+                assert_eq!(
                     style.visuals.widgets.hovered.bg_fill,
                     tokens.colours.surface_hover.into()
                 );
@@ -321,6 +346,15 @@ mod tests {
                     style.text_styles[&egui::TextStyle::Body].size,
                     tokens.typography.body_size.0 * 1.5
                 );
+                context.set_theme(native);
+                let mut button_rect = egui::Rect::NOTHING;
+                let mut output = context.run_ui(egui::RawInput::default(), |ui| {
+                    button_rect = ui.button("Native action").rect;
+                });
+                output.textures_delta.clear();
+                assert!(output.shapes.iter().any(|shape| matches!(&shape.shape,
+                    egui::Shape::Rect(rect) if rect.rect == button_rect && rect.fill == egui::Color32::from(tokens.colours.surface_raised)
+                )), "native button must paint the resolved raised surface");
             }
         }
     }

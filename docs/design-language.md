@@ -309,7 +309,11 @@ text; muted metadata placed on selection needs application-specific checking. Fo
 background require 3:1. Validation is a bounded token check, not a claim that
 all application controls, imagery, assistive technology or exported appearances
 have been qualified. Application-specific status, links and control-boundary
-uses still need actual component review. Decorative dividers carry no text or
+uses still need actual component review. Control borders must be opaque, but
+contrast depends on their actual adjacent surfaces. The analytical reference
+retains its historical border (about 2.06:1 on the dark raised surface); new
+applications must check meaningful control boundaries at 3:1 against the
+surfaces where they use them. Decorative dividers carry no text or
 state contrast requirement.
 
 `ThemeColours` supports strict JSON interchange for application-owned source.
