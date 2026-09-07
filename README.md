@@ -182,6 +182,8 @@ does not update them automatically.
   backed by the [token source](design/tokens/polyorama.tokens.json).
 - [UI evaluation seed](docs/ui-evaluation-seed.md): frozen tasks and explicit
   scoring criteria for repeatable UI evaluation.
+- [Regional adapter contract](docs/regional-adapter-contract.md): immutable
+  parent-image demands, external workers, resource accounting and integer display.
 - [Vertical-slice contract](docs/vertical-slice-goal.md) and
   [report](docs/vertical-slice-report.md): the Lab's original requirements,
   architecture, hardening results and retained runtime evidence.
