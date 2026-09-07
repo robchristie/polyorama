@@ -119,3 +119,22 @@ and immutable-identity contracts after the remaining proof is complete.
 Geometis implementation inspection, migration, deployment and publication remain
 outside this demonstration. Additional JPIP optional features, spatially varying
 compression, standalone chips and geospatial reprojection are deferred.
+
+## Reviewed response-admission repair
+
+Independent review rejected `d31795b5499b7268f1ef930c187759682cea68b0` because
+native duplicate response headers and browser-combined geometry could be
+truncated before admission. The repaired code at
+`abf1b0aa0b0ee2b8b85e94696267b061692dd8f0` passes independent re-review and full
+canonical verification. Both transports now preserve header occurrences and
+delegate geometry validation to the protocol owner before admitting bytes. Four
+native regressions and 44 actual-WASM rejection cases guard the boundary.
+
+The [repair qualification](emuella-viewer-evidence/response-repair/qualification.json)
+records one fresh native, one browser and one recovery run, each passing its
+unchanged frozen admission. All 7,289 reused representation files totalling
+456,480,235 bytes remained hash-identical, including indexes; no preparation was
+repeated. All 352 retained native and 455 browser records match their earlier
+reference-qualified counterparts. The complete-reference algorithm was not
+rerun: its exact committed evidence remains the separate record above. These
+repair observations preserve the real-image and final-system limitations.
