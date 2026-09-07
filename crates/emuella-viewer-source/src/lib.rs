@@ -324,6 +324,14 @@ pub struct ClientMetrics {
     pub decode_count: u64,
     pub decoded_pixels: u64,
     pub selected_code_blocks: u64,
+    pub selected_block_coefficients: u64,
+    pub peak_codec_workspace_bytes: u64,
+    pub synthesis_coefficients_loaded: u64,
+    pub synthesis_horizontal_values: u64,
+    pub synthesis_vertical_values: u64,
+    pub synthesis_lifting_updates: u64,
+    pub synthesis_output_samples: u64,
+
     pub compressed_read_bytes: u64,
     pub representation_evictions: u64,
     pub compressed_bin_evictions: u64,
@@ -604,7 +612,7 @@ impl SharedClient {
         let mut read_error = None;
         let mut workspace =
             codec::ht_lossy::LossyHtSpatialRegionWorkspace::with_maximum_bytes(workspace_limit);
-        let decoded = plan.decode(
+        let decoded = plan.decode_with_report(
             |offset, out| {
                 let (key, range) = ranges
                     .iter()
@@ -633,13 +641,23 @@ impl SharedClient {
         if let Some(error) = read_error {
             return Err(anyhow!(error));
         }
-        let planes = checked(decoded)?;
+        let (planes, report) = checked(decoded)?;
         let output = plan.output_region();
         let blocks = plan.selected_code_blocks();
+        let coefficients = plan.selected_block_coefficients();
+        let workspace_bytes = plan.required_workspace_bytes();
         let bits = r.manifest.identity.profile.bits_per_sample;
+        self.metrics.synthesis_coefficients_loaded += report.work.coefficients_loaded;
+        self.metrics.synthesis_horizontal_values += report.work.horizontal_values;
+        self.metrics.synthesis_vertical_values += report.work.vertical_values;
+        self.metrics.synthesis_lifting_updates += report.work.lifting_updates;
+        self.metrics.synthesis_output_samples += report.work.output_samples;
         self.metrics.decode_count += 1;
         self.metrics.decoded_pixels += u64::from(output.width) * u64::from(output.height);
         self.metrics.selected_code_blocks += blocks as u64;
+        self.metrics.selected_block_coefficients += coefficients;
+        self.metrics.peak_codec_workspace_bytes =
+            self.metrics.peak_codec_workspace_bytes.max(workspace_bytes);
         self.metrics.compressed_read_bytes += reads;
         Ok(DecodedRegion {
             width: output.width,

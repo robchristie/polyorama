@@ -105,3 +105,9 @@ Focused checks are `cargo test -p emuella-viewer --lib`, native/WASM clippy and
 protected real-image qualification, codec quality/tolerances, every browser/GPU,
 assistive-technology support or large-image performance thresholds. Those
 require the system campaign's exact owner revisions and representative evidence.
+
+For the representative 43,008-wide, nine-image native/browser workload, immutable
+benchmark trace export, baseline selection and recovery evidence, use the
+[composed calibration guide](../../docs/emuella-viewer-calibration.md). Native
+scripted phases now require all distinct demands to become GPU resident and fail
+after 60 seconds; they no longer advance after an unsettled timeout.

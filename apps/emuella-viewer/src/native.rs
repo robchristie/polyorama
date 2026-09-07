@@ -212,7 +212,25 @@ impl Executor {
             .insert(request.token);
     }
     pub fn drain(&self) -> Vec<Event> {
-        self.events.try_iter().collect()
+        self.events
+            .try_iter()
+            .inspect(|event| {
+                let request = match event {
+                    Event::Completed { request, .. } | Event::Cancelled { request, .. } => {
+                        Some(request)
+                    }
+                    Event::Failed { request, .. } => request.as_ref(),
+                    Event::Catalogue(_) => None,
+                };
+                if let Some(request) = request {
+                    // Cancellation may race with worker publication after its own cleanup.
+                    self.cancelled
+                        .lock()
+                        .expect("cancellation lock")
+                        .remove(&request.token);
+                }
+            })
+            .collect()
     }
 }
 fn body(response: reqwest::blocking::Response, limit: usize) -> Result<Vec<u8>> {

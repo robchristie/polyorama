@@ -54,6 +54,13 @@ impl WebHandle {
             .ok_or_else(|| JsValue::from_str("viewer unavailable"))?;
         serde_wasm_bindgen::to_value(&app.snapshot()).map_err(Into::into)
     }
+    pub fn stages(&self) -> Result<JsValue, JsValue> {
+        let app = self
+            .runner
+            .app_mut::<ViewerApp>()
+            .ok_or_else(|| JsValue::from_str("viewer unavailable"))?;
+        serde_wasm_bindgen::to_value(app.script_stages()).map_err(Into::into)
+    }
     pub fn intent(&self, value: JsValue) -> Result<(), JsValue> {
         let intent = serde_wasm_bindgen::from_value(value)?;
         let mut app = self

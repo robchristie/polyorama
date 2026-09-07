@@ -1,5 +1,6 @@
 import init, { WorkerClient } from './pkg/emuella_viewer.js';
-const ready = init();
+let wasm;
+const ready = init().then(value => { wasm = value; });
 let client, server, active, pending, running = false;
 const transport = { aborted: 0, retries: 0, cache_hits: 0, elapsed_ms: 0, transferred_sample_bytes: 0 };
 const cancelled = new Set();
@@ -23,7 +24,7 @@ async function bounded(response, maximum, consume) {
   for (const c of chunks) { result.set(c, offset); offset += c.length; }
   return result;
 }
-function metrics() { return {...(client?.metrics() ?? {}), ...transport}; }
+function metrics() { return {...(client?.metrics() ?? {}), ...transport, wasm_linear_bytes: wasm.memory.buffer.byteLength}; }
 function emit(value) {
   const buffer=value.Completed?.pixels.samples.buffer;
   postMessage(value, buffer ? [buffer] : []);
@@ -82,8 +83,11 @@ self.onmessage = async ({ data }) => {
       emit({ Catalogue: catalogue });
     } catch (error) { emit({ Failed: { request: null, error: String(error), metrics: metrics() } }); }
   } else if (data.kind === 'cancel') {
-    cancelled.add(key(data.request));
-    if (active && key(active.job.request) === key(data.request)) active.controller.abort();
+    // A completion already posted to the UI will release its reservation there.
+    // Do not retain a cancellation tombstone for a job this worker has finished.
+    if (active && key(active.job.request) === key(data.request)) {
+      cancelled.add(key(data.request)); active.controller.abort();
+    }
   } else if (data.kind === 'job') {
     if (pending || running) { emit({ Failed: { request: data.job.request, error: 'worker queue capacity', metrics: metrics() } }); return; }
     pending = data.job; running = true;

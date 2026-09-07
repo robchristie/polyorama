@@ -31,6 +31,16 @@ impl Job {
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct WorkerMetrics {
     pub decoded_evidence: Vec<DecodedEvidence>,
+    pub decoded_evidence_dropped: u64,
+    pub selected_block_coefficients: u64,
+    pub peak_codec_workspace_bytes: u64,
+    pub synthesis_coefficients_loaded: u64,
+    pub synthesis_horizontal_values: u64,
+    pub synthesis_vertical_values: u64,
+    pub synthesis_lifting_updates: u64,
+    pub synthesis_output_samples: u64,
+
+    pub wasm_linear_bytes: Option<u64>,
     pub compressed_bytes: usize,
     pub peak_compressed_bytes: usize,
     pub peak_descriptor_bytes: usize,
@@ -115,6 +125,14 @@ impl Engine {
         m.decoded_pixels = c.decoded_pixels;
         m.selected_code_blocks = c.selected_code_blocks;
         m.compressed_read_bytes = c.compressed_read_bytes;
+        m.selected_block_coefficients = c.selected_block_coefficients;
+        m.peak_codec_workspace_bytes = c.peak_codec_workspace_bytes;
+        m.synthesis_coefficients_loaded = c.synthesis_coefficients_loaded;
+        m.synthesis_horizontal_values = c.synthesis_horizontal_values;
+        m.synthesis_vertical_values = c.synthesis_vertical_values;
+        m.synthesis_lifting_updates = c.synthesis_lifting_updates;
+        m.synthesis_output_samples = c.synthesis_output_samples;
+
         m
     }
     pub fn decode(&mut self, job: &Job) -> Result<RegionalPixels> {
@@ -163,6 +181,7 @@ impl Engine {
             });
         if self.metrics.decoded_evidence.len() == 64 {
             self.metrics.decoded_evidence.remove(0);
+            self.metrics.decoded_evidence_dropped += 1;
         }
         self.metrics.decoded_evidence.push(DecodedEvidence {
             tid: job.manifest.tid.clone(),

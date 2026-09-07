@@ -78,13 +78,32 @@ impl ActionKey for ViewerAction {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Intent {
-    Action { action: ViewerAction },
-    SelectImage { index: usize },
-    Pan { dx: f32, dy: f32 },
-    Zoom { factor: f32 },
-    Gallery { row: usize },
-    OpenDetection { index: usize },
-    Stretch { low: f32, high: f32, gamma: f32 },
+    Action {
+        action: ViewerAction,
+    },
+    SelectImage {
+        index: usize,
+    },
+    Pan {
+        dx: f32,
+        dy: f32,
+    },
+    Zoom {
+        factor: f32,
+    },
+    Gallery {
+        row: usize,
+    },
+    OpenDetection {
+        index: usize,
+    },
+    Stretch {
+        low: f32,
+        high: f32,
+        gamma: f32,
+    },
+    /// Calibration-only reset; accepted only after every worker has stopped.
+    ClearDisplayCache,
 }
 #[derive(Clone, Copy)]
 struct Camera {
@@ -110,6 +129,17 @@ pub struct WorkEvent {
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Snapshot {
     pub loaded: bool,
+    pub events_dropped: u64,
+    pub ready_demands: usize,
+    pub primary_desired: usize,
+    pub primary_ready: usize,
+    pub runtime_epoch: u64,
+    pub phase_label: String,
+    pub phase_started_ms: f64,
+    pub phase_started_frame: u64,
+    pub phase_settled_ms: Option<f64>,
+    pub phase_first_useful_ms: Option<f64>,
+    pub process_peak_rss_bytes: Option<u64>,
     pub events: Vec<WorkEvent>,
     pub gpu_adapter: String,
     pub image: usize,
@@ -121,6 +151,7 @@ pub struct Snapshot {
     pub materialised_detections: usize,
     pub desired: usize,
     pub in_flight: usize,
+    pub peak_in_flight: usize,
     pub decoded_accounted_bytes: usize,
     pub decoded_peak_bytes: usize,
     pub completed: u64,
@@ -150,6 +181,9 @@ struct View {
 pub struct ViewerApp {
     server: String,
     compressed_limit: usize,
+    decoded_limit: usize,
+    gpu_limit: usize,
+    clear_display_cache: bool,
     context: egui::Context,
     executor: Executor,
     runtime: RegionalRuntime,
@@ -205,6 +239,9 @@ impl ViewerApp {
         Self {
             server: server.clone(),
             compressed_limit: compressed,
+            decoded_limit: decoded,
+            gpu_limit: gpu,
+            clear_display_cache: false,
             context: cc.egui_ctx.clone(),
             executor: Executor::new(server, compressed, cc.egui_ctx.clone()),
             runtime: RegionalRuntime::new(RegionalRuntimeLimits {
@@ -231,6 +268,7 @@ impl ViewerApp {
             diagnostics: false,
             scroll_to: None,
             snapshot: Snapshot {
+                phase_label: "empty-client-overview".into(),
                 gpu_adapter: format!("{:?}", state.adapter.get_info()),
                 ..Default::default()
             },
@@ -283,6 +321,13 @@ impl ViewerApp {
             return;
         }
         match intent {
+            Intent::ClearDisplayCache => {
+                if self.runtime.metrics().in_flight != 0 {
+                    self.error("Display cache reset requires a settled executor".into());
+                    return;
+                }
+                self.clear_display_cache = true;
+            }
             Intent::Action { action } => match action {
                 ViewerAction::Fit => self.fit(),
                 ViewerAction::ZoomIn => self.zoom(0.5),
@@ -386,6 +431,9 @@ impl ViewerApp {
         self.camera.y = (self.camera.y + dy * self.camera.height)
             .clamp(0., (p.height as f32 - self.camera.height).max(0.));
     }
+    pub fn script_stages(&self) -> &[Snapshot] {
+        &self.script_stages
+    }
     pub fn snapshot(&self) -> Snapshot {
         self.snapshot.clone()
     }
@@ -400,6 +448,7 @@ impl ViewerApp {
     ) {
         if self.snapshot.events.len() == 128 {
             self.snapshot.events.remove(0);
+            self.snapshot.events_dropped += 1;
         }
         self.snapshot.events.push(WorkEvent {
             kind: kind.into(),
@@ -449,53 +498,38 @@ impl ViewerApp {
         if !self.script || self.catalogue.is_empty() || self.snapshot.script_complete {
             return;
         }
-        let settled = self.snapshot.in_flight == 0 && self.snapshot.completed > 0;
-        if self.step_started.elapsed() < Duration::from_millis(500)
-            || (!settled && self.step_started.elapsed() < Duration::from_secs(15))
-        {
-            self.context
-                .request_repaint_after(Duration::from_millis(50));
+        if self.snapshot.phase_settled_ms.is_none() {
+            if self.step_started.elapsed() < Duration::from_secs(60) {
+                self.context
+                    .request_repaint_after(Duration::from_millis(20));
+                return;
+            }
+            self.error(format!(
+                "Qualification phase {} exceeded 60 seconds",
+                self.snapshot.phase_label
+            ));
+            self.script_stages.push(self.snapshot.clone());
+            self.snapshot.script_complete = true;
             return;
         }
         self.script_stages.push(self.snapshot.clone());
-        let intent = match self.script_step {
-            0 => Intent::Action {
-                action: ViewerAction::Bookmark,
-            },
-            1 => Intent::Zoom { factor: 0.25 },
-            2 => Intent::Pan { dx: 0.3, dy: 0.2 },
-            3 => Intent::Gallery { row: 1200 },
-            4 => Intent::OpenDetection { index: 2401 },
-            5 => Intent::Stretch {
-                low: self.high * 0.05,
-                high: self.high * 0.8,
-                gamma: 1.4,
-            },
-            6 => Intent::Action {
-                action: ViewerAction::NextImage,
-            },
-            7 => Intent::Gallery { row: 4000 },
-            8 => Intent::OpenDetection { index: 8001 },
-            9 => Intent::Action {
-                action: ViewerAction::Recall,
-            },
-            10 => Intent::Action {
-                action: ViewerAction::CompareImage,
-            },
-            11 => Intent::Action {
-                action: ViewerAction::Bookmark,
-            },
-            12 => Intent::Action {
-                action: ViewerAction::Recall,
-            },
-            13 => Intent::Action {
-                action: ViewerAction::Retry,
-            },
-            _ => {
-                self.snapshot.script_complete = true;
-                return;
-            }
+        #[derive(Deserialize)]
+        struct Step {
+            label: String,
+            intent: Intent,
+        }
+        let steps: Vec<Step> =
+            serde_json::from_str(include_str!("../qualification-workload.json")).unwrap();
+        let Some(step) = steps.into_iter().nth(self.script_step) else {
+            self.snapshot.script_complete = true;
+            return;
         };
+        self.snapshot.phase_label = step.label;
+        self.snapshot.phase_started_ms = self.started.elapsed().as_secs_f64() * 1000.;
+        self.snapshot.phase_started_frame = self.snapshot.frame;
+        self.snapshot.phase_settled_ms = None;
+        self.snapshot.phase_first_useful_ms = None;
+        let intent = step.intent;
         self.intent(intent);
         self.script_step += 1;
         self.snapshot.script_step = self.script_step;
@@ -512,6 +546,29 @@ impl eframe::App for ViewerApp {
         self.receive();
         self.script();
         let state = frame.wgpu_render_state().expect("WGPU");
+        if self.clear_display_cache {
+            self.runtime = RegionalRuntime::new(RegionalRuntimeLimits {
+                max_demands: 1024,
+                max_in_flight: 1,
+                decoded_bytes: self.decoded_limit,
+            });
+            state
+                .renderer
+                .write()
+                .callback_resources
+                .insert(RegionalRenderer::new(
+                    &state.device,
+                    state.target_format,
+                    RegionalGpuLimits {
+                        texture_bytes: self.gpu_limit,
+                        texture_items: 512,
+                        upload_scratch_bytes: 4 << 20,
+                        draws: 1024,
+                    },
+                ));
+            self.snapshot.runtime_epoch += 1;
+            self.clear_display_cache = false;
+        }
         let mut intents = Vec::new();
         let mut demands = Vec::new();
         let mut views = Vec::new();
@@ -829,7 +886,26 @@ impl eframe::App for ViewerApp {
         self.snapshot.generation = self.generation;
         self.snapshot.logical_detections = LOGICAL_DETECTIONS;
         self.snapshot.desired = m.desired;
+        self.snapshot.ready_demands = self
+            .last_demands
+            .iter()
+            .map(|d| &d.key)
+            .collect::<std::collections::BTreeSet<_>>()
+            .iter()
+            .filter(|k| self.runtime.is_resident(k))
+            .count();
+        self.snapshot.primary_desired = self
+            .last_demands
+            .iter()
+            .filter(|d| d.consumer == RegionConsumerId(1))
+            .count();
+        self.snapshot.primary_ready = self
+            .last_demands
+            .iter()
+            .filter(|d| d.consumer == RegionConsumerId(1) && self.runtime.is_resident(&d.key))
+            .count();
         self.snapshot.in_flight = m.in_flight;
+        self.snapshot.peak_in_flight = self.snapshot.peak_in_flight.max(m.in_flight);
         self.snapshot.decoded_accounted_bytes = m.accounted_decoded_bytes();
         self.snapshot.decoded_peak_bytes = self
             .snapshot
@@ -840,6 +916,33 @@ impl eframe::App for ViewerApp {
         self.snapshot.stale = m.stale;
         self.snapshot.elapsed_ms = self.started.elapsed().as_secs_f64() * 1000.;
         self.snapshot.frame += 1;
+        #[cfg(target_os = "linux")]
+        {
+            self.snapshot.process_peak_rss_bytes = std::fs::read_to_string("/proc/self/status")
+                .ok()
+                .and_then(|s| {
+                    s.lines().find_map(|line| {
+                        line.strip_prefix("VmHWM:")
+                            .and_then(|v| v.split_whitespace().next()?.parse::<u64>().ok())
+                    })
+                })
+                .map(|v| v * 1024);
+        }
+        if self.snapshot.primary_ready > 0 && self.snapshot.phase_first_useful_ms.is_none() {
+            self.snapshot.phase_first_useful_ms =
+                Some(self.snapshot.elapsed_ms - self.snapshot.phase_started_ms);
+        }
+        // ScrollArea applies requested scroll on a subsequent frame. Observe three
+        // complete frames before accepting the new desired state as settled.
+        if self.snapshot.frame >= self.snapshot.phase_started_frame + 3
+            && self.snapshot.desired > 0
+            && self.snapshot.ready_demands == self.snapshot.desired
+            && m.in_flight == 0
+            && self.snapshot.phase_settled_ms.is_none()
+        {
+            self.snapshot.phase_settled_ms =
+                Some(self.snapshot.elapsed_ms - self.snapshot.phase_started_ms);
+        }
         if self.snapshot.rendered_regions > 0 && self.snapshot.first_useful_ms.is_none() {
             self.snapshot.first_useful_ms = Some(self.snapshot.elapsed_ms);
         }
@@ -1097,6 +1200,25 @@ mod tests {
             assert!(demand.max_decoded_bytes <= 64 * 64 * 3 * 4);
         }
         assert_eq!(views[0].draws.len(), 121);
+        // A fresh large view presents its primary overview before gallery chips.
+        let primary_keys: std::collections::BTreeSet<_> =
+            demands.iter().map(|d| d.key.clone()).collect();
+        for index in 0..26 {
+            demands.push(demand(
+                &m,
+                detection(&m, index),
+                2,
+                100 + index as u64,
+                DemandPriority::Visible,
+            ));
+        }
+        let mut runtime = RegionalRuntime::new(RegionalRuntimeLimits {
+            max_demands: 1024,
+            max_in_flight: 1,
+            decoded_bytes: 16 << 20,
+        });
+        runtime.reconcile(1, demands).unwrap();
+        assert!(primary_keys.contains(&runtime.dispatch()[0].key));
     }
     #[test]
     fn gallery_materialisation_and_detail_keep_parent_identity() {
