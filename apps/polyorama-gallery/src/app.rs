@@ -220,6 +220,7 @@ pub struct GallerySnapshot {
 
 pub struct GalleryApp {
     context: egui::Context,
+    workbench: crate::appearance::AppearanceWorkbench,
     selected: StoryId,
     configuration: GalleryConfiguration,
     applied_configuration: Option<GalleryConfiguration>,
@@ -239,6 +240,7 @@ impl GalleryApp {
         apply_design_system(&creation.egui_ctx, configuration.preferences());
         Self {
             context: creation.egui_ctx.clone(),
+            workbench: Default::default(),
             selected,
             configuration,
             applied_configuration: Some(configuration),
@@ -287,7 +289,12 @@ impl GalleryApp {
 
     fn update_style(&mut self) {
         if self.applied_configuration != Some(self.configuration) {
-            apply_design_system(&self.context, self.configuration.preferences());
+            polyorama_ui_egui::apply_design_system_with_theme(
+                &self.context,
+                self.configuration.preferences(),
+                polyorama_ui_egui::TypographyProfile::Dense,
+                &self.workbench.effective_theme(),
+            );
             self.applied_configuration = Some(self.configuration);
         }
     }
@@ -299,10 +306,13 @@ impl eframe::App for GalleryApp {
         self.update_style();
         self.frame += 1;
         let root_rect = root_ui.max_rect();
-        let tokens = self
-            .configuration
-            .preferences()
-            .tokens(context.theme() == egui::Theme::Dark);
+        let preferences = self.configuration.preferences();
+        let variant = preferences.theme_variant(context.theme() == egui::Theme::Dark);
+        let tokens = self.workbench.effective_theme().resolve(
+            variant,
+            preferences.density_variant(),
+            polyorama_ui_egui::TypographyProfile::Dense,
+        );
         let mut observations = Vec::new();
         let mut semantic_nodes = vec![UiNode::container(
             SemanticUiId::root(),
@@ -356,6 +366,10 @@ impl eframe::App for GalleryApp {
                 rect
             })
             .inner;
+        if self.workbench.show(&context, variant) {
+            self.applied_configuration = None;
+            context.request_repaint();
+        }
         let text_audit = audit_text_layouts(&observations);
         let text_audit_coverage = Some(polyorama_ui_egui::text_audit_coverage(
             &context,
@@ -519,7 +533,12 @@ fn story_navigation(root_ui: &mut egui::Ui, app: &mut GalleryApp) {
         .resizable(false)
         .show(root_ui, |ui| {
             ui.add_space(8.0);
-            ui.strong("Stories");
+            ui.horizontal(|ui| {
+                ui.strong("Stories");
+                if ui.small_button("Appearance workbench").clicked() {
+                    app.workbench.open = true;
+                }
+            });
             ui.add_space(4.0);
             egui::ScrollArea::vertical().show(ui, |ui| {
                 let mut group = None;
