@@ -72,8 +72,8 @@ fixture rather than a runtime description or unbounded data set. See
 
 ## Scoped presentation
 
-Use `PresentationContext` when a feature needs the shared heading, bounded content
-and action recipes together. It holds resolved tokens, font scale and observations
+Use `PresentationContext` when a feature needs the shared heading, bounded content,
+fixed-slot label, property row, status badge and action recipes together. It holds resolved tokens, font scale and observations
 for the current egui context, viewport and layout pass. Each method still receives
 `&mut egui::Ui`; the adapter owns no UI, application model, intents or transport.
 Application code continues to arrange rows, columns, scrolling and virtualisation.
@@ -141,3 +141,21 @@ raw presentation through `raw(ui, key, reason, closure)` and retain its returned
 presentation need, such as a native document reader. Raw code still owns required
 native-control or measured-text recording. Ordinary egui layout needs no raw
 annotation. The adapter does not recursively wrap every egui API.
+
+`fixed_slot` delegates the deliberate line-slot recipe; `property_row` and `badge`
+retain the production recipes' layout, selectable text and text observations.
+Property IDs reserve the bit used by the recipe's label/value child IDs, so all
+published numbers remain exactly representable in JavaScript. `tokens()` and
+`font_scale()` expose the resolved appearance for application-owned layout and
+native compositions without repeating appearance arguments at every component.
+
+For a repeated row, call `scoped(ui, domain_id, |ui, row| { ... })` and use stable
+local control keys inside the closure. The child inherits the semantic parent and
+domain metadata, and merges its observations into the enclosing publication.
+Where several domain objects share one enclosing context, application-owned
+semantics must supply each object's correct domain reference explicitly; the
+logical child key does not infer domain metadata. `observe_node` retains a custom
+row or evidence node with the application's explicit public identity, parent and
+domain reference. It does not manufacture text measurements or replace the
+AccessKit owner. Keep native readers and row interactions in the application;
+annotate their exceptional paint with `raw` and record native controls where used.

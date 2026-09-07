@@ -133,6 +133,48 @@ impl PresentationContext {
         self
     }
 
+    /// Resolved appearance for application-owned layout and native composition.
+    pub fn tokens(&self) -> &DesignTokens {
+        &self.tokens
+    }
+
+    pub fn font_scale(&self) -> f32 {
+        self.font_scale
+    }
+
+    /// Give a repeated domain object a stable logical child scope while keeping
+    /// its observations in this publication. Layout remains application-owned.
+    pub fn scoped<R>(
+        &mut self,
+        ui: &mut Ui,
+        key: impl Hash + std::fmt::Debug,
+        render: impl FnOnce(&mut Ui, &mut Self) -> R,
+    ) -> R {
+        self.check_pass(ui);
+        let mut child = Self::new(
+            ui,
+            self.tokens,
+            self.font_scale,
+            self.scope.child(key),
+            self.parent.clone(),
+        );
+        child.domain_reference = self.domain_reference.clone();
+        let result = render(ui, &mut child);
+        let observations = child.finish(ui);
+        self.text_layouts.extend(observations.text_layouts);
+        self.semantic_nodes.extend(observations.semantic_nodes);
+        self.raw_presentations
+            .extend(observations.raw_presentations);
+        result
+    }
+
+    /// Retain application-owned semantics for a custom row or evidence surface.
+    /// The caller supplies its complete stable identity, parent and domain data.
+    pub fn observe_node(&mut self, ui: &Ui, node: UiNode) {
+        self.check_pass(ui);
+        self.semantic_nodes.push(node);
+    }
+
     fn check_pass(&self, ui: &Ui) {
         assert!(
             self.context == *ui.ctx(),
@@ -229,6 +271,74 @@ impl PresentationContext {
             node.set_author_id(identity.semantic_id().0);
         });
         response
+    }
+
+    /// Reserve the existing measured line slot for a fixed-height row.
+    pub fn fixed_slot(
+        &mut self,
+        ui: &mut Ui,
+        key: impl Hash + std::fmt::Debug,
+        text: &str,
+        spec: ContentTextSpec,
+    ) -> Response {
+        self.check_pass(ui);
+        let identity = self.scope.instance(key);
+        let response = crate::pane_content::scoped_fixed_slot_label(
+            ui,
+            identity.text_instance(),
+            text,
+            spec,
+            &self.tokens,
+            self.font_scale,
+            &mut self.text_layouts,
+        );
+        ui.ctx().accesskit_node_builder(response.id, |node| {
+            node.set_author_id(identity.semantic_id().0);
+        });
+        response
+    }
+
+    /// Use the production responsive property recipe and its selectable value.
+    pub fn property_row(
+        &mut self,
+        ui: &mut Ui,
+        key: impl Hash + std::fmt::Debug,
+        label: &str,
+        value: &str,
+    ) {
+        self.check_pass(ui);
+        // The existing recipe derives two child IDs as root * 2 and root * 2 + 1.
+        // Reserve one bit so every emitted ID remains exactly representable in JS.
+        let instance = self.scope.instance(key).text_instance() >> 1;
+        crate::property_row(
+            ui,
+            instance,
+            label,
+            value,
+            &self.tokens,
+            self.font_scale,
+            &mut self.text_layouts,
+        );
+    }
+
+    /// Use the production status recipe, including its measured selectable text.
+    pub fn badge(
+        &mut self,
+        ui: &mut Ui,
+        key: impl Hash + std::fmt::Debug,
+        text: &str,
+        tone: crate::StatusTone,
+    ) {
+        self.check_pass(ui);
+        crate::status_badge(
+            ui,
+            self.scope.instance(key).text_instance(),
+            text,
+            tone,
+            &self.tokens,
+            self.font_scale,
+            &mut self.text_layouts,
+        );
     }
 
     /// A native control remains explicitly unmeasured in the text denominator.
@@ -487,6 +597,235 @@ mod tests {
         }
         assert_eq!(paints[0], paints[2]);
         assert_eq!(paints[1], paints[3]);
+    }
+
+    #[test]
+    fn repeated_rows_and_properties_keep_text_identity_when_reordered() {
+        let context = egui::Context::default();
+        crate::install_typography_fonts(&context);
+        context.enable_accesskit();
+        let scope = PresentationScope::new("rows");
+        let mut previous = None;
+        for (layout, rows) in [
+            ("wide", ["object-a", "object-b"]),
+            ("narrow", ["object-b", "object-a"]),
+        ] {
+            let mut identities = std::collections::BTreeMap::new();
+            let mut output = context.run_ui(Default::default(), |ui| {
+                let mut presentation =
+                    PresentationContext::new(ui, tokens(), 1.0, scope, SemanticUiId::root());
+                ui.push_id(layout, |ui| {
+                    for row in rows {
+                        presentation.scoped(ui, row, |ui, presentation| {
+                            // Equal labels cannot supply the repeated object's identity.
+                            let response =
+                                presentation.fixed_slot(ui, "title", "Same title", content(2));
+                            identities.insert((row, "response"), response.id.value());
+                            presentation.property_row(ui, "owner", "Owner", "Same owner");
+                            presentation.property_row(ui, "state", "State", "Same state");
+                        });
+                    }
+                });
+                let publication = presentation.finish(ui);
+                assert_eq!(publication.text_layouts.len(), 10);
+                assert_eq!(publication.coverage.attempted_components, 10);
+                assert_eq!(publication.coverage.measured_components, 10);
+                let components: std::collections::HashSet<_> = publication
+                    .text_layouts
+                    .iter()
+                    .map(|item| item.component_id)
+                    .collect();
+                assert_eq!(components.len(), 10);
+                assert!(publication.text_layouts.iter().all(|item| {
+                    item.component_id.instance < (1_u64 << 53)
+                        && item
+                            .parent_id
+                            .is_none_or(|parent| parent.instance < (1_u64 << 53))
+                }));
+                for (row, observations) in rows
+                    .into_iter()
+                    .zip(publication.text_layouts.chunks_exact(5))
+                {
+                    for (key, observation) in [
+                        "title",
+                        "owner-label",
+                        "owner-value",
+                        "state-label",
+                        "state-value",
+                    ]
+                    .into_iter()
+                    .zip(observations)
+                    {
+                        identities.insert((row, key), observation.component_id.instance);
+                    }
+                }
+            });
+            let update = output.platform_output.accesskit_update.take().unwrap();
+            for row in rows {
+                let author = scope.child(row).instance("title").semantic_id().0;
+                assert_eq!(
+                    update
+                        .nodes
+                        .iter()
+                        .filter(|(_, node)| node.author_id() == Some(author.as_str()))
+                        .count(),
+                    1
+                );
+            }
+            if let Some(previous) = previous {
+                assert_eq!(identities, previous);
+            }
+            previous = Some(identities);
+            output.textures_delta.clear();
+        }
+    }
+
+    #[test]
+    fn fixed_slots_properties_and_badges_preserve_existing_recipe_paint() {
+        let scope = PresentationScope::new("recipe-equivalence");
+        let mut rendered = Vec::new();
+        for width in [280.0, 640.0] {
+            for scoped in [false, true] {
+                let context = egui::Context::default();
+                crate::install_typography_fonts(&context);
+                let mut layouts = Vec::new();
+                let mut output = context.run_ui(
+                    egui::RawInput {
+                        screen_rect: Some(egui::Rect::from_min_size(
+                            egui::Pos2::ZERO,
+                            egui::vec2(width, 600.0),
+                        )),
+                        ..Default::default()
+                    },
+                    |ui| {
+                        if scoped {
+                            let mut presentation = PresentationContext::new(
+                                ui,
+                                tokens(),
+                                1.0,
+                                scope,
+                                SemanticUiId::root(),
+                            );
+                            presentation.fixed_slot(ui, "slot", "A bounded row title", content(2));
+                            presentation.property_row(
+                                ui,
+                                "property",
+                                "Owner",
+                                "A long property value that wraps in a narrow pane",
+                            );
+                            presentation.badge(
+                                ui,
+                                "badge",
+                                "Unable to retrieve evidence",
+                                crate::StatusTone::Error,
+                            );
+                            layouts = presentation.finish(ui).text_layouts;
+                        } else {
+                            crate::measured_fixed_slot_label(
+                                ui,
+                                scope.instance("slot").text_instance(),
+                                "A bounded row title",
+                                TextRole::Body,
+                                TextOverflow::Wrap,
+                                2,
+                                TextInteraction::Selectable,
+                                &tokens(),
+                                1.0,
+                                &mut layouts,
+                            );
+                            crate::property_row(
+                                ui,
+                                scope.instance("property").text_instance() >> 1,
+                                "Owner",
+                                "A long property value that wraps in a narrow pane",
+                                &tokens(),
+                                1.0,
+                                &mut layouts,
+                            );
+                            crate::status_badge(
+                                ui,
+                                scope.instance("badge").text_instance(),
+                                "Unable to retrieve evidence",
+                                crate::StatusTone::Error,
+                                &tokens(),
+                                1.0,
+                                &mut layouts,
+                            );
+                        }
+                    },
+                );
+                assert!(audit_text_layouts(&layouts).is_empty());
+                output.textures_delta.clear();
+                rendered.push((output.shapes, layouts));
+            }
+        }
+        assert_eq!(rendered[0], rendered[1]);
+        assert_eq!(rendered[2], rendered[3]);
+    }
+
+    #[test]
+    fn scoped_raw_rows_preserve_metadata_and_do_not_claim_native_text_measurement() {
+        let context = egui::Context::default();
+        crate::install_typography_fonts(&context);
+        let domain = DomainReference::External {
+            namespace: "test.obligation".into(),
+            id: "object-a".into(),
+        };
+        let scope = PresentationScope::new("evidence");
+        let mut output = context.run_ui(Default::default(), |ui| {
+            let mut presentation =
+                PresentationContext::new(ui, tokens(), 1.0, scope, SemanticUiId::root())
+                    .with_domain_reference(domain.clone());
+            let result = presentation.scoped(ui, "object-a", |ui, child| {
+                assert_eq!(child.tokens().spacing.inline, tokens().spacing.inline);
+                assert_eq!(child.font_scale(), 1.0);
+                child.action(ui, "undo", action());
+                child.fixed_slot(ui, "bad-slot", "Invalid line limit", content(24));
+                let response = child.raw(ui, "reader", "Native selectable evidence reader", |ui| {
+                    ui.label("Evidence")
+                });
+                let mut node = UiNode::container(
+                    SemanticUiId::new("app.evidence.object-a"),
+                    Some(SemanticUiId::root()),
+                    UiRole::Section,
+                    response.rect.into(),
+                );
+                node.domain_reference = Some(domain.clone());
+                child.observe_node(ui, node);
+                child.native(ui, NativeTextControlKind::Button, |ui| {
+                    (ui.button("Native option"), ())
+                });
+                17
+            });
+            assert_eq!(result, 17);
+            // Leaving the child must restore the outer logical scope.
+            let response = presentation.action(ui, "undo", action());
+            assert_eq!(response.id, scope.instance("undo").egui_id());
+            presentation.retain_visible_text(ui, |_| false);
+            let publication = presentation.finish(ui);
+            assert_eq!(publication.text_layouts.len(), 1);
+            assert_eq!(publication.coverage.attempted_components, 3);
+            assert_eq!(publication.coverage.failed_components, 1);
+            assert_eq!(publication.coverage.native_text_controls, 1);
+            assert_eq!(publication.coverage.observed_native_controls, 0);
+            assert_eq!(publication.raw_presentations.len(), 1);
+            assert_eq!(
+                publication.raw_presentations[0].id,
+                scope.child("object-a").instance("reader").semantic_id()
+            );
+            assert_eq!(publication.semantic_nodes.len(), 3);
+            assert_eq!(
+                publication.semantic_nodes[1].id,
+                SemanticUiId::new("app.evidence.object-a")
+            );
+            assert!(
+                publication
+                    .semantic_nodes
+                    .iter()
+                    .all(|node| node.domain_reference == Some(domain.clone()))
+            );
+        });
+        output.textures_delta.clear();
     }
 
     #[test]

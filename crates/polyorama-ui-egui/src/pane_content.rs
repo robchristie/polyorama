@@ -96,6 +96,33 @@ pub fn measured_fixed_slot_label(
     )
 }
 
+/// Adapter entry point preserving the stable accessible text response.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn scoped_fixed_slot_label(
+    ui: &mut egui::Ui,
+    instance: u64,
+    text: &str,
+    spec: crate::ContentTextSpec,
+    tokens: &DesignTokens,
+    font_scale: f32,
+    observations: &mut Vec<TextLayoutObservation>,
+) -> Response {
+    measured_label(
+        ui,
+        instance,
+        text,
+        spec.role,
+        spec.overflow,
+        spec.max_lines,
+        spec.interaction,
+        tokens,
+        font_scale,
+        observations,
+        true,
+        true,
+    )
+}
+
 #[allow(clippy::too_many_arguments)]
 fn measured_label(
     ui: &mut egui::Ui,
