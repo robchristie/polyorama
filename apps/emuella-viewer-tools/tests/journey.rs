@@ -235,6 +235,141 @@ fn global_identity_eviction_and_descriptor_authentication() {
 }
 
 #[test]
+fn compressed_eviction_counts_payload_not_response_framing() {
+    let dir = tempfile::tempdir().unwrap();
+    let (first, _) = fixture(
+        &dir.path().join("rep"),
+        "first",
+        profile(),
+        "fixture-revision",
+    )
+    .unwrap();
+    let mut second = first.clone();
+    second.identity.spatial_policy_sha256 = sha256(b"distinct-source-policy");
+    second.seal().unwrap();
+    let mut client = SharedClient::new(ClientLimits {
+        compressed_bytes: 100,
+        ..ClientLimits::default()
+    });
+    client.register(first.clone()).unwrap();
+    client.register(second.clone()).unwrap();
+    let response_fields =
+        |tid: &str| jpip::ResponseFields::parse(tid, "516,260", "0,0", "516,260").unwrap();
+    let message = |id, size| {
+        let payload = vec![7; size];
+        let mut wire = jpip::encode_message(jpip::DataMessage {
+            key: jpip::BinKey::new(0, id).unwrap(),
+            offset: 0,
+            final_bin: true,
+            auxiliary: None,
+            bytes: &payload,
+        })
+        .unwrap();
+        wire.extend_from_slice(&jpip::encode_end(2));
+        wire
+    };
+    for (manifest, size) in [(&first, 50), (&second, 30)] {
+        let mut reader = client
+            .begin_response(&manifest.tid, &response_fields(&manifest.tid))
+            .unwrap();
+        for fragment in message(0, size).chunks(3) {
+            client.receive(&mut reader, fragment).unwrap();
+        }
+        client.finish(reader).unwrap();
+    }
+    assert_eq!(client.resident_bytes().0, 80);
+    // A legal nonempty EOR body must not evict unrelated compressed data.
+    let mut eor = vec![0, 2, 80];
+    eor.extend_from_slice(&[42; 80]);
+    let mut reader = client
+        .begin_response(&second.tid, &response_fields(&second.tid))
+        .unwrap();
+    client.receive(&mut reader, &eor).unwrap();
+    client.finish(reader).unwrap();
+    assert_eq!(client.resident_bytes().0, 80);
+    assert_eq!(client.metrics.representation_evictions, 0);
+    let mut reader = client
+        .begin_response(&second.tid, &response_fields(&second.tid))
+        .unwrap();
+    client.receive(&mut reader, &message(1, 80)).unwrap();
+    client.finish(reader).unwrap();
+    assert_eq!(client.metrics.representation_evictions, 1);
+    assert_eq!(client.metrics.compressed_bin_evictions, 1);
+    assert_eq!(client.resident_bytes().0, 80);
+    assert!(client.metrics.peak_compressed_bytes <= 100);
+}
+
+#[test]
+fn descriptor_eviction_requires_bounded_window_readiness_recheck() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().join("rep");
+    let (manifest, _) = fixture(
+        &root,
+        "metadata",
+        Profile {
+            width: 1024,
+            height: 512,
+            ..profile()
+        },
+        "fixture-revision",
+    )
+    .unwrap();
+    let descriptor = |tile| std::fs::read(root.join(format!("descriptors/{tile}.bin"))).unwrap();
+    let mut index = manifest.sparse().unwrap();
+    let mut raw_bytes = 0;
+    for tile in [4, 5, 0] {
+        let bytes = descriptor(tile);
+        index.import_tile_descriptor(&bytes).unwrap();
+        raw_bytes += bytes.len();
+    }
+    let budget = raw_bytes + index.retained_heap_bytes() as usize;
+    let mut client = SharedClient::new(ClientLimits {
+        descriptor_bytes: budget,
+        ..ClientLimits::default()
+    });
+    client.register(manifest.clone()).unwrap();
+    for tile in [4, 5] {
+        client
+            .install_descriptor(&manifest.tid, tile, &descriptor(tile))
+            .unwrap();
+    }
+    let window = Region {
+        x: 247,
+        y: 7,
+        width: 263,
+        height: 249,
+        discard: 2,
+        components: vec![0],
+    };
+    for tile in client.missing_tiles(&manifest.tid, &window).unwrap() {
+        client
+            .install_descriptor(&manifest.tid, tile, &descriptor(tile))
+            .unwrap();
+    }
+    // Admission of the last descriptor reclaimed an earlier descriptor in this
+    // window. Missing metadata is ordinary cache state, not corrupt imagery.
+    assert!(
+        !client
+            .missing_tiles(&manifest.tid, &window)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(!client.ready(&manifest.tid, &window).unwrap());
+    for tile in client.missing_tiles(&manifest.tid, &window).unwrap() {
+        client
+            .install_descriptor(&manifest.tid, tile, &descriptor(tile))
+            .unwrap();
+    }
+    assert!(
+        client
+            .missing_tiles(&manifest.tid, &window)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(client.metrics.peak_descriptor_bytes <= budget);
+}
+
+#[test]
 fn stored_payload_and_descriptor_corruption_are_rejected() {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path().join("rep");

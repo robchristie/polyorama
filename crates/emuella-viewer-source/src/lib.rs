@@ -326,6 +326,9 @@ pub struct ClientMetrics {
     pub selected_code_blocks: u64,
     pub compressed_read_bytes: u64,
     pub representation_evictions: u64,
+    pub compressed_bin_evictions: u64,
+    pub peak_compressed_bytes: usize,
+    pub peak_descriptor_bytes: usize,
 }
 pub struct SharedClient {
     limits: ClientLimits,
@@ -423,6 +426,13 @@ impl SharedClient {
                 .sum(),
         )
     }
+    // Admitted cache high-water marks; codec admission scratch and transport
+    // buffers have separate limits and remain part of process memory evidence.
+    fn observe_resident(&mut self) {
+        let (compressed, descriptors) = self.resident_bytes();
+        self.metrics.peak_compressed_bytes = self.metrics.peak_compressed_bytes.max(compressed);
+        self.metrics.peak_descriptor_bytes = self.metrics.peak_descriptor_bytes.max(descriptors);
+    }
     pub fn missing_tiles(&mut self, tid: &str, region: &Region) -> Result<Vec<u16>> {
         let r = self.touch(tid)?;
         Ok(region
@@ -475,6 +485,7 @@ impl SharedClient {
                 break;
             }
         }
+        self.observe_resident();
         Ok(())
     }
     pub fn request(
@@ -532,19 +543,28 @@ impl SharedClient {
     }
     pub fn receive(&mut self, reader: &mut ResponseReader, bytes: &[u8]) -> Result<()> {
         self.metrics.received_jpp_bytes += bytes.len() as u64;
-        // Reclaim other representations before parsing so cache insertion remains globally bounded.
-        while self.entries.len() > 1
-            && self.resident_bytes().0.saturating_add(bytes.len()) > self.limits.compressed_bytes
-        {
-            self.evict_other(&reader.tid)?;
-        }
-        let r = self.touch(&reader.tid)?;
-        checked(reader.decoder.push(bytes, |event| {
+        let tid = reader.tid.clone();
+        let result = reader.decoder.push(bytes, |event| {
             if let jpip::Event::Data(message) = event {
-                r.cache.insert(message)?;
+                // Reserve only actual emitted payload. Headers and EOR bodies
+                // consume transport space, not compressed-cache occupancy.
+                while self.entries.len() > 1
+                    && self.resident_bytes().0.saturating_add(message.bytes.len())
+                        > self.limits.compressed_bytes
+                {
+                    self.evict_other(&tid).map_err(|_| jpip::Error::Limit)?;
+                }
+                let r = self.touch(&tid).map_err(|_| jpip::Error::Identity)?;
+                let before = r.cache.eviction_count();
+                let result = r.cache.insert(message);
+                let evicted = r.cache.eviction_count() - before;
+                self.metrics.compressed_bin_evictions += evicted;
+                result?;
+                self.observe_resident();
             }
             Ok(())
-        }))?;
+        });
+        checked(result)?;
         ensure!(
             self.resident_bytes().0 <= self.limits.compressed_bytes,
             "global compressed budget"
