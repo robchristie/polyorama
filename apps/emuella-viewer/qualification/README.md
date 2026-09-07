@@ -46,3 +46,12 @@ A passing JSON admission result alone is not an architectural proof. Retain
 failed runs and compare final exact-build observations with these unchanged
 limits. Source-storage coldness is unknown on the supplied NFS mounts; do not
 infer physical server reads from process counters or returned raster pixels.
+
+The final browser admission file is `browser-complete-thresholds.json`. It
+retains every original browser bound unchanged and adds process memory caps
+from five further probes: 1325 MiB for the 50 ms sampled process-group RSS sum
+and 1354 MiB for the sum of observed per-PID high-water marks. The original
+`browser-thresholds.json` remains immutable. Both process metrics can count
+shared pages repeatedly; the second also combines nonsimultaneous peaks.
+Unobserved short-lived processes are excluded. These are explicit observed
+boundaries, not an assertion of exact instantaneous browser memory.
