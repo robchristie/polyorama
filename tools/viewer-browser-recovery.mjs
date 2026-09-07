@@ -5,7 +5,9 @@ import {writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 const [upstreamUrl, output] = process.argv.slice(2);
 const started=performance.now(), states=[], events=[], transfers=[], errors=[], adapters=[];
-let mode='truncate-once', browser, proxy, activePage, workers=0;
+const pageIdentities=new WeakMap();
+let mode='truncate-once', browser, browser_version, proxy, activePage, workers=0;
+const workers_boundary='total Playwright Worker creation events across sequential fresh browser contexts; not concurrent workers';
 const at=()=>performance.now()-started;
 const catalogue=await (await fetch(upstreamUrl+'/catalogue')).json();
 const record=(kind,snapshot,detail,source=catalogue[snapshot.image]?.target??catalogue[0].target)=>events.push({at_ms:at(),kind,consumer:'browser recovery',source,generation:snapshot.generation,detail});
@@ -31,7 +33,7 @@ proxy=createServer((incoming,outgoing)=>{
 await new Promise(resolve=>proxy.listen(0,'127.0.0.1',resolve));
 const url='http://127.0.0.1:'+proxy.address().port;
 const snapshot=page=>page.evaluate(()=>window.emuellaViewer.snapshot());
-const capture=async(page,label)=>{for(const adapter of await page.evaluate(()=>window.__viewerGpu??[])){if(!adapters.some(a=>JSON.stringify(a)===JSON.stringify(adapter)))adapters.push(adapter);}const s=await snapshot(page);states.push({label,at_ms:at(),snapshot:s});return s;};
+const capture=async(page,label)=>{for(const adapter of await page.evaluate(()=>window.__viewerGpu??[])){if(!adapters.some(a=>JSON.stringify(a)===JSON.stringify(adapter)))adapters.push(adapter);}const s=await snapshot(page);states.push({...pageIdentities.get(page),label,at_ms:at(),snapshot:s});return s;};
 const settled=page=>page.waitForFunction(()=>{const s=window.emuellaViewer.snapshot();return s.loaded&&s.desired>0&&s.ready_demands===s.desired&&s.in_flight===0;},null,{timeout:60000});
 const observeGpu=page=>page.addInitScript(()=>{
   window.__viewerGpu=[];
@@ -42,11 +44,18 @@ const observeGpu=page=>page.addInitScript(()=>{
     return device;
   };
 });
-try {
-  browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-webgpu','--use-angle=vulkan','--enable-features=Vulkan,CDPScreenshotNewSurface','--disable-vulkan-surface','--disable-dev-shm-usage']});
+const newPage=async context_id=>{
+  // browser.newPage creates a fresh context containing this one page.
   const page=activePage=await browser.newPage({viewport:{width:1440,height:900}});
+  pageIdentities.set(page,{context_id,page_id:context_id+'-page'});
   await observeGpu(page);
   page.on('worker',()=>workers++);page.on('pageerror',e=>errors.push(String(e)));
+  return page;
+};
+try {
+  browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-webgpu','--use-angle=vulkan','--enable-features=Vulkan,CDPScreenshotNewSurface','--disable-vulkan-surface','--disable-dev-shm-usage']});
+  browser_version=browser.version();
+  const page=await newPage('transport');
   await page.goto(url);
   await page.waitForFunction(()=>window.emuellaViewer?.snapshot().errors.length>0,null,{timeout:60000});
   await page.waitForFunction(()=>window.emuellaViewer.snapshot().in_flight===0,null,{timeout:60000});
@@ -72,9 +81,7 @@ try {
   record('reconnect',reconnected,'proxy accepted new upstream TCP connections after transport restoration; Retry completed all demands; service process was not restarted');
   await page.close();
   mode='online';
-  const stale=activePage=await browser.newPage({viewport:{width:1440,height:900}});
-  await observeGpu(stale);
-  stale.on('worker',()=>workers++);stale.on('pageerror',e=>errors.push(String(e)));
+  const stale=await newPage('stale-completion');
   await stale.addInitScript(()=>{
     const RealWorker=window.Worker;
     window.Worker=class extends RealWorker {
@@ -99,9 +106,7 @@ try {
   record('stale_rejected',rejected,'held actual Worker Completed payload delivered after image generation changed; runtime rejected it and released charged reservation; pixels were not fabricated',catalogue[0].target);
   await stale.close();
   mode='delay';
-  const pressure=activePage=await browser.newPage({viewport:{width:1440,height:900}});
-  await observeGpu(pressure);
-  pressure.on('worker',()=>workers++);pressure.on('pageerror',e=>errors.push(String(e)));
+  const pressure=await newPage('cache-pressure');
   await pressure.goto(url+'/#compressed_mib=1&decoded_mib=4&gpu_mib=16');
   await pressure.waitForFunction(()=>window.emuellaViewer?.snapshot().in_flight>0,null,{timeout:60000});
   const deadline=at()+60000;
@@ -129,9 +134,9 @@ try {
   record('cache_eviction',final,'shared compressed representation and GPU eviction counters incremented within 1/4/16 MiB pressure budgets');
   if(errors.length)throw new Error('unexpected browser errors');
   await pressure.screenshot({path:join(output,'browser-recovery-final.png')});
-  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:true,started_monotonic_ms:started,workers,adapters,states,events,transfers,errors},null,2));
+  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:true,started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
 } catch(error) {
   if(activePage)await capture(activePage,'failure-observation').catch(()=>{});
-  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:false,error:String(error),started_monotonic_ms:started,workers,adapters,states,events,transfers,errors},null,2));
+  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:false,error:String(error),started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
   throw error;
 } finally {if(browser)await browser.close();proxy.closeAllConnections();await new Promise(resolve=>proxy.close(resolve));}

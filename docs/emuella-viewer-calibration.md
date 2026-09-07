@@ -140,6 +140,19 @@ eviction under 1/4/16 MiB compressed/decoded/GPU limits. The raw record distingu
 these interventions and their actual events. It does not infer same-source bin
 eviction when that counter remains zero.
 
+Recovery states identify their fresh browser context and page, and the raw record
+reports the launched browser's version. Worker creation events count total workers
+created across the three sequential contexts; they do not measure concurrency.
+Recovery cumulative worker counters (including received bodies and completed codec
+work) and overwritten app-event counts sum the maximum sampled value in each
+context. Worker resource, WASM-memory and app decoded/GPU peaks remain maxima
+across snapshots, never sums of per-context peaks; process-memory accounting keeps
+the separate boundaries described above. These sampled cumulative totals can omit work
+after the last snapshot of a context. The recovery harness does not collect CDP
+HTTP byte totals; its body counters and outer TCP observation retain their distinct
+boundaries. Normal-journey aggregation and frozen limits are unchanged. Earlier
+retained recovery records remain observations of their original exporter.
+
 `node tools/viewer-browser-visuals.mjs "$URL" "$NEW_OUTPUT"` opens the authored
 large overview, a reduced 2048-square centre, a full-resolution 512-square centre
 crossing source tile boundaries, and an aggressive display-only stretch. The

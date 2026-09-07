@@ -55,3 +55,21 @@ and 1354 MiB for the sum of observed per-PID high-water marks. The original
 shared pages repeatedly; the second also combines nonsimultaneous peaks.
 Unobserved short-lived processes are excluded. These are explicit observed
 boundaries, not an assertion of exact instantaneous browser memory.
+
+`preparation-thresholds.json` freezes the public 43008² U11 preparation bounds
+from its retained baseline: 280 seconds of measured preparation work, 64 MiB
+process RSS, 64 KiB transient tile index, at most 555 MB representation bytes and
+a descriptor index no larger than 1% of the representation. It also requires
+7056 tile callbacks and exactly 3699376128 native sample bytes. The limits apply
+to this public streaming workload; NITF preparation needs its own measured
+evidence and does not inherit this latency claim. Regenerate all nine public
+parents in a new directory with:
+
+```sh
+python3 tools/viewer-prepare-workload.py \
+  --tool target/release/emuella-viewer-tools --output "$NEW_PREPARATION_ROOT"
+```
+
+The helper retains every command's result and error output, checks the large
+profile against the frozen bounds, and records the actual executable hash.
+Build provenance must separately bind that executable to the committed sources.
