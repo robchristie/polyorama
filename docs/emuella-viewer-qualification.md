@@ -3,8 +3,9 @@
 The public deterministic native/browser proof passes its frozen preparation,
 latency, resource and recovery limits. This is candidate qualification, not a
 claim that the complete satellite-image engineering objective has landed.
-Representative real-image viewing preparation remains unproved pending the
-system campaign's approved output-store and derivative-cleanup decision.
+The remaining NITF ingestion journey uses independently encoded, project-authored
+fixtures under the user's revised scope. Original WorldView delivery and real-scene
+visual qualification are deferred while source rights are investigated.
 
 The measured application is exact clean revision
 `a40c71f34ed4e6c93a899f01b7731ec263dd0cc2`, tree
@@ -108,13 +109,13 @@ and observed per-process high-water sums with documented shared-page and samplin
 limitations. OS/NFS storage cache state was uncontrolled; warm-server and empty
 client states are explicit and do not imply cold physical original storage.
 
-The system campaign still needs representative NITF-to-viewing preparation and
-real-image visual evidence, final consumer review/landing, and merged-consumer
-qualification. The GDAL owner separately records real U11 NITF regional reads;
+The system campaign still needs independently encoded NITF-to-viewing preparation,
+final consumer review/landing, and merged-consumer qualification. Original vendor
+and real-scene visual qualification are explicitly deferred. The GDAL owner separately records real U11 NITF regional reads;
 those do not substitute for a complete viewing-preparation journey here.
-A useful next Emuella increment is persistent Part 1 index reuse through the C ABI
-for NITF preparation, followed by reducing repeated synthesis on compressed-cache
-revisits. Eventual Geometis integration should consume these independent regional
+Persistent Part 1 index reuse through the C ABI is required by the remaining
+NITF preparation increment. A subsequent optimisation target is reducing repeated
+synthesis on compressed-cache revisits. Eventual Geometis integration should consume these independent regional
 and immutable-identity contracts after the remaining proof is complete.
 Geometis implementation inspection, migration, deployment and publication remain
 outside this demonstration. Additional JPIP optional features, spatially varying

@@ -1,6 +1,7 @@
 """Source syscall evidence must remain distinct from callbacks and device I/O."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -8,6 +9,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 
 SPEC = importlib.util.spec_from_file_location(
@@ -117,11 +119,13 @@ class FrozenBoundTests(unittest.TestCase):
     def setUp(self):
         self.report = dict(started_unix_ms=20, source={'sha256': 'source'}, bands=[1],
                            measurement_mode='performance', wall_ms=15,
+                           source_cache_state='uncontrolled',
                            representation=dict(profile={'bits_per_sample': 11}, encoded_bytes=100,
                                                metrics={'peak_rss_kib': 99, 'descriptor_bytes': 10}),
                            source_syscalls=None)
         self.limits = dict(schema='viewer-nitf-preparation-thresholds/1', frozen_unix_ms=10,
                            source_sha256='source', bands=[1], measurement_mode='performance',
+                           source_cache_state='uncontrolled',
                            profile={'bits_per_sample': 11}, bounds={'peak_rss_kib': {'maximum': 100}})
 
     def test_matching_separate_freeze_checks_actual_bound(self):
@@ -131,11 +135,79 @@ class FrozenBoundTests(unittest.TestCase):
 
     def test_wrong_mode_source_time_or_missing_observation_rejected(self):
         for key, value in [('source_sha256', 'other'), ('measurement_mode', 'observer'),
+                           ('source_cache_state', 'cold-os'),
                            ('frozen_unix_ms', 20), ('schema', 'synthetic-preparation/1'),
                            ('bounds', {'source_read_bytes': {'maximum': 100}}),
                            ('bounds', {'wall_ms': {'maximum': float('nan')}}), ('bounds', {})]:
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                 HARNESS.evaluate_bounds(dict(self.limits, **{key: value}), self.report)
+
+
+@unittest.skipUnless(sys.platform == 'linux', 'Linux source residency required')
+class SourceCacheTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.source = self.root / 'authored-cache-source.bin'
+        self.page_size = os.sysconf('SC_PAGE_SIZE')
+        with self.source.open('wb') as stream:
+            stream.write(b'x' * (self.page_size * 4 + 37))
+            stream.flush()
+            os.fsync(stream.fileno())
+
+    def test_real_warm_pass_and_bounded_residency_windows(self):
+        evidence = {}
+        with mock.patch.object(HARNESS, 'CACHE_WINDOW_BYTES', self.page_size * 2):
+            HARNESS.condition_source_cache(self.source, 'warm-os', evidence)
+        self.assertEqual(evidence['conditioning_read_bytes'], self.source.stat().st_size)
+        self.assertEqual(evidence['before']['pages'], 5)
+        self.assertEqual(evidence['before']['resident_pages'], 5)
+        self.assertEqual(evidence['before']['mapping_windows'], 3)
+        self.assertLessEqual(evidence['before']['maximum_mapping_bytes'], self.page_size * 2)
+
+    def test_real_cold_request_observed_or_rejected_never_assumed(self):
+        evidence = {}
+        try:
+            HARNESS.condition_source_cache(self.source, 'cold-os', evidence)
+        except ValueError as error:
+            # tmpfs and some filesystems do not honour eviction. The portable
+            # test requires explicit rejection there, never an invented cold pass.
+            self.assertIn('source pages remain resident', str(error))
+            self.assertGreater(evidence['before']['resident_pages'], 0)
+        else:
+            self.assertEqual(evidence['before']['resident_pages'], 0)
+            self.assertEqual(HARNESS.source_residency(self.source)['resident_pages'], 0)
+        self.assertEqual(evidence['advised_bytes'], self.page_size * 5)
+
+    def test_ineffective_eviction_and_partial_warmth_fail_admission(self):
+        snapshot = dict(available=True, pages=5, resident_pages=2)
+        for state in ('cold-os', 'warm-os'):
+            evidence = {}
+            with self.subTest(state=state), mock.patch.object(HARNESS, 'source_residency',
+                                                             return_value=snapshot):
+                with self.assertRaisesRegex(ValueError, 'admission failed'):
+                    HARNESS.condition_source_cache(self.source, state, evidence)
+            self.assertEqual(evidence['before']['resident_pages'], 2)
+
+    def test_missing_residency_fails_explicit_state_but_records_uncontrolled(self):
+        with mock.patch.object(HARNESS, 'source_residency', side_effect=OSError('unavailable')):
+            for state in ('cold-os', 'warm-os'):
+                evidence = {}
+                with self.subTest(state=state), self.assertRaisesRegex(ValueError, 'unavailable'):
+                    HARNESS.condition_source_cache(self.source, state, evidence)
+                self.assertFalse(evidence['before']['available'])
+            evidence = {}
+            HARNESS.condition_source_cache(self.source, 'uncontrolled', evidence)
+            self.assertFalse(evidence['before']['available'])
+
+    def test_unowned_or_empty_sources_do_not_supply_residency_proof(self):
+        with mock.patch.object(HARNESS.os, 'geteuid', return_value=os.geteuid() + 1):
+            with self.assertRaisesRegex(ValueError, 'caller-owned'):
+                HARNESS.source_residency(self.source)
+        self.source.write_bytes(b'')
+        with self.assertRaisesRegex(ValueError, 'non-empty regular file'):
+            HARNESS.source_residency(self.source)
 
 
 class ImmutableResultTests(unittest.TestCase):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Measure explicit NITF preparation; baseline unless a separate freeze is supplied."""
 import argparse
+import ctypes
 import hashlib
 import json
 import math
@@ -10,6 +11,7 @@ import platform
 import re
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -19,6 +21,111 @@ READS = {'read', 'pread64', 'readv', 'preadv', 'preadv2'}
 TRANSFERS = {'sendfile', 'splice', 'copy_file_range'}
 TRACE_CALLS = sorted(READS | TRANSFERS | {'mmap', 'io_uring_setup'})
 ENV_KEYS = ('PATH', 'LD_LIBRARY_PATH', 'LANG', 'LC_ALL', 'GDAL_DATA', 'PROJ_DATA')
+CACHE_WINDOW_BYTES = 64 << 20
+
+
+def cache_file_stat(fd):
+    info = os.fstat(fd)
+    if not stat.S_ISREG(info.st_mode) or info.st_size <= 0:
+        raise ValueError('source cache observation requires a non-empty regular file')
+    # Linux can return all-resident masks to callers without sufficient file
+    # authority. Require ownership instead of treating that mask as warm proof.
+    if info.st_uid != os.geteuid():
+        raise ValueError('source cache observation requires caller-owned authored input')
+    return dict(device=info.st_dev, inode=info.st_ino, bytes=info.st_size,
+                mtime_ns=info.st_mtime_ns, ctime_ns=info.st_ctime_ns)
+
+
+def source_residency(path):
+    """Snapshot page-cache residency without touching source mapping contents.
+
+    At most 64 MiB of virtual address space and one byte per page are used at
+    once. Every PROT_NONE mapping ends before returning to the caller.
+    """
+    started = time.monotonic_ns()
+    library = ctypes.CDLL(None, use_errno=True)
+    library.mmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int,
+                            ctypes.c_int, ctypes.c_int, ctypes.c_long]
+    library.mmap.restype = ctypes.c_void_p
+    library.mincore.argtypes = [ctypes.c_void_p, ctypes.c_size_t,
+                               ctypes.POINTER(ctypes.c_ubyte)]
+    library.mincore.restype = ctypes.c_int
+    library.munmap.argtypes = [ctypes.c_void_p, ctypes.c_size_t]
+    library.munmap.restype = ctypes.c_int
+    page_size = os.sysconf('SC_PAGE_SIZE')
+    window = max(page_size, CACHE_WINDOW_BYTES // page_size * page_size)
+    resident, pages, windows = 0, 0, 0
+    with Path(path).open('rb', buffering=0) as stream:
+        identity = cache_file_stat(stream.fileno())
+        for offset in range(0, identity['bytes'], window):
+            length = min(window, identity['bytes'] - offset)
+            count = (length + page_size - 1) // page_size
+            vector = (ctypes.c_ubyte * count)()
+            address = library.mmap(None, length, 0, 1, stream.fileno(), offset)
+            if address == ctypes.c_void_p(-1).value:
+                raise OSError(ctypes.get_errno(), 'source residency mmap failed')
+            try:
+                if library.mincore(address, length, vector):
+                    raise OSError(ctypes.get_errno(), 'source residency mincore failed')
+                resident += sum(value & 1 for value in vector)
+                pages += count
+                windows += 1
+            finally:
+                if library.munmap(address, length):
+                    raise OSError(ctypes.get_errno(), 'source residency munmap failed')
+        if cache_file_stat(stream.fileno()) != identity:
+            raise ValueError('source changed during residency observation')
+    return dict(available=True, file=identity, page_size=page_size, pages=pages,
+                resident_pages=resident, nonresident_pages=pages - resident,
+                mapping_windows=windows, maximum_mapping_bytes=window,
+                sampled_started_monotonic_ns=started,
+                sampled_finished_monotonic_ns=time.monotonic_ns())
+
+
+def condition_source_cache(path, state, evidence):
+    """Condition only this file, after identity hashing and before measurement."""
+    evidence.update(requested_state=state, conditioning_read_bytes=0,
+                    conditioning_read_operations=0, conditioning_ms=0)
+    started = time.monotonic_ns()
+    if state != 'uncontrolled':
+        with Path(path).open('rb', buffering=0) as stream:
+            identity = cache_file_stat(stream.fileno())
+            if state == 'cold-os':
+                os.fsync(stream.fileno())
+                page_size = os.sysconf('SC_PAGE_SIZE')
+                length = (identity['bytes'] + page_size - 1) // page_size * page_size
+                os.posix_fadvise(stream.fileno(), 0, length, os.POSIX_FADV_DONTNEED)
+                evidence['method'] = 'file fsync then page-aligned POSIX_FADV_DONTNEED'
+                evidence['advised_bytes'] = length
+            elif state == 'warm-os':
+                while chunk := stream.read(1 << 20):
+                    evidence['conditioning_read_bytes'] += len(chunk)
+                    evidence['conditioning_read_operations'] += 1
+                evidence['method'] = 'explicit sequential read with at most 1 MiB per buffer'
+                if evidence['conditioning_read_bytes'] != identity['bytes']:
+                    raise ValueError('source changed during warm-cache pass')
+            else:
+                raise ValueError('unsupported source cache state')
+            if cache_file_stat(stream.fileno()) != identity:
+                raise ValueError('source changed during cache conditioning')
+    else:
+        evidence['method'] = 'no conditioning after wrapper identity hash pass'
+    evidence['conditioning_ms'] = (time.monotonic_ns() - started) / 1e6
+    observe_source_cache(path, 'before', state, evidence)
+    before = evidence['before']
+    if state == 'cold-os' and before['resident_pages'] != 0:
+        raise ValueError('cold-os admission failed: source pages remain resident')
+    if state == 'warm-os' and before['resident_pages'] != before['pages']:
+        raise ValueError('warm-os admission failed: not every source page is resident')
+
+
+def observe_source_cache(path, phase, state, evidence):
+    try:
+        evidence[phase] = source_residency(path)
+    except (OSError, ValueError, AttributeError) as error:
+        evidence[phase] = dict(available=False, error=str(error))
+        if state != 'uncontrolled':
+            raise ValueError(f'{state} source residency unavailable: {error}') from error
 
 
 def digest(path):
@@ -164,8 +271,9 @@ def evaluate_bounds(limits, report):
             limits['source_sha256'] != report['source']['sha256'] or
             limits['profile'] != representation['profile'] or
             limits['bands'] != report['bands'] or
-            limits['measurement_mode'] != report['measurement_mode']):
-        raise ValueError('NITF freeze identity/profile/mode/time mismatch')
+            limits['measurement_mode'] != report['measurement_mode'] or
+            limits['source_cache_state'] != report['source_cache_state']):
+        raise ValueError('NITF freeze identity/profile/mode/cache/time mismatch')
     observed = dict(representation['metrics'], wall_ms=report['wall_ms'],
                     encoded_bytes=representation['encoded_bytes'],
                     descriptor_to_encoded_ratio=representation['metrics']['descriptor_bytes'] /
@@ -205,6 +313,8 @@ def main(argv=None):
     parser.add_argument('--build-record', type=Path, action='append', required=True,
                         help='repeat for retained build logs/manifests tying binary hashes to revisions')
     parser.add_argument('--measurement-mode', choices=('observer', 'performance'), required=True)
+    parser.add_argument('--source-cache-state', choices=('cold-os', 'warm-os', 'uncontrolled'),
+                        default='uncontrolled')
     parser.add_argument('--target', required=True)
     parser.add_argument('--width', type=int, required=True)
     parser.add_argument('--height', type=int, required=True)
@@ -234,7 +344,13 @@ def main(argv=None):
                   measurement_mode=args.measurement_mode, bands=args.bands,
                   timing_boundary='subprocess wall time; strace overhead included' if
                   args.measurement_mode == 'observer' else 'uninstrumented subprocess wall time',
-                  cache_state='uncontrolled; wrapper identity hash pass precedes timed preparation',
+                  cache_state='uncontrolled; wrapper identity hash pass precedes timed preparation'
+                  if args.source_cache_state == 'uncontrolled' else
+                  f'{args.source_cache_state}; source-file residency observed before launch',
+                  source_cache_state=args.source_cache_state,
+                  source_cache=dict(boundary='source-file OS page cache residency snapshots; '
+                                    'not device or NFS cache state; concurrent access/eviction '
+                                    'can change residency after observation'),
                   invocation=sys.argv if argv is None else argv,
                   wrapper=file_identity(Path(__file__)),
                   environment={key: os.environ[key] for key in ENV_KEYS if key in os.environ},
@@ -272,7 +388,9 @@ def main(argv=None):
             command = trace_command(strace, root / 'source.strace', command)
         report['executed_command'] = command
         with (root / 'result.json').open('wb') as stdout, (root / 'stderr.txt').open('wb') as stderr:
+            condition_source_cache(paths['input'], args.source_cache_state, report['source_cache'])
             start = time.monotonic()
+            report['source_cache']['launch_started_monotonic_ns'] = time.monotonic_ns()
             process = subprocess.Popen(command, stdout=stdout, stderr=stderr, env=environment,
                                        start_new_session=True)
             try:
@@ -285,6 +403,12 @@ def main(argv=None):
                 raise
             finally:
                 report['wall_ms'] = (time.monotonic() - start) * 1000
+                observe_source_cache(paths['input'], 'after', args.source_cache_state,
+                                     report['source_cache'])
+        cache = report['source_cache']
+        if (cache['before']['available'] and cache['after']['available'] and
+                cache['before']['file'] != cache['after']['file']):
+            raise ValueError('source file identity changed across preparation')
         if report['returncode']:
             raise ValueError(f'preparation failed with exit {report["returncode"]}; see stderr.txt')
         report['result'] = file_identity(root / 'result.json')
@@ -310,7 +434,7 @@ def main(argv=None):
             report['failures'].extend(evaluate_bounds(limits, report))
         report['completed'] = not report['failures']
         report['qualified'] = bool(limits) and report['completed']
-    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError) as error:
         report['failures'].append(str(error))
     for name, path in (('result', root / 'result.json'), ('stderr', root / 'stderr.txt')):
         if path.is_file():

@@ -64,10 +64,46 @@ separate invocation with `--measurement-mode performance` and a fresh output
 directory for uninstrumented timing. That report has `source_syscalls: null`;
 do not substitute observer timings for uninstrumented performance or claim the
 performance invocation's source counts were measured. Source hashes and profiles
-allow the coordinator to compare both invocations. Filesystem cache state is
-uncontrolled: the wrapper hashes the input before timing, and validates its hash
-again afterwards. Both wrapper scans are outside the observed preparation; the
-tool's own deliberate hash scan remains inside it.
+allow the coordinator to compare both invocations. The wrapper hashes the input
+before timing and validates its hash again afterwards. Both wrapper scans are
+outside the observed preparation; the tool's own deliberate hash scan remains
+inside it.
+
+`--source-cache-state uncontrolled` is the default: the wrapper's identity hash
+pass precedes preparation without further cache conditioning. Select `cold-os`
+or `warm-os` to condition this source file after hashing, immediately before
+launching the timed process:
+
+- `cold-os` calls `fsync` on the source descriptor, requests eviction with
+  page-aligned `POSIX_FADV_DONTNEED` covering the complete file, then requires
+  zero resident source pages. Advisory eviction alone does not establish cold
+  state; unavailable residency or any remaining resident page rejects admission.
+- `warm-os` performs an explicit sequential source scan using at most 1 MiB per
+  buffer, records its bytes/operations/time separately, then requires every
+  source page to be resident. Partial or unavailable residency rejects admission.
+
+The source must be a non-empty regular file owned by the caller for residency
+proof. `mincore` observes at most 64 MiB of virtual mapping at a time, with one
+byte of residency data per page. Mappings use `PROT_NONE`, their contents are
+never touched, and every mapping ends before preparation starts. Observations
+include the final partial page. `source_cache.before` is sampled after
+conditioning; `source_cache.after` is sampled as soon as the process exits,
+before output validation or the wrapper's final source hash scan. Both record
+page totals, resident pages, file metadata and monotonic observation times. The
+launch timestamp makes the sampling-to-launch interval inspectable. Unavailable
+observations are explicit in uncontrolled mode and fail either controlled mode.
+
+These are **source-file OS page-cache snapshots**, not device or NFS cache
+states. The wrapper does not drop global caches, pin pages or prevent concurrent
+access/eviction. Snapshot residency may change after observation. A cold source
+at process launch does not mean cold decoder tile reads: the preparation tool's
+own deliberate hash scan can warm source pages before tile decoding. Its scan
+remains part of timed preparation and source syscall totals.
+
+The mechanism follows the Linux user-space interface documentation for
+[`posix_fadvise`](https://man7.org/linux/man-pages/man2/posix_fadvise.2.html) and
+[`mincore`](https://man7.org/linux/man-pages/man2/mincore.2.html). File-specific
+eviction is advisory; mincore residency is only a snapshot.
 
 Each fresh output contains `result.json` (the exact tool result), `stderr.txt`,
 `representation/`, observer trace files when selected, and
@@ -81,10 +117,12 @@ Timeouts terminate the preparation process group.
 After calibration, supply `--limits "$NITF_THRESHOLDS"` to qualify against a
 separately frozen JSON document. Its schema is
 `viewer-nitf-preparation-thresholds/1`; required fields are `frozen_unix_ms`,
-`source_sha256`, `bands`, `measurement_mode`, the exact manifest `profile`, and
+`source_sha256`, `bands`, `measurement_mode`, `source_cache_state`, the exact manifest `profile`, and
 non-empty `bounds`. Each bound maps an observed numeric field to either
 `{"maximum": value}` or `{"exact": value}`. The freeze must precede invocation
-and match source, bands, profile and measurement mode. No default limits apply.
+and match source, bands, profile, measurement mode and requested source-cache
+state. `source_cache_state` is required even for `uncontrolled`; cold, warm and
+uncontrolled observations cannot share a freeze. No default limits apply.
 
 Available bound fields include tool metrics, `wall_ms`, `encoded_bytes`,
 `descriptor_to_encoded_ratio`, and (observer mode only) `source_read_bytes` and
@@ -103,5 +141,9 @@ python3 -m unittest discover -s tools/tests -p test_viewer_prepare_nitf.py -v
 
 The tests include actual strace observations against a small project-authored
 byte file and a child process, plus negative attribution, unsupported I/O,
-output-reuse and freeze-identity cases. Actual NITF preparation is a separate
+output-reuse and freeze-identity cases. Source-cache tests use an authored file
+with a partial final page, bounded mapping windows, real sequential warming and
+file-specific eviction; unsupported eviction must reject cold admission. Negative
+tests cover ineffective eviction, partial warmth, unavailable residency and
+cache-state freeze mismatch. Actual NITF preparation is a separate
 integration probe using the maintained builds and independently authored fixture.
