@@ -107,9 +107,10 @@ the measured preparation boundary; observer timing includes `strace` overhead.
 Observer syscall totals include that scan and rereads, and describe syscalls,
 not physical-device or NFS traffic.
 
-The full-size cold observer report is retained; warm performance and actual-GPU
-native/browser journeys remain pending. Do not report final qualification until
-their retained reports pass the matching freeze.
+Both full-size preparation modes and the native/browser/recovery journeys pass
+their unchanged freezes. See the [qualification record](emuella-viewer-qualification.md)
+for exact builds, input identities, observed limits, failed environment attempts
+and the remaining real-scene boundary.
 
 ## Serve and exercise the viewer
 

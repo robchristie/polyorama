@@ -8,9 +8,9 @@ public fixtures, a localhost HTTP service and an actual TCP measurement client.
 The viewer application owns transport, cancellation and request generations.
 
 The codec and protocol dependencies use the merged revision
-`2568f1c40c83a40f527c7ee8f1600af511e046d0`. Composed candidate qualification
-remains pending; this dependency pin alone does not prove the application
-acceptance outcome. The supported encoded profile has one genuine quality layer;
+`2568f1c40c83a40f527c7ee8f1600af511e046d0`. [Composed candidate qualification](emuella-viewer-qualification.md)
+records the actual NITF/native/browser journeys; this dependency pin alone does
+not prove application acceptance. The supported encoded profile has one genuine quality layer;
 resolution discards are not additional layers.
 The codec's selected geometry permits tile edges 256/512/1024, depths 2/5/6,
 unsigned precision 8–16 and one or three components, with no MCT. Requesting

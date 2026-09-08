@@ -18,7 +18,9 @@ instrumentation. The codec owns reconstruction work and quality evidence. A prob
 is retained or rejected from its actual result; failed directories are never reused.
 The exit condition is five independent successful native and browser baselines,
 a coordinator-selected threshold file frozen before final qualification, and final
-runs against the merged codec and regenerated input representations.
+runs against the merged codec and identified immutable input representations.
+Reused preparations retain their original encoder identities and are hash-checked;
+new source integration has its own preparation qualification.
 
 ## Run and retain evidence
 

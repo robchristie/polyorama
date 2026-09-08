@@ -73,3 +73,14 @@ python3 tools/viewer-prepare-workload.py \
 The helper retains every command's result and error output, checks the large
 profile against the frozen bounds, and records the actual executable hash.
 Build provenance must separately bind that executable to the committed sources.
+
+`nitf-observer-thresholds.json` and `nitf-performance-thresholds.json` separately
+freeze the independently authored 43008-square U11 NITF route: 520 seconds traced
+from an observed cold OS source, and 440 seconds uninstrumented from a warm OS
+source. Both retain the 64 MiB encoder RSS, 64 KiB tile-index, 555 MB encoded and
+1% descriptor caps, plus exact tile/sample counts. Observer source syscalls are
+capped at 24 GB and 5.5 million reads, including hashing and rereads. These are
+not physical-device/NFS limits. The [NITF calibration records](../../../docs/emuella-viewer-evidence/nitf-calibration/manifest.json)
+bind the smaller baselines and merged-owner confirmations used before freeze.
+See the [qualified observations](../../../docs/emuella-viewer-qualification.md)
+for actual results and limitations.

@@ -1,141 +1,174 @@
 # Emuella viewer candidate qualification
 
-The public deterministic native/browser proof passes its frozen preparation,
-latency, resource and recovery limits. This is candidate qualification, not a
-claim that the complete satellite-image engineering objective has landed.
-The remaining NITF ingestion journey uses independently encoded, project-authored
-fixtures under the user's revised scope. Original WorldView delivery and real-scene
-visual qualification are deferred while source rights are investigated.
+The independently authored NITF-to-HT viewer candidate passes its frozen
+preparation, native/browser latency, resource and recovery limits. Original
+WorldView delivery and real-scene visual qualification are explicitly deferred
+under the revised scope. This record establishes candidate qualification;
+reviewed landing and the merged-consumer confirmation belong to the delivery record.
 
-The measured application is exact clean revision
-`a40c71f34ed4e6c93a899f01b7731ec263dd0cc2`, tree
-`9754fc8876ef73fdb05923be8e6327a2c50124d8`. Codec and protocol use merged
-`3afcfabb24282645c3e101ab3495810d28212dfd`; benchmark admission uses merged
-`3bdaa98449e2c4b6c0500a1ac9daedb4d61d92bc`. Full `cargo xtask verify` passed at
-that application revision. Its canonical software-renderer observations are
-separate from the actual NVIDIA qualification below. The additive reference
-command was subsequently exercised at clean committed
-`e5df4339954be588cd4ec0e959ab7c44df417e17`, without changing viewer execution.
+## Current reproducible journey
 
-## Reproduction and evidence
+Follow the [independent NITF commands](emuella-viewer-independent-nitf.md),
+[preparation measurements](emuella-viewer-nitf-preparation.md),
+[service contract](emuella-viewer-service.md) and
+[composed workload commands](emuella-viewer-calibration.md).
+The [qualification report](emuella-viewer-evidence/nitf-qualified/qualification.json)
+and [file manifest](emuella-viewer-evidence/nitf-qualified/manifest.json) retain
+exact source, binary, preparation, request, resource and reference evidence.
+No external image pixels are included.
 
-Use the [calibration and workload commands](emuella-viewer-calibration.md),
-[preparation/service contract](emuella-viewer-service.md) and
-[application commands](../apps/emuella-viewer/README.md). Prepare a new output
-directory with `tools/viewer-prepare-workload.py`; start the service with the nine
-resulting representations; run five native and five browser composed journeys
-with the corresponding frozen files under `apps/emuella-viewer/qualification/`.
-Recovery has its own workload and threshold identity. Do not apply normal
-browser latency requirements to the recovery workload.
+Native/static binaries were built from clean Polyorama
+`16296520e146df842555a8d763fcce704207adc8`, which passed full `cargo xtask verify`.
+The composed harness ran at `3ad17777371e5069db902049e799008c5e8713e7`; intervening
+changes are evidence, documentation and visual-provenance labelling, with unchanged
+native/static binary hashes. Codec and JPIP use merged
+`2568f1c40c83a40f527c7ee8f1600af511e046d0`; GDAL plugin uses merged
+`f5e21e5b9bdd9ffab95f19299e2ceb81a18fee84`, maintained GDAL
+`1af54d99959f3b62ba10451a357a969075374663`, and benchmark admission uses merged
+`3bdaa98449e2c4b6c0500a1ac9daedb4d61d92bc`.
+Independent fixture ownership is testdata `2d519ddaf019f10b9e409ea3338d395438486647`.
 
-The [qualification report](emuella-viewer-evidence/qualified-public/qualification.json)
-binds all eleven traces and benchmark admissions, frozen threshold hashes,
-input identities and actual build/runtime observations. Its
-[manifest](emuella-viewer-evidence/qualified-public/manifest.json) binds retained
-file bytes. Large intermediate histories are hash-indexed, with retention limits
-explicit; the retained final snapshots and bounded event/checksum records do not
-claim a complete event history. The evidence contains only authored public
-signals, including the visual captures.
+## Ingestion and representation
 
-## Observations
+The independently OpenJPEG-encoded NITF C8 source is 43,008 by 43,008, with
+11 meaningful unsigned bits in UInt16 storage. Its SHA-256 is
+`dcf61436814d33c75c876b173f2dc87fcbd61571be7e766489dd884ab9891c07`.
+The recipe independently decodes all 1,849,688,064 samples and checks its authored
+coordinate oracle. The source occupies 203,866,694 bytes; its native raster is
+3,699,376,128 bytes. Small independent fixtures additionally cover U16 greyscale,
+RGB8, RGB16 and lossy U11 ingestion; they do not establish large RGB performance.
 
-Nine parents cover U11/U16 greyscale and RGB8/RGB16. The large parent is
-43,008 × 43,008 U11, tiled at 512 with six decompositions and one actual quality
-layer. Preparation consumed 7,056 tile callbacks and 3,699,376,128 native sample
-bytes in 220.838 seconds, with 5,364 KiB peak RSS. The representation occupies
-441,844,578 bytes plus 2,992,977 descriptor bytes. These callback bytes are
-synthetic native samples, not original compressed-storage traffic.
+GDAL/Emuella prepares one tiled HT codestream with tile edge 512, six
+decompositions, 64-sample code blocks, no MCT, 2 bpp target and one genuine quality
+layer. The encoded parent occupies 461,122,081 bytes plus 3,021,780 descriptor
+bytes. Both preparation invocations produce identical manifests and payloads.
+All 7,056 native tile callbacks and 3,699,376,128 returned sample bytes are counted.
+There is no whole-image pixel allocation. Required indexing constructs the
+bounded retained Part 1 source index during GDAL open; regional reads reuse it.
 
-Five runs per runtime passed every unchanged frozen admission. The host has a
-Ryzen 9 9950X3D, 32 logical CPUs and 91 GiB RAM. Native reported RTX 3090 Vulkan,
-NVIDIA driver 610.43.03. Chromium 151.0.7922.34 reported NVIDIA/Ampere and withheld
-its device model; the native model is not inferred for the browser.
-
-| Maximum observation | Native | Browser |
+| Preparation observation | Cold OS source, traced | Warm OS source, uninstrumented |
 |---|---:|---:|
-| First primary region resident | 87.39 ms | 190 ms |
-| Complete overview and visible gallery | 3,917.18 ms | 15,139.30 ms |
-| Detection detail | 128.46 ms | 257.80 ms |
-| Gallery completion | 736.18 ms | 1,881.40 ms |
-| Warm revisit | 62.11 ms | 369 ms |
-| Compressed-cache reconstruction | 3,966.66 ms | 14,764.60 ms |
+| Wall time | 407.298 s | 349.966 s |
+| Frozen maximum | 520 s | 440 s |
+| Encoder-process peak RSS | 38,244 KiB | 38,476 KiB |
+| Peak transient HT tile index | 16,544 bytes | 16,544 bytes |
+| Attributed source-file read bytes | 18,457,266,540 | Unavailable by design |
+| Attributed source-file read operations | 4,395,262 | Unavailable by design |
 
-The complete overview requires 121 primary regions; first-region residency is
-not complete-image readiness or display scanout. Five observations provide an
-observed maximum, not a population tail estimate. Warm compressed reconstruction
-still performs decode and synthesis; its cost makes reduced reconstruction work
-a useful next optimisation target.
+The separate [limits](../apps/emuella-viewer/qualification/README.md) were frozen
+before either full-size invocation. They extrapolate 8,192/32,768 baselines with
+a 25% allowance, after merged-owner 8,192 confirmations reproduced the payload,
+source read counts and bounded resource behaviour. Failed runs cannot relax them.
 
-Recovery passed interrupted reception, retry, connection loss/reconnect, delayed
-actual completion rejection, cancellation acknowledgement and eviction. Three
-Worker creation events belong to sequential fresh contexts; concurrency remains
-one. The separate 1 MiB compressed-cache probe completed the overview and observed
-3,654 bin evictions from the demanded parent. Its extra zero-representation-
-evictions assertion failed because eight unused catalogue registrations were
-also discarded. The [failed assertion and corroboration](emuella-viewer-evidence/qualified-public/same-source-lru/assessment.json)
-remain retained; no run was replaced or threshold relaxed.
+Source-file residency is checked after wrapper hashing and immediately before
+launch. The tool's own timed source hash scan warms pages before decoder reads.
+Syscall bytes include that scan and rereads; they are not physical-device or NFS
+traffic. The encoder RSS excludes the measurement wrapper and operating-system
+page cache. The wrapper streams hashes/traces and verifies descriptors; its
+process peak is not separately qualified. Process-wide physical read counters are
+retained separately without assigning them to the source by inference.
 
-## Correctness and visual boundary
+This arithmetic source compresses better with its original lossless Part 1
+encoding than the selected HT target: the viewing representation is 2.26 times
+its source size. It is about eight times smaller than the native UInt16 raster.
+Neither ratio establishes storage savings for actual satellite imagery.
 
-The [complete-reference report](emuella-viewer-evidence/complete-reference/comparisons.json)
-records 18 passing groups: 807 application records, 12,109,360 compared pixels and
-zero checksum/dimension/precision mismatches. It decodes complete selected tiles
-from the immutable file and crops, bypassing JPP and client cache assembly. This
-shares codec algorithms; codec-owned tests separately compare sparse outputs
-with an independent full-tile reconstruction path. The reference command's tests
-also compare actual sample arrays in 224 cases across four formats, eight windows
-and all D6 discard levels, including odd edges and tile crossings.
+## Native, browser and recovery
 
-Native and browser agree for 352 shared retained FNV-1a U16LE records. Browser
-has 103 additional records. FNV is a diagnostic comparison, not a cryptographic
-image identity or a guarantee against collisions. This evidence supports exact
-agreement for the selected native output profile; it does not establish a
-universal tolerance for other codecs, representations or browsers.
+One fresh native, one real-browser and one recovery journey pass every unchanged
+frozen admission using the NITF-derived parent plus eight previously prepared
+U11/U16 greyscale and RGB8/RGB16 parents. All representation files remain
+hash-identical before and after viewing; auxiliary preparation is not repeated.
+The first attempted group failed before rendering because its X display was no
+longer live. The [failed admissions and logs](emuella-viewer-evidence/nitf-qualified/failed-display/assessment.json)
+remain retained. A fresh display restored hardware execution with unchanged
+binaries, representations and limits; no cause for the earlier display exit is inferred.
 
-Opened captures show retained coarse imagery during a held detail response,
-small authored bright objects, faint perturbations and crossing lines under
-aggressive stretch. Stretch caused no extra compressed-data request or decode.
-Visual judgement is limited to these synthetic patterns; satellite object quality
-and sensor-specific stretch remain outstanding.
+The host has a Ryzen 9 9950X3D, 32 logical CPUs and 91 GiB RAM. Native reports
+RTX 3090 Vulkan with NVIDIA 610.43.03. Chromium 151.0.7922.34 reports NVIDIA/Ampere
+and withholds its device model. Canonical llvmpipe smoke evidence is separate.
 
-## Implemented and remaining scope
+| Observed boundary | Native | Browser |
+|---|---:|---:|
+| First primary region resident | 83.57 ms | 161.40 ms |
+| Complete overview and visible gallery | 3,695.01 ms | 14,376.40 ms |
+| Detection detail | 103.43 ms | 233.30 ms |
+| Gallery completion | 653.80 ms | 1,848.60 ms |
+| Warm GPU/bookmark revisit | 53.63 ms | 213.90 ms |
+| Compressed-cache reconstruction | 3,857.26 ms | 14,475.80 ms |
 
-The application implements multiple sources and panes, bounded regional demands,
-10,000 logical clustered/scattered detections, shared compressed/decoded/GPU
-budgets, parent-based thumbnail/detail reconstruction and actual stateless JPP
-cache semantics. Global texture accounting is distinct from physical GPU memory;
-GPU completion timing is unavailable. Browser process memory uses sampled RSS
-and observed per-process high-water sums with documented shared-page and sampling
-limitations. OS/NFS storage cache state was uncontrolled; warm-server and empty
-client states are explicit and do not imply cold physical original storage.
+The overview comprises 121 bounded primary demands. First-region residency is
+neither complete-image readiness nor scanout. These are bounded integration
+confirmations, not new five-run baselines or population tail estimates.
 
-The system campaign still needs independently encoded NITF-to-viewing preparation,
-final consumer review/landing, and merged-consumer qualification. Original vendor
-and real-scene visual qualification are explicitly deferred. The GDAL owner separately records real U11 NITF regional reads;
-those do not substitute for a complete viewing-preparation journey here.
-Persistent Part 1 index reuse through the C ABI is required by the remaining
-NITF preparation increment. A subsequent optimisation target is reducing repeated
-synthesis on compressed-cache revisits. Eventual Geometis integration should consume these independent regional
-and immutable-identity contracts after the remaining proof is complete.
-Geometis implementation inspection, migration, deployment and publication remain
-outside this demonstration. Additional JPIP optional features, spatially varying
-compression, standalone chips and geospatial reprojection are deferred.
+The workload covers nine open image identities, linked/comparison panes, five
+bookmarks, pan/zoom, 10,000 logical clustered/scattered detections, visible items
+and bounded overscan, detail opening, cancellation and stale completion rejection.
+Warm compressed reconstruction requests no additional JPP data; warm GPU revisit
+performs no further decode or upload. Recovery separately proves interrupted
+receipt/retry, reconnect, eviction, cancellation acknowledgement and rejection of
+an actual delayed completion. Its three Worker creation events are sequential
+fresh contexts; concurrency remains one.
 
-## Reviewed response-admission repair
+Global caps remain 64 MiB compressed bins, 16 MiB descriptor metadata, 16 MiB
+decoded data, 64 MiB logical GPU textures and 64 MiB codec workspace. Network/TCP
+bytes include headers and retries; service read counters and codec block/pixel/
+synthesis work are separate observations in each trace. Browser memory uses
+sampled descendant RSS and observed per-PID high-water sums, with shared-page and
+sampling limitations. Physical GPU allocation overhead and GPU timing are unavailable.
 
-Independent review rejected `d31795b5499b7268f1ef930c187759682cea68b0` because
-native duplicate response headers and browser-combined geometry could be
-truncated before admission. The repaired code at
-`abf1b0aa0b0ee2b8b85e94696267b061692dd8f0` passes independent re-review and full
-canonical verification. Both transports now preserve header occurrences and
-delegate geometry validation to the protocol owner before admitting bytes. Four
-native regressions and 44 actual-WASM rejection cases guard the boundary.
+## Correctness and visual assessment
 
-The [repair qualification](emuella-viewer-evidence/response-repair/qualification.json)
-records one fresh native, one browser and one recovery run, each passing its
-unchanged frozen admission. All 7,289 reused representation files totalling
-456,480,235 bytes remained hash-identical, including indexes; no preparation was
-repeated. All 352 retained native and 455 browser records match their earlier
-reference-qualified counterparts. The complete-reference algorithm was not
-rerun: its exact committed evidence remains the separate record above. These
-repair observations preserve the real-image and final-system limitations.
+The [complete-reference comparisons](emuella-viewer-evidence/nitf-qualified/reference/comparisons.json)
+pass all 18 groups: 807 application records and 12,109,360 pixels, with zero
+checksum, dimension or precision mismatches. They read complete selected tiles
+from immutable files and crop, bypassing JPP and compressed-cache assembly.
+Native and browser agree exactly on all 352 shared retained records. FNV-1a U16LE
+is a diagnostic checksum, not a cryptographic image identity or exhaustive pixel
+difference count. The reference shares codec algorithms; owner tests separately
+provide independent source-encoder evidence and full-tile reconstruction checks.
+The reference command's 224 actual-array cases cover four formats, odd edges,
+tile crossings and every D6 discard level.
+
+[Opened captures and assessment](emuella-viewer-evidence/nitf-qualified/visuals/assessment.json)
+show coarse fallback during a held detail response, small authored circles and
+rectangles, modular-ramp and vertical source edges, and aggressive stretch.
+Stretch changes no compressed request or decode count. No blank regional strip
+is apparent; numerical comparison independently checks region boundaries.
+One-code faint perturbation fidelity is not established visually at this lossy
+target. Satellite object quality and sensor-specific stretches remain deferred.
+
+## Supported scope and next increment
+
+| Capability | Supported proof / remaining boundary |
+|---|---|
+| Source integration | Independently authored NITF C8 through maintained GDAL/Emuella; original vendor qualification deferred |
+| Codec/index | Reusable bounded Part 1 source index; immutable tiled HT packet descriptors and sparse regional decode |
+| Delivery | Actual stateless JPP windows, resolution/components, supported layer selection, partial databins and explicit cache prefixes |
+| Standards | Part 9:2023 / T.808 12/2022; Part 15:2019 / T.814 06/2019; June 2026 Part 9 differences unverified, no newer conformance claim |
+| Quality | One genuine HT layer with resolution progression; multiple HT sets and layered Part 1 reference measured by the codec owner |
+| Presentation | Native/browser workers, multiple panes, virtualised parent-derived thumbnails and global budgets |
+| Excluded | Full JPIP optional features, standalone chips, spatially varying compression, reprojection, Geometis migration/deployment and publication |
+
+The [codec quality calibration](https://github.com/emuella/emuella-j2k/blob/2568f1c40c83a40f527c7ee8f1600af511e046d0/docs/ht-quality-calibration.md)
+records stored and cumulative delivered bytes, work and visual trade-offs.
+Extra layer counts and placeholder passes are not treated as refinement payloads.
+Representation identity includes source, band selection, encoding contract,
+codec revision and spatial-policy hash; future policy changes cannot reuse stale
+compressed data. Display stretch remains outside compressed identity.
+
+The next increment should measure and reduce source read amplification through
+bounded read coalescing at the GDAL/VSI boundary, then reduce synthesis work for
+warm compressed revisits. Those costs are now separately observable. Calibrate
+real-scene storage and quality only after an appropriate rights record is available.
+Eventual Geometis integration should consume these independent regional-demand,
+immutable-representation and JPIP contracts after representative vendor qualification.
+No Geometis implementation was inspected for this proof.
+
+Earlier [five-native/five-browser qualification](emuella-viewer-evidence/qualified-public/qualification.json),
+[complete reference](emuella-viewer-evidence/complete-reference/comparisons.json) and
+[response-admission repair](emuella-viewer-evidence/response-repair/qualification.json)
+remain historical evidence with their own exact revisions. The earlier 1 MiB
+probe's failed extra assertion about unused representation registrations is retained;
+it is not replaced by a passing claim. Current qualification above adds actual
+independently encoded NITF preparation and the merged codec index repair.
