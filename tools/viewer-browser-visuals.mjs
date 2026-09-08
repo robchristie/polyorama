@@ -10,7 +10,7 @@ const catalogue=await(await fetch(url+'/catalogue')).json();
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--enable-unsafe-webgpu','--use-angle=vulkan','--enable-features=Vulkan,CDPScreenshotNewSurface','--disable-vulkan-surface','--disable-dev-shm-usage']});
 let releaseGate;
 const page=await browser.newPage({viewport:{width:1440,height:900}}),states=[];
-const record={catalogue,states,pattern:'emuella-scientific-pattern-v1; exact generator in apps/emuella-viewer-tools/src/lib.rs::synthetic_tile',interpretation:'appearance only; numerical same-representation checksums and codec quality evidence are independent'};
+const record={catalogue,states,pattern:'source-specific authorship and signal recipe belong to the fixture provenance; catalogue records immutable source and representation identities',interpretation:'appearance only; numerical same-representation checksums and codec quality evidence are independent'};
 const settled=()=>page.waitForFunction(()=>{const s=window.emuellaViewer?.snapshot();return s&&s.desired>0&&s.in_flight===0&&s.ready_demands===s.desired;},null,{timeout:60000});
 const action=async intent=>{await page.evaluate(intent=>window.emuellaViewer.intent(intent),intent);await page.waitForTimeout(100);await settled();};
 const capture=async label=>{const snapshot=await page.evaluate(()=>window.emuellaViewer.snapshot());if(snapshot.errors.length)throw new Error(JSON.stringify(snapshot.errors));const bytes=await page.screenshot({path:join(output,label+'.png')});states.push({label,snapshot,image_sha256:createHash('sha256').update(bytes).digest('hex')});await writeFile(join(output,'visuals.json'),JSON.stringify(record,null,2));};

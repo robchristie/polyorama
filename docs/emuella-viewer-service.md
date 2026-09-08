@@ -8,7 +8,7 @@ public fixtures, a localhost HTTP service and an actual TCP measurement client.
 The viewer application owns transport, cancellation and request generations.
 
 The codec and protocol dependencies use the merged revision
-`3afcfabb24282645c3e101ab3495810d28212dfd`. Composed candidate qualification
+`2568f1c40c83a40f527c7ee8f1600af511e046d0`. Composed candidate qualification
 remains pending; this dependency pin alone does not prove the application
 acceptance outcome. The supported encoded profile has one genuine quality layer;
 resolution discards are not additional layers.
@@ -52,7 +52,10 @@ prepare with the matching precision and `--bands 1,2,3`.
 Preparation opens source inputs read-only and disables GDAL PAM. TIFF stays in
 GTiff. The isolated preparation process deregisters the four JPEG 2000 drivers
 that the maintained NITF driver tries before JP2Emuella, matching the project's
-NITF integration test strategy. NITF requires a registered JP2Emuella and IC=C8;
+NITF integration test strategy. NITF requires a registered JP2Emuella, IC=C8 and the advertised required-source-index
+capability. It selects `JP2EMUELLA_REQUIRE_SOURCE_INDEX=YES`; plugin inspection
+constructs the bounded retained index during open and subsequent windows reuse it.
+See the [separate NITF measurement command](emuella-viewer-nitf-preparation.md);
 its outer driver, compression identifier and route policy appear in the metrics.
 No third-party codec API is invoked by this adapter. The caller chooses native
 precision explicitly: 11-bit NITF is UInt16 storage with `--bits 11`.
