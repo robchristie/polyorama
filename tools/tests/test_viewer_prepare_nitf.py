@@ -228,7 +228,7 @@ class ImmutableResultTests(unittest.TestCase):
                                      payload_sha256=HARNESS.digest(self.root / 'payload.j2c')),
                         encoded_bytes=12, target='u11', tid='test-only',
                         descriptor_sha256=[HARNESS.digest(self.root / 'descriptors/0.bin')])
-        metrics = dict(source_outer_driver='NITF', source_nitf_ic='C8',
+        metrics = dict(source_outer_driver='NITF', source_nitf_ic='C8', source_index_required=True,
                        source_hash_read_bytes=123, peak_rss_kib=100)
         self.result = [manifest, metrics]
         (self.root / 'manifest.json').write_text(json.dumps(manifest))
@@ -249,6 +249,12 @@ class ImmutableResultTests(unittest.TestCase):
         self.args.bits = 11
         self.result[1]['peak_rss_kib'] = 1
         with self.assertRaisesRegex(ValueError, 'stored preparation metrics'):
+            HARNESS.validate_result(self.result, self.root, self.args, self.source)
+
+    def test_legacy_decoder_cannot_qualify_indexed_preparation(self):
+        self.result[1]['source_index_required'] = False
+        (self.root / 'preparation.json').write_text(json.dumps(self.result[1]))
+        with self.assertRaisesRegex(ValueError, 'retained source index'):
             HARNESS.validate_result(self.result, self.root, self.args, self.source)
 
 

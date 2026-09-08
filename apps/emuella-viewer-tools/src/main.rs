@@ -100,9 +100,10 @@ fn main() -> Result<()> {
             )?;
             metrics.source_outer_driver = Some(raster.driver.clone());
             metrics.source_nitf_ic = raster.nitf_ic.clone();
+            metrics.source_index_required = Some(raster.driver == "NITF");
             metrics.source_decoder_policy = Some(
                 if raster.driver == "NITF" {
-                    "JP2Emuella required; prior alternative JP2 drivers deregistered; PAM disabled"
+                    "JP2Emuella retained source index required; prior alternative JP2 drivers deregistered; PAM disabled"
                 } else {
                     "native GTiff; PAM disabled"
                 }

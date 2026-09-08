@@ -14,6 +14,14 @@ fixture authorship must be established by the fixture's owning generation record
 this wrapper measures preparation and does not establish encoder independence or
 vendor qualification.
 
+NITF preparation requires the plugin's retained source-index capability. The
+tool checks `JP2EMUELLA_SOURCE_INDEX=REQUIRED_SUPPORTED` on the registered driver
+and selects `JP2EMUELLA_REQUIRE_SOURCE_INDEX=YES`. An older plugin cannot silently
+fall back to repeated whole-source header traversal. The plugin's indexed profile
+uses explicit header/marker/tile-part budgets; over-budget sources fail rather
+than changing preparation architecture. Ordinary plugin callers retain the
+legacy constructor unless they explicitly select indexed operation.
+
 Set the variables below to existing authorised inputs, retained build records,
 and a new directory under registered campaign scratch. `GDAL_LIBRARY` must name
 the maintained library; `JP2EMUella_PLUGIN` must name its compatible plugin and

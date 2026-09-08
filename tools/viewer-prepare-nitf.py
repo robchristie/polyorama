@@ -245,6 +245,8 @@ def validate_result(result, output, args, source_identity):
         raise ValueError('prepared source/profile/codec/target identity mismatch')
     if metrics['source_outer_driver'] != 'NITF' or metrics['source_nitf_ic'] != 'C8':
         raise ValueError('preparation did not use the required NITF C8 route')
+    if metrics.get('source_index_required') is not True:
+        raise ValueError('preparation did not require a retained source index')
     if metrics['source_hash_read_bytes'] != source_identity['bytes']:
         raise ValueError('tool hash scan byte count differs from source length')
     if metrics['peak_rss_kib'] is None:
@@ -367,6 +369,7 @@ def main(argv=None):
         report['build_records'] = [file_identity(p) for p in args.build_record]
         environment = report['environment']
         environment.update(GDAL_DRIVER_PATH=str(Path(paths['plugin']).parent),
+                           JP2EMUELLA_REQUIRE_SOURCE_INDEX='YES',
                            GDAL_PAM_ENABLED='NO', GDAL_NUM_THREADS='1',
                            OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1')
         limits = json.loads(args.limits.read_text()) if args.limits else None

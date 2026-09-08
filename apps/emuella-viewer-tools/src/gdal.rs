@@ -40,6 +40,9 @@ impl Raster {
             library.get::<unsafe extern "C" fn(*const c_char, *const c_char)>(
                 b"CPLSetConfigOption\0",
             )?(c"GDAL_PAM_ENABLED".as_ptr(), c"NO".as_ptr());
+            library.get::<unsafe extern "C" fn(*const c_char, *const c_char)>(
+                b"CPLSetConfigOption\0",
+            )?(c"JP2EMUELLA_REQUIRE_SOURCE_INDEX".as_ptr(), c"YES".as_ptr());
             library.get::<unsafe extern "C" fn()>(b"GDALAllRegister\0")?();
             let get_driver = library
                 .get::<unsafe extern "C" fn(*const c_char) -> Handle>(b"GDALGetDriverByName\0")?;
@@ -53,7 +56,24 @@ impl Raster {
                     deregister(driver);
                 }
             }
-            let emuella_registered = !get_driver(c"JP2Emuella".as_ptr()).is_null();
+            let emuella_driver = get_driver(c"JP2Emuella".as_ptr());
+            let emuella_registered = !emuella_driver.is_null();
+            let indexed_source_supported = if emuella_registered {
+                let capability =
+                    library.get::<unsafe extern "C" fn(
+                        Handle,
+                        *const c_char,
+                        *const c_char,
+                    ) -> *const c_char>(b"GDALGetMetadataItem\0")?(
+                        emuella_driver,
+                        c"JP2EMUELLA_SOURCE_INDEX".as_ptr(),
+                        std::ptr::null(),
+                    );
+                !capability.is_null()
+                    && CStr::from_ptr(capability).to_bytes() == b"REQUIRED_SUPPORTED"
+            } else {
+                false
+            };
             library.get::<unsafe extern "C" fn(i64)>(b"GDALSetCacheMax64\0")?(cache_bytes);
             let path = CString::new(path.as_os_str().as_encoded_bytes())?;
             let dataset = library
@@ -108,6 +128,10 @@ impl Raster {
                     ensure!(
                         emuella_registered,
                         "NITF requires registered JP2Emuella driver"
+                    );
+                    ensure!(
+                        indexed_source_supported,
+                        "NITF preparation requires JP2Emuella retained source-index support"
                     );
                     let value =
                         library.get::<unsafe extern "C" fn(

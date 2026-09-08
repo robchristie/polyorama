@@ -31,6 +31,7 @@ pub struct IoMetrics {
     pub descriptor_read_operations: u64,
     pub source_outer_driver: Option<String>,
     pub source_nitf_ic: Option<String>,
+    pub source_index_required: Option<bool>,
     pub source_decoder_policy: Option<String>,
     pub process_rchar: Option<u64>,
     pub process_syscr: Option<u64>,
