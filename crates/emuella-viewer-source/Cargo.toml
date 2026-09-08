@@ -9,6 +9,6 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2 = "0.10"
-# Codec and protocol owner revision from reviewed ordinary landing.
-emuella-j2k-codestream = { git = "https://github.com/emuella/emuella-j2k", rev = "3afcfabb24282645c3e101ab3495810d28212dfd" }
-emuella-jpip = { git = "https://github.com/emuella/emuella-j2k", rev = "3afcfabb24282645c3e101ab3495810d28212dfd" }
+# Provisional ingestion calibration; replace with the reviewed merged owner before landing.
+emuella-j2k-codestream = { git = "https://github.com/emuella/emuella-j2k", rev = "33a29edc14ed3843aa020e4eabfea4f2551ed16c" }
+emuella-jpip = { git = "https://github.com/emuella/emuella-j2k", rev = "33a29edc14ed3843aa020e4eabfea4f2551ed16c" }
