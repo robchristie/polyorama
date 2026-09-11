@@ -131,7 +131,13 @@ def main():
     parser.add_argument('--catalogue-contract', type=Path, help='exact ordered source hashes, bands and full geometry for real scenes')
     parser.add_argument('--memory-diagnostics', action='store_true',
                         help='add bounded Linux proc diagnostics; preserve existing process-memory acceptance')
+    parser.add_argument('--native-diagnostics', action='store_true', help='identify native completion/memory instrument; no scheduling repair')
+    parser.add_argument('--authored-immediate-completion', action='store_true', help='native authored inputs/workload only; never acceptance evidence')
     args = parser.parse_args()
+    if (args.native_diagnostics or args.authored_immediate_completion) and args.mode != 'native':
+        parser.error('native diagnostic flags require --mode native')
+    if args.authored_immediate_completion and (not args.native_diagnostics or not args.workload):
+        parser.error('authored immediate completion requires --native-diagnostics and --workload')
     if args.mode != 'recovery' and args.recovery_pressure != 'image-gallery':
         parser.error('--recovery-pressure requires --mode recovery')
     # Exclusive creation preserves every failed probe and prevents accidental replacement.
@@ -177,6 +183,10 @@ def main():
     app_url = 'http://127.0.0.1:' + str(proxy.server_address[1])
     command = ([str(args.native_bin), '--server', app_url, '--script-output', str(args.output / 'app.json')]
                if args.mode == 'native' else ['node', str(root / ('tools/viewer-browser-recovery.mjs' if args.mode == 'recovery' else 'tools/viewer-composed-browser.mjs')), app_url, str(args.output)])
+    if args.native_diagnostics:
+        command += ['--native-diagnostics']
+    if args.authored_immediate_completion:
+        command += ['--authored-immediate-completion']
     if args.mode == 'recovery':
         command += ['--pressure-workload', args.recovery_pressure]
     if args.workload and args.mode != 'recovery':
@@ -242,6 +252,11 @@ def main():
         if not recovery.get('completed'):
             failures.append(recovery.get('error', 'recovery journey incomplete'))
     failures += final.get('errors', [])
+    if args.authored_immediate_completion:
+        failures.append('authored immediate completion is diagnostic-only and ineligible for quality or production performance acceptance')
+    declared_cycles = [s.get('diagnostic_cycle') for s in read_json(workload_path) if s.get('diagnostic_cycle') is not None]
+    if declared_cycles and (declared_cycles != list(range(1, 11)) or final.get('diagnostic_cycles_completed') != 10):
+        failures.append('ten declared genuine display release/revisit cycles did not complete')
     observations = {}
     def observe(name, value, unit, boundary, reason='not exposed by this instrumented boundary'):
         observations[name] = {'value': value, 'unavailable_reason': reason if value is None else None, 'unit': unit, 'boundary': boundary}

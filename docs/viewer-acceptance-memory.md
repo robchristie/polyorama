@@ -7,7 +7,8 @@ revisit. The smallest representative measurement is one identified full-scene
 configuration covering startup/graphics, first view, peak phases and ten fixed
 eviction/revisit cycles. Polyorama owns these observations; the workspace
 `docs/plans/active/viewer-acceptance.md` owns selection and terminal acceptance.
-No viewer run or build was performed for this Python implementation.
+The original Python collector checkpoint ran no viewer or build; authored native
+validation is now recorded in the linked native instrument protocol.
 
 Use the existing [reproduction route](real-scene-viewing-reproduction.md) and
 [calibration boundaries](emuella-viewer-calibration.md). Add
@@ -104,14 +105,16 @@ precise one-second cadence, an instantaneous group peak or an uninstrumented
 latency from these observations. Short-lived, reparented or unselected processes
 can be missed. Non-Linux reports mark proc diagnostics unavailable.
 
-## Actual phase attachment and required Rust additions
+## Actual phase attachment and native producer
 
 The runner sets `EMUELLA_VIEWER_MEMORY_MARKERS` to
 `memory-phase-markers.jsonl` inside its exclusive output directory when the
-option is enabled. **The current Python change does not implement the native
-producer.** The Rust owner needs to emit one bounded JSON line at each actual
+option is enabled. The opt-in native producer now emits one bounded JSON line
+at each actual
 startup, graphics-ready, phase-start, phase-settled, cycle-evicted and
-cycle-revisited boundary. Use this scalar schema:
+cycle-revisited boundary. The [native instrument protocol](viewer-native-diagnostics.md)
+defines the implemented workload, allocation observations and ready commands.
+This instrumentation remains unmeasured. The scalar schema is:
 
 ```json
 {"schema":"viewer_memory_phase_marker/1","clock":"linux_monotonic","pid":42,"start_time_ticks":100,"monotonic_ns":2000000000,"sequence":0,"phase_label":"cycle-01","kind":"cycle-revisited"}
@@ -146,19 +149,19 @@ and failures. Rising `VmHWM` alone does not establish live retained growth.
 No repeated-cycle growth result is claimed by this unmeasured implementation.
 
 Native allocation/lifetime attribution remains unavailable from proc alone.
-The Rust owner may add separately labelled, bounded counters at the semantic
-owners of live allocations, reserved output, retained container capacity and
-eviction/drop/release, with units, lifetime/reset semantics and failure coverage.
+The native producer adds separate optional glibc `mallinfo2` observations and
+owner counters for decoded payload capacity, reservations, upload handoff,
+container slots and explicit display release, with their limits and reset
+semantics in the linked protocol. These are not complete allocation attribution.
 An externally available allocator profiler needs an identified allocator/build,
 its actual live/retained definitions and approved output retention; do not invent
 an allocator sum from cache capacities or subtract logical GPU bytes from RSS.
 Record graphics/library identities and physical allocation unavailability
-separately. Those additions and the real cohort are needed before cause or
-repair selection.
+separately. The real cohort is still needed before cause or repair selection.
 
 ## Authored checks
 
-Run only the targeted Python regressions during the quality worker's window:
+The original collector checks are these focused Python regressions:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -p 'test_viewer_memory_diagnostics.py' -v
@@ -168,6 +171,6 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/tests -p 'test_v
 The fixtures are authored temporary proc records; they contain no real-scene
 pixels or process captures. They cover identity parsing/reuse/exit, bounded
 reads and retention, missing fields, mapping summaries and marker attribution.
-Main owns Rust integration, representative runs, canonical verification and
+Main owns final integration, representative runs, canonical verification and
 independent review. These checks establish parser behaviour, not native memory
 acceptance, ten-cycle coverage, sampling overhead or a resource repair.

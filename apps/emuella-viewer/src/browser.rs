@@ -68,6 +68,23 @@ pub struct Executor {
 }
 impl Executor {
     pub fn new(server: String, compressed: usize, context: egui::Context) -> Self {
+        Self::new_diagnostic(
+            server,
+            compressed,
+            context,
+            crate::DiagnosticOptions::default(),
+        )
+    }
+    pub fn new_diagnostic(
+        server: String,
+        compressed: usize,
+        context: egui::Context,
+        diagnostic: crate::DiagnosticOptions,
+    ) -> Self {
+        assert!(
+            !diagnostic.authored_immediate,
+            "authored immediate probe is native-only"
+        );
         let options = WorkerOptions::new();
         options.set_type(WorkerType::Module);
         options.set_name("emuella-shared-regional-decoder");
@@ -84,6 +101,7 @@ impl Executor {
             });
             if let Some(timing) = event.metrics_mut().and_then(|m| m.timing.as_mut()) {
                 timing.received_ms = Some(received_ms);
+                timing.wakeup_requested_ms = Some(pacing_now_ms());
             }
             sink.borrow_mut().push_back(event);
             repaint.request_repaint();

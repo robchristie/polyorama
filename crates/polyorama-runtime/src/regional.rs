@@ -89,6 +89,21 @@ pub struct RegionalRuntimeMetrics {
     pub stale: u64,
 }
 
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
+pub struct RegionalAllocationDiagnostics {
+    pub entries: usize,
+    pub desired_entries: usize,
+    pub outstanding_reservations: usize,
+    pub upload_entries: usize,
+    pub worker_reserved_bytes: usize,
+    pub upload_bytes: usize,
+    pub decoded_payloads: usize,
+    pub sample_capacity_bytes: usize,
+    pub validity_capacity_bytes: usize,
+    pub resident_entries: usize,
+    pub failed_entries: usize,
+}
+
 impl RegionalRuntimeMetrics {
     pub fn accounted_decoded_bytes(self) -> usize {
         self.worker_reserved_bytes + self.decoded_bytes + self.upload_bytes
@@ -443,6 +458,35 @@ impl RegionalRuntime {
         self.entries
             .get(key)
             .is_some_and(|entry| matches!(entry.state, RegionState::Resident))
+    }
+
+    /// Current owned payload capacity, separately from reservations and transferred uploads.
+    /// Map node allocator overhead is unavailable; these values are not RSS.
+    pub fn allocation_diagnostics(&self) -> RegionalAllocationDiagnostics {
+        let m = self.metrics();
+        let mut d = RegionalAllocationDiagnostics {
+            entries: self.entries.len(),
+            desired_entries: self.desired.len(),
+            outstanding_reservations: self.flights.len(),
+            upload_entries: self.uploads.len(),
+            worker_reserved_bytes: m.worker_reserved_bytes,
+            upload_bytes: m.upload_bytes,
+            ..Default::default()
+        };
+        for entry in self.entries.values() {
+            match &entry.state {
+                RegionState::Decoded(frame) => {
+                    d.decoded_payloads += 1;
+                    d.sample_capacity_bytes +=
+                        frame.samples.capacity() * std::mem::size_of::<u16>();
+                    d.validity_capacity_bytes += frame.validity.as_ref().map_or(0, Vec::capacity);
+                }
+                RegionState::Resident => d.resident_entries += 1,
+                RegionState::Failed => d.failed_entries += 1,
+                _ => {}
+            }
+        }
+        d
     }
 
     pub fn metrics(&self) -> RegionalRuntimeMetrics {

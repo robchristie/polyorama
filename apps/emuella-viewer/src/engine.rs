@@ -56,6 +56,8 @@ pub struct WorkerTiming {
     pub finished_ms: f64,
     pub published_ms: f64,
     pub received_ms: Option<f64>,
+    #[serde(default)]
+    pub wakeup_requested_ms: Option<f64>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -186,6 +188,49 @@ impl Engine {
 
         m
     }
+    /// Authored completion-path probe. No source samples or quality evidence are produced.
+    #[cfg(any(not(target_arch = "wasm32"), test))]
+    pub fn authored_immediate(&mut self, job: &Job) -> Result<RegionalFrame> {
+        ensure!(
+            job.manifest.identity.encoding_contract == "authored-completion-diagnostic-v1"
+                && job.manifest.identity.source_sha256 == "authored-completion-diagnostic-v1"
+                && job.manifest.identity.validity.is_none(),
+            "immediate results require explicitly authored, unmasked inputs"
+        );
+        let region = job.region();
+        ensure!(
+            region.discard <= 30 && matches!(region.components.len(), 1 | 3),
+            "diagnostic region geometry"
+        );
+        let scale = 1u64 << region.discard;
+        let width = (u64::from(region.x) + u64::from(region.width)).div_ceil(scale)
+            - u64::from(region.x).div_ceil(scale);
+        let height = (u64::from(region.y) + u64::from(region.height)).div_ceil(scale)
+            - u64::from(region.y).div_ceil(scale);
+        let count = width
+            .checked_mul(height)
+            .and_then(|n| n.checked_mul(region.components.len() as u64));
+        ensure!(
+            count
+                .and_then(|n| n.checked_mul(4))
+                .is_some_and(|n| n <= job.request.max_decoded_bytes as u64),
+            "diagnostic output reservation exceeded"
+        );
+        ensure!(width > 0 && height > 0, "empty diagnostic output");
+        // One exact-sized output per admitted request, no retained prefetch/cache or decode evidence.
+        Ok(RegionalPixels {
+            width: width as u32,
+            height: height as u32,
+            layout: if region.components.len() == 1 {
+                SampleLayout::Scalar
+            } else {
+                SampleLayout::Rgb
+            },
+            precision: job.manifest.identity.profile.bits_per_sample,
+            samples: vec![127; count.unwrap() as usize],
+        }
+        .into())
+    }
     pub fn decode(&mut self, job: &Job) -> Result<RegionalFrame> {
         let region = job.region();
         let scale = 1u64 << region.discard;
@@ -267,5 +312,78 @@ impl Engine {
                 samples,
             },
         })
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod diagnostic_tests {
+    use super::*;
+    use polyorama_core::{ImageRegion, RegionKey, SourceStage};
+    use polyorama_runtime::RequestToken;
+    pub(crate) fn job() -> Job {
+        let manifest: Manifest = serde_json::from_value(serde_json::json!({
+            "target":"authored-rgb16", "tid":"", "identity":{
+                "source_sha256":"authored-completion-diagnostic-v1", "bands":[0,1,2],
+                "profile":{"width":1024,"height":1024,"tile_edge":512,"decomposition_levels":6,"bits_per_sample":16,"components":3,"bits_per_pixel":4.0},
+                "codec_revision":"authored", "encoding_contract":"authored-completion-diagnostic-v1",
+                "spatial_policy_sha256":"authored", "payload_sha256":"authored", "descriptor_format":"authored"},
+            "encoded_bytes":1024,"main_header_bytes":128,"descriptor_sha256":["authored","authored","authored","authored"]
+        })).unwrap();
+        let mut job = Job {
+            manifest,
+            request: RegionalRequest {
+                key: RegionKey {
+                    representation: RepresentationId([0; 32]),
+                    region: ImageRegion {
+                        x: 0,
+                        y: 0,
+                        width: 512,
+                        height: 512,
+                    },
+                    reduction: 0,
+                    components: vec![0, 1, 2],
+                    stage: SourceStage(0),
+                },
+                token: RequestToken {
+                    source_generation: 1,
+                    demand_epoch: 1,
+                    sequence: 1,
+                },
+                max_decoded_bytes: 512 * 512 * 3 * 4,
+            },
+        };
+        job.manifest.seal().unwrap();
+        job.request.key.representation = representation(&job.manifest);
+        job
+    }
+    #[test]
+    fn authored_output_is_representative_reserved_and_never_quality_evidence() {
+        let mut engine = Engine::new(64 << 20);
+        let mut j = job();
+        let result = engine.authored_immediate(&j).unwrap();
+        assert_eq!(result.samples.len(), 512 * 512 * 3);
+        assert_eq!(result.allocation_bytes(), 512 * 512 * 3 * 2);
+        assert!(result.is_valid());
+        assert!(engine.snapshot().decoded_evidence.is_empty());
+        assert_eq!(engine.snapshot().decode_count, 0);
+        j.request.max_decoded_bytes -= 1;
+        assert!(engine.authored_immediate(&j).is_err());
+        j.request.max_decoded_bytes += 1;
+        j.manifest.identity.source_sha256 = "real-source".into();
+        assert!(engine.authored_immediate(&j).is_err());
+    }
+    #[test]
+    fn authored_reduction_uses_global_ceil_grid() {
+        let mut engine = Engine::new(64 << 20);
+        let mut j = job();
+        j.request.key.region = ImageRegion {
+            x: 1,
+            y: 3,
+            width: 8,
+            height: 8,
+        };
+        j.request.key.reduction = 2;
+        let result = engine.authored_immediate(&j).unwrap();
+        assert_eq!((result.width, result.height), (2, 2));
     }
 }
