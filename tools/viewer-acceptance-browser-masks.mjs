@@ -23,6 +23,38 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROTOCOL = ['tools/viewer-acceptance-browser-masks.mjs',
   'tools/tests/viewer-acceptance-browser-masks.test.mjs', 'docs/viewer-acceptance-browser-masks.md'];
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
+// Failure-only launch diagnostics; never subscribe to browser logs or page events.
+export function launchError(error, secrets = []) {
+  const original = String(error?.message ?? error);
+  const sanitise = text => text.replace(/\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g, '')
+    .replace(/(?:\x1b\[|\u009b)[0-?]*[ -/]*[@-~]/g, '')
+    .replace(/\t/g, ' ')
+    .replace(/[\x00-\x08\x0b-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e\u2060-\u206f]/g, '');
+  let clean = sanitise(original);
+  for (const secret of secrets.filter(x => typeof x === 'string').map(sanitise).filter(Boolean).sort((a, b) => b.length - a.length))
+    clean = clean.split(secret).join('[REDACTED]');
+  clean = clean.replace(/([a-z][a-z0-9+.-]*:\/\/)[^\s/@]+:[^\s/@]+@/gi, '$1[REDACTED]@')
+    .replace(/\b(Bearer|Basic)\s+[^\s,;]+/gi, '$1 [REDACTED]')
+    .replace(/((?:[\w-]*(?:token|secret|password|passwd|credential|api[_-]?key)[\w-]*|authorization|cookie)(?:\s*[=:]\s*|\s+))(?:"[^"]*"|'[^']*'|[^\s&;,]+)/gi, '$1[REDACTED]');
+  const cap = (s, bytes, tail = false) => {
+    const chars = Array.from(s); if (tail) chars.reverse();
+    let used = 0, kept = [];
+    for (const c of chars) { const n = Buffer.byteLength(c); if (used + n > bytes) break; kept.push(c); used += n; }
+    return (tail ? kept.reverse() : kept).join('');
+  };
+  const headerLine = clean.split('\n', 1)[0], header = cap(headerLine, 512);
+  const remainder = clean.slice(header.length).replace(/^\n/, ''), tail = cap(remainder, 4096, true);
+  const exit = [...clean.matchAll(/\bexitCode\s*[=:]\s*(null|-?\d+)\b/g)].at(-1);
+  const signal = [...clean.matchAll(/\bsignal\s*[=:]\s*(null|SIG[A-Z0-9]+)\b/g)].at(-1);
+  const exitProperty = error?.exitCode ?? error?.code;
+  return { header, tail, original_characters: original.length, character_unit: 'UTF-16 code units',
+    sanitised_characters: clean.length, sanitised_bytes: Buffer.byteLength(clean),
+    header_bytes: Buffer.byteLength(header), tail_bytes: Buffer.byteLength(tail),
+    truncated: header.length < headerLine.length || tail.length < remainder.length,
+    sanitised: clean !== original,
+    exit_code: exit ? (exit[1] === 'null' ? null : Number(exit[1])) : (Number.isSafeInteger(exitProperty) ? exitProperty : null),
+    signal: signal ? (signal[1] === 'null' ? null : signal[1]) : (/^SIG[A-Z0-9]+$/.test(error?.signal) ? error.signal : null) };
+}
 const requireThat = (value, message) => { if (!value) throw new Error(message); };
 const same = (a, b) => { try { assert.deepEqual(a, b); return true; } catch { return false; } };
 const uint = (value, maximum, name) => requireThat(Number.isSafeInteger(value) && value >= 0 && value <= maximum, name);
@@ -671,7 +703,11 @@ async function executeContext(inputs, planned, directory, chromium, emit) {
     if (proxy.state.errors) report.missing_proof.push('proxy-input-or-bound-failure');
     if (!report.missing_proof.length) report.status = 'complete-diagnostic';
   } catch (error) {
-    report.error = String(error.message).slice(0, 1024);
+    if (!browser) {
+      const secrets = Object.entries(process.env).filter(([key]) => /token|secret|password|passwd|credential|api.?key|authorization|cookie/i.test(key)).map(([, value]) => value);
+      report.launch_error = launchError(error, secrets);
+      report.error = report.launch_error.header;
+    } else report.error = String(error.message).slice(0, 1024);
     report.missing_proof.push(timedOut ? 'context-deadline' : 'context-operation-failed');
   } finally {
     clearTimeout(timer); if (browser) await browser.close().catch(() => {});
