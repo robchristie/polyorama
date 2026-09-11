@@ -266,3 +266,11 @@ frozen B binaries. Both record one representation eviction; GPU evictions are
 1.26 MiB and GPU peaks remain below 16 MiB. The benchmark owner admits both
 against the new workload identity and unchanged bounds (exit 0). All seven
 required recovery events occur. The two earlier pressure failures remain retained.
+
+
+Each paired phase first retains one separately labelled default-configuration
+service-conditioning journey, so both arms can truthfully use the inherited
+`warm-server` classification. Conditioning is excluded from the five/20 pairs
+by design, before measurement; it cannot replace a failed trial. Every measured
+arm is a fresh application process with empty client caches, followed by the
+same within-process warm-compressed reset in the frozen workload.
