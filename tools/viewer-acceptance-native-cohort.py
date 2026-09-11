@@ -22,6 +22,11 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 STORE = Path('/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1')
 PROTOCOL = ROOT / 'docs/viewer-acceptance-native-cohort.json'
+REPAIRED_PROTOCOL = ROOT / 'docs/viewer-acceptance-native-repaired-cohort.json'
+REPAIRED_OUTPUT = 'viewer-acceptance-native-cohort-mansfield-repaired-01'
+ORIGINAL_SHA256 = '68dbbdee8032f9261c527e41c5814fea371024ae40e880662fbe5252ce8c9816'
+IDENTITY_FIELDS = {'status', 'cohort_id', 'runtime_revision', 'source_build_receipt_commit',
+                   'harness_identity', 'native', 'build_receipt', 'web_root', 'web_files'}
 OWNED = ['tools/viewer-acceptance-native-cohort.py',
          'tools/tests/test_viewer_acceptance_native_cohort.py',
          'docs/viewer-acceptance-native-cohort.md',
@@ -78,20 +83,28 @@ def git(repo, *args):
     return subprocess.check_output(['git', '-C', str(repo), *args], timeout=30)
 
 
-def committed(commit):
+def committed(commit, protocol_path=PROTOCOL):
     require(git(ROOT, 'rev-parse', 'HEAD').decode().strip() == commit, 'grant must bind current full HEAD')
-    for name in OWNED:
+    names = OWNED + (['docs/viewer-acceptance-native-repaired-cohort.json',
+                     'docs/viewer-acceptance-native-repaired-cohort.md',
+                     'docs/viewer-acceptance-repaired-build.json']
+                    if protocol_path == REPAIRED_PROTOCOL else [])
+    for name in names:
         require(git(ROOT, 'show', commit + ':' + name) == read(ROOT / name), 'uncommitted protocol: ' + name)
-    return {name: identity(ROOT / name) for name in OWNED}
+    return {name: identity(ROOT / name) for name in names}
 
 
-def validate_grant(grant, commit, group, display, port):
+def validate_grant(grant, commit, group, display, port, protocol_path=PROTOCOL):
     require(grant.get('schema') == 'viewer_native_cohort_grant/1', 'execution grant schema required')
     for key, expected in dict(protocol_commit=commit, output_name=group,
                               display=display, port=port, execute=True,
                               authored_probe_owner_stopped=True).items():
         require(grant.get(key) == expected, 'grant binding missing or different: ' + key)
     require(bool(grant.get('granted_by')) and bool(grant.get('granted_utc')), 'coordinator attribution required')
+    if protocol_path == REPAIRED_PROTOCOL:
+        require(group == REPAIRED_OUTPUT, 'fixed repaired output required')
+        require(grant.get('protocol_path') == str(protocol_path.relative_to(ROOT)), 'selected protocol path binding required')
+        require(grant.get('protocol_sha256') == identity(protocol_path)['sha256'], 'selected protocol digest binding required')
 
 
 def validate_contract(protocol):
@@ -110,6 +123,44 @@ def validate_contract(protocol):
             'ten consecutive cycles required')
     require(all(s['intent'] == {'kind': 'clear_display_cache'} for s in workload[len(ordinary):]), 'release action drift')
     require(thresholds['workload_sha256'] == identity(protocol['workload']['path'])['sha256'], 'workload binding drift')
+
+
+def select_protocol(path=PROTOCOL):
+    path = Path(path).absolute()
+    require(path in (PROTOCOL, REPAIRED_PROTOCOL) and path.resolve() == path,
+            'only explicitly pinned repository protocols are supported')
+    require(identity(PROTOCOL)['sha256'] == ORIGINAL_SHA256, 'original protocol identity drift')
+    protocol = load(path)
+    if path == REPAIRED_PROTOCOL:
+        original = load(PROTOCOL)
+        require(protocol.keys() == original.keys(), 'alternate protocol fields drift')
+        for key in original.keys() - IDENTITY_FIELDS:
+            expected = original[key]
+            if key == 'frozen_helpers':
+                # The committed optional scheduling argument is never supplied by
+                # this cohort. Pin the five-line additive helper change exactly.
+                expected = [dict(row, bytes=28425,
+                    sha256='706232cf5cac2c39deb0124aa7e0c40fb078298f42946e4b10044cd0e34d7a1f')
+                    if row['path'] == str(ROOT / 'tools/viewer-composed-journey.py') else row
+                    for row in expected]
+            require(protocol[key] == expected, 'original policy drift: ' + key)
+        require(protocol['runtime_revision'] == '8633754fa28f2ca34f159a7368e0b8e7e953d205',
+                'repaired runtime identity drift')
+        require(protocol['cohort_id'] == 'repaired-frozen-v1-mansfield-memory-five-capture-v1',
+                'repaired cohort identity drift')
+        require(protocol['build_receipt']['path'] == str(ROOT / 'docs/viewer-acceptance-repaired-build.json'),
+                'repaired build receipt path drift')
+        verify(protocol['build_receipt'])
+        build = load(protocol['build_receipt']['path'])
+        require(build['runtime_source']['revision'] == protocol['runtime_revision']
+                and build['native'] == protocol['native']
+                and build['web']['root'] == protocol['web_root'], 'repaired build binding drift')
+        verify(build['web']['manifest'])
+        manifest = load(build['web']['manifest']['path'])
+        require(protocol['web_files'] == [dict(entry, path=str(Path(protocol['web_root']) / entry['path']))
+                for entry in manifest], 'repaired static manifest drift')
+    validate_contract(protocol)
+    return path, protocol
 
 
 def preflight(protocol):
@@ -557,10 +608,10 @@ def assess(protocol, group, index):
 
 
 def execute(args):
-    protocol = load(PROTOCOL)
+    protocol_path, protocol = select_protocol(args.protocol)
     grant = load(args.grant)
-    validate_grant(grant, args.protocol_commit, args.output_name, args.display, args.port)
-    bindings = committed(args.protocol_commit)
+    validate_grant(grant, args.protocol_commit, args.output_name, args.display, args.port, protocol_path)
+    bindings = committed(args.protocol_commit, protocol_path)
     require(args.output_name.startswith('viewer-acceptance-native-cohort-') and Path(args.output_name).name == args.output_name, 'fresh attributed cohort child required')
     require(args.display.startswith(':') and args.display[1:].isdigit(), 'explicit local display number required')
     require(1024 <= args.port <= 65535, 'unprivileged service port required')
@@ -585,6 +636,7 @@ def execute(args):
     group = source.fresh_group(STORE, args.output_name,
         'Five fixed native diagnostic starts and two bounded X11 screenshots per declared run; quality-rejected Mansfield PAN16 4/RGB16 12; original source arrays, MSI, representations and defaults unchanged.')
     write(group / 'execution.json', dict(cohort_id=protocol['cohort_id'], protocol=protocol,
+        protocol_identity=identity(protocol_path),
         protocol_commit=args.protocol_commit, harness_files=bindings, grant=grant,
         grant_identity=identity(args.grant), environment=environment, display=args.display,
         input_inventory=before, runtime_revision=protocol['runtime_revision'],
@@ -662,8 +714,11 @@ def execute(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    sub.add_parser('check', help='read-only identities/contract checks; never starts viewer, display or service')
+    check = sub.add_parser('check', help='read-only identities/contract checks; never starts viewer, display or service')
     run = sub.add_parser('execute', help='later coordinator-granted execution only')
+    for command in (check, run):
+        command.add_argument('--protocol', type=Path, default=PROTOCOL,
+                             help='explicit original or repaired repository protocol; defaults to original')
     run.add_argument('--grant', type=Path, required=True)
     run.add_argument('--protocol-commit', required=True)
     run.add_argument('--output-name', required=True)
@@ -671,8 +726,9 @@ def main():
     run.add_argument('--port', type=int, required=True)
     args = parser.parse_args()
     if args.command == 'check':
-        preflight(load(PROTOCOL))
-        print(json.dumps(dict(status='read-only checks passed; execution unperformed', protocol=identity(PROTOCOL))))
+        protocol_path, protocol = select_protocol(args.protocol)
+        preflight(protocol)
+        print(json.dumps(dict(status='read-only checks passed; execution unperformed', protocol=identity(protocol_path))))
         return 0
     # A nonblocking local orchestration lock prevents racing group scans; the
     # durable approved execution record prevents later reruns of this cohort.

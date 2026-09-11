@@ -13,6 +13,95 @@ SPEC.loader.exec_module(C)
 
 
 class CohortTests(unittest.TestCase):
+    def test_default_and_explicit_repaired_protocol(self):
+        path, original = C.select_protocol()
+        self.assertEqual(path, C.PROTOCOL)
+        self.assertEqual(original, C.load(C.PROTOCOL))
+        path, repaired = C.select_protocol(C.REPAIRED_PROTOCOL)
+        self.assertEqual(path, C.REPAIRED_PROTOCOL)
+        self.assertEqual(repaired['runtime_revision'], '8633754fa28f2ca34f159a7368e0b8e7e953d205')
+        for field in original.keys() - C.IDENTITY_FIELDS - {'frozen_helpers'}:
+            self.assertEqual(repaired[field], original[field], field)
+        self.assertEqual(repaired['frozen_helpers'][1:], original['frozen_helpers'][1:])
+        self.assertEqual(repaired['frozen_helpers'][0]['path'], original['frozen_helpers'][0]['path'])
+        with self.assertRaisesRegex(ValueError, 'explicitly pinned'):
+            C.select_protocol('/authored/arbitrary-protocol.json')
+
+    def test_alternate_rejects_every_policy_leaf_change(self):
+        repaired = C.load(C.REPAIRED_PROTOCOL)
+        real_load = C.load
+
+        def leaves(value, prefix=()):
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    yield from leaves(child, (*prefix, key))
+            elif isinstance(value, list):
+                for key, child in enumerate(value):
+                    yield from leaves(child, (*prefix, key))
+            else:
+                yield prefix, value
+
+        for field in repaired.keys() - C.IDENTITY_FIELDS:
+            for keys, value in leaves(repaired[field], (field,)):
+                changed = copy.deepcopy(repaired)
+                target = changed
+                for key in keys[:-1]:
+                    target = target[key]
+                target[keys[-1]] = value + 1 if type(value) in (int, float) else 'authored drift'
+                with self.subTest(keys=keys), patch.object(C, 'load', side_effect=lambda path:
+                        changed if path == C.REPAIRED_PROTOCOL else real_load(path)):
+                    with self.assertRaisesRegex(ValueError, 'original policy drift'):
+                        C.select_protocol(C.REPAIRED_PROTOCOL)
+
+    def test_alternate_rejects_original_replacement_and_new_fields(self):
+        repaired = C.load(C.REPAIRED_PROTOCOL)
+        with patch.object(C, 'identity', return_value={'sha256': '0' * 64}):
+            with self.assertRaisesRegex(ValueError, 'original protocol identity drift'):
+                C.select_protocol(C.REPAIRED_PROTOCOL)
+        real_load = C.load
+        repaired['extra_budget'] = 99
+        with patch.object(C, 'load', side_effect=lambda path:
+                repaired if path == C.REPAIRED_PROTOCOL else real_load(path)):
+            with self.assertRaisesRegex(ValueError, 'fields drift'):
+                C.select_protocol(C.REPAIRED_PROTOCOL)
+
+    def test_repaired_grant_binds_path_digest_and_fixed_output(self):
+        grant = dict(schema='viewer_native_cohort_grant/1', protocol_commit='a' * 40,
+                     output_name=C.REPAIRED_OUTPUT, display=':177', port=8194,
+                     execute=True, authored_probe_owner_stopped=True,
+                     granted_by='authored coordinator', granted_utc='authored timestamp',
+                     protocol_path=str(C.REPAIRED_PROTOCOL.relative_to(C.ROOT)),
+                     protocol_sha256=C.identity(C.REPAIRED_PROTOCOL)['sha256'])
+        args = ('a' * 40, C.REPAIRED_OUTPUT, ':177', 8194, C.REPAIRED_PROTOCOL)
+        C.validate_grant(grant, *args)
+        for key in ('protocol_path', 'protocol_sha256'):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'selected protocol'):
+                C.validate_grant(dict(grant, **{key: 'wrong'}), *args)
+        with self.assertRaisesRegex(ValueError, 'fixed repaired output'):
+            C.validate_grant(dict(grant, output_name='different'), 'a' * 40,
+                             'different', ':177', 8194, C.REPAIRED_PROTOCOL)
+
+    def test_repaired_committed_gate_covers_receipt_and_both_protocols(self):
+        names = []
+
+        def git(_root, *args):
+            if args == ('rev-parse', 'HEAD'):
+                return b'abc\n'
+            names.append(args[1].split(':', 1)[1])
+            return b'committed'
+
+        with patch.object(C, 'git', side_effect=git), patch.object(C, 'read', return_value=b'committed'), \
+                patch.object(C, 'identity', return_value={}):
+            C.committed('abc', C.REPAIRED_PROTOCOL)
+        self.assertEqual(set(names), set(C.OWNED) | {
+            'docs/viewer-acceptance-native-repaired-cohort.json',
+            'docs/viewer-acceptance-native-repaired-cohort.md',
+            'docs/viewer-acceptance-repaired-build.json'})
+        with patch.object(C, 'git', side_effect=git), patch.object(C, 'read', side_effect=lambda path:
+                b'changed' if path == C.REPAIRED_PROTOCOL else b'committed'):
+            with self.assertRaisesRegex(ValueError, 'uncommitted protocol'):
+                C.committed('abc', C.REPAIRED_PROTOCOL)
+
     def test_five_slots_survive_each_failed_start_without_retries(self):
         calls = []
 
@@ -61,13 +150,19 @@ class CohortTests(unittest.TestCase):
 
     def test_native_arguments_bind_existing_harness_and_fixed_workload(self):
         protocol = C.load(C.PROTOCOL)
+        repaired = C.load(C.REPAIRED_PROTOCOL)
         for index in range(1, 6):
             args = C.journey_arguments(protocol, Path('/authored/native'), 'http://127.0.0.1:8194', index)
+            alternate = C.journey_arguments(repaired, Path('/authored/native'), 'http://127.0.0.1:8194', index)
+            for flag in ('--native-bin', '--web-root'):
+                alternate[alternate.index(flag) + 1] = args[args.index(flag) + 1]
+            self.assertEqual(alternate, args)
             self.assertEqual(args[args.index('--mode') + 1], 'native')
             self.assertEqual(args[args.index('--workload') + 1], protocol['workload']['path'])
             self.assertEqual(args[args.index('--thresholds') + 1], protocol['thresholds']['path'])
             self.assertIn('--memory-diagnostics', args)
             self.assertNotIn('--authored-immediate-completion', args)
+            self.assertNotIn('--completion-pump', args)
             self.assertEqual(args[args.index('--server-cache-state') + 1],
                              'uncontrolled-first-observation' if index == 1 else 'warm-server')
 
