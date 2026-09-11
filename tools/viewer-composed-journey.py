@@ -120,6 +120,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--url', required=True)
     parser.add_argument('--native-bin', type=Path, required=True)
+    parser.add_argument('--native-present-mode', choices=['auto-no-vsync'])
     parser.add_argument('--web-root', type=Path, required=True)
     parser.add_argument('--codec-repo', type=Path, required=True)
     parser.add_argument('--benchmark-repo', type=Path, required=True)
@@ -129,6 +130,8 @@ def main():
     parser.add_argument('--workload', type=Path, help='explicit actions; preserves default workload when omitted')
     parser.add_argument('--catalogue-contract', type=Path, help='exact ordered source hashes, bands and full geometry for real scenes')
     args = parser.parse_args()
+    if args.mode != 'native' and args.native_present_mode:
+        parser.error('--native-present-mode requires --mode native')
     if args.mode != 'recovery' and args.recovery_pressure != 'image-gallery':
         parser.error('--recovery-pressure requires --mode recovery')
     # Exclusive creation preserves every failed probe and prevents accidental replacement.
@@ -164,6 +167,8 @@ def main():
     app_url = 'http://127.0.0.1:' + str(proxy.server_address[1])
     command = ([str(args.native_bin), '--server', app_url, '--script-output', str(args.output / 'app.json')]
                if args.mode == 'native' else ['node', str(root / ('tools/viewer-browser-recovery.mjs' if args.mode == 'recovery' else 'tools/viewer-composed-browser.mjs')), app_url, str(args.output)])
+    if args.native_present_mode:
+        command += ['--present-mode', args.native_present_mode]
     if args.mode == 'recovery':
         command += ['--pressure-workload', args.recovery_pressure]
     if args.workload and args.mode != 'recovery':
@@ -255,6 +260,8 @@ def main():
     latency('visible_thumbnail_completion_ms', ['clustered-gallery', 'scattered-gallery'], 'phase_settled_ms', 'worst gallery-scroll intent to all current demands GPU resident')
     latency('warm_revisit_ms', ['warm-gpu-revisit'] + [f'recall-{i}' for i in range(5)], 'phase_settled_ms', 'worst GPU fit or bookmark recall intent to all current demands GPU resident')
     latency('warm_compressed_ms', ['warm-compressed'], 'phase_settled_ms', 'clear settled decoded/GPU state to all current demands GPU resident with shared compressed cache retained')
+    if args.mode != 'native' and args.native_present_mode:
+        parser.error('--native-present-mode requires --mode native')
     if args.mode != 'recovery':
         expected = ['empty-client-overview'] + [step['label'] for step in read_json(workload_path)]
         if [s['phase_label'] for s in stages] != expected:
