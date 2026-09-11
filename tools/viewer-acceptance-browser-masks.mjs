@@ -9,7 +9,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 export const STORE = '/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1';
-export const AUTHORED = '/nvme/development/emuella/.build-targets/viewer-acceptance/browser-proof';
 export const DISPOSITION = 'quality-rejected-diagnostic-only';
 export const LIMITS = Object.freeze({ contexts: 9, regionalJobs: 2212, maskFiles: 1883,
   pressureForward: 64, inflightJobs: 1, httpConcurrent: 2, httpRequestsPerJob: 128,

@@ -4,13 +4,15 @@ import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, writeFile, readFile, readlink, stat } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { join } from 'node:path';
-import { AUTHORED, STORE, ASSETS, DISPOSITION, LIMITS, beneath, parseArgs, sha256, boundedFile,
+import { join, resolve } from 'node:path';
+import { STORE, ASSETS, DISPOSITION, LIMITS, beneath, parseArgs, sha256, boundedFile,
   pinnedFile, regionGeometry, requestFor, tilesFor, maskShape, inspectMask, comparePixels,
   makePlan, coverageFor, checkMetrics, boundedResponse, faultResponse, createProofServer, maskRoute,
   failureProof, pressureProof, validateGrant, validateTemporaryAlias, checkTemporaryAliasMapping,
   inspectTemporaryAlias, temporaryDirectory } from '../viewer-acceptance-browser-masks.mjs';
 
+const AUTHORED = resolve(process.env.POLYORAMA_AUTHORED_DIR ?? process.env.POLYORAMA_EVIDENCE_DIR
+  ?? join(import.meta.dirname, '../../.tools/runtime/authored-browser-tests'));
 await mkdir(AUTHORED, { recursive: true });
 const fixtureRoot = await mkdtemp(join(AUTHORED, 'authored-tests-'));
 const profile = { width: 1025, height: 513, tile_edge: 512, decomposition_levels: 6, components: 3, bits_per_sample: 16 };
