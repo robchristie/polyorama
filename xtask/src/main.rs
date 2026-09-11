@@ -96,6 +96,7 @@ fn verify() -> Result<()> {
             "--test",
             "tools/tests/viewer-acceptance-browser-masks.test.mjs",
             "tools/tests/viewer-acceptance-browser-launch.test.mjs",
+            "tools/tests/viewer-merged-qualification-preload.test.mjs",
         ],
         &evidence_environment,
     )?;
