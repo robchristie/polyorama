@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { mkdir, open, readFile, realpath, stat, writeFile } from 'node:fs/promises';
+import { mkdir, open, readFile, readlink, realpath, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -21,7 +21,8 @@ export const ASSETS = ['94_104001000B823500-PAN16', '94_104001000B823500-RGB16',
   '106_10400100413CDF00-PAN16', '106_10400100413CDF00-RGB16', '105_104001002F92BB00-RGB8'];
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROTOCOL = ['tools/viewer-acceptance-browser-masks.mjs',
-  'tools/tests/viewer-acceptance-browser-masks.test.mjs', 'docs/viewer-acceptance-browser-masks.md'];
+  'tools/tests/viewer-acceptance-browser-masks.test.mjs', 'docs/viewer-acceptance-browser-masks.md',
+  'docs/viewer-acceptance-browser-environment.md'];
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 // Failure-only launch diagnostics; never subscribe to browser logs or page events.
 export function launchError(error, secrets = []) {
@@ -65,6 +66,64 @@ export function beneath(root, path) {
 async function protectedPath(path) {
   requireThat(isAbsolute(path) && beneath(STORE, await realpath(path)), 'protected input outside approved store');
   return path;
+}
+// One optional alias invariant, never an approval of the host's ordinary /tmp.
+export function validateTemporaryAlias(alias) {
+  requireThat(alias?.kind === 'private-linux-tmp/1' && alias.path === '/tmp'
+    && typeof alias.backing === 'string'
+    && dirname(dirname(alias.backing)) === STORE
+    && /^viewer-acceptance-browser-masks-[a-z0-9][a-z0-9-]{0,100}-execution$/.test(dirname(alias.backing).split('/').at(-1))
+    && alias.backing === join(dirname(alias.backing), 'tmp')
+    && /^[0-9]+$/.test(alias.dev) && /^[0-9]+$/.test(alias.ino)
+    && typeof alias.dev === 'string' && typeof alias.ino === 'string'
+    && /^mnt:\[[0-9]+\]$/.test(alias.parent_mount_namespace), 'invalid private temporary alias');
+}
+export function checkTemporaryAliasMapping(alias, observed) {
+  const unescape = value => value.replace(/\\(040|011|012|134)/g, (_, octal) => String.fromCharCode(parseInt(octal, 8)));
+  const mounts = observed.mountinfo.trim().split('\n').map(line => {
+    const fields = line.split(' '), separator = fields.indexOf('-');
+    requireThat(separator >= 6, 'invalid mountinfo');
+    return { line, id: fields[0], path: unescape(fields[4]), options: fields.slice(6, separator) };
+  });
+  // A bind over an existing /tmp mount leaves both records in mountinfo. The
+  // opened directory's fdinfo identifies the effective mount, without guessing order.
+  const tmp = mounts.filter(m => m.id === observed.alias.mount_id && m.path === '/tmp');
+  const root = mounts.filter(m => m.path === '/');
+  requireThat(observed.platform === 'linux' && observed.mount_namespace !== alias.parent_mount_namespace
+    && /^mnt:\[[0-9]+\]$/.test(observed.mount_namespace), 'temporary alias requires an isolated mount namespace');
+  requireThat(observed.backing.realpath === alias.backing && observed.alias.realpath === '/tmp'
+    && [observed.alias, observed.backing].every(s => s.directory && s.dev === alias.dev && s.ino === alias.ino),
+  'temporary alias backing device/inode mismatch');
+  requireThat(tmp.length === 1 && root.length === 1
+    && observed.alias.mount_id !== observed.backing.mount_id
+    && [...tmp, ...root].every(m => !m.options.some(o => /^(shared|master|propagate_from):/.test(o)))
+    && !mounts.some(m => m.path.startsWith('/tmp/')), 'temporary alias must be a private mapped /tmp without submounts');
+  const backingMount = mounts.find(m => m.id === observed.backing.mount_id);
+  requireThat(backingMount && (alias.backing === backingMount.path || beneath(backingMount.path, alias.backing)),
+    'temporary backing mount missing');
+  return { ...observed, mountinfo: undefined, mountinfo_sha256: sha256(observed.mountinfo),
+    alias_mountinfo: tmp[0].line, backing_mountinfo: backingMount?.line,
+    parent_mount_namespace: alias.parent_mount_namespace, backing_path: alias.backing, alias_path: '/tmp' };
+}
+export async function inspectTemporaryAlias(alias) {
+  const identity = async path => {
+    const handle = await open(path, 'r');
+    try {
+      const s = await handle.stat({ bigint: true });
+      const fdinfo = await readFile(`/proc/self/fdinfo/${handle.fd}`, 'utf8');
+      return { realpath: await realpath(path), directory: s.isDirectory(), dev: String(s.dev), ino: String(s.ino),
+        mount_id: fdinfo.match(/^mnt_id:\s*(\d+)$/m)?.[1] };
+    } finally { await handle.close(); }
+  };
+  return checkTemporaryAliasMapping(alias, { platform: process.platform,
+    mount_namespace: await readlink('/proc/self/ns/mnt'), mountinfo: await readFile('/proc/self/mountinfo', 'utf8'),
+    backing: await identity(alias.backing), alias: await identity('/tmp') });
+}
+export async function temporaryDirectory(alias, output) {
+  if (alias === undefined) return { path: join(output, 'tmp'), provenance: null };
+  validateTemporaryAlias(alias);
+  requireThat(await realpath(STORE) === STORE, 'approved store root alias changed');
+  return { path: '/tmp', provenance: await inspectTemporaryAlias(alias) };
 }
 export function parseArgs(args) {
   const mode = args.shift();
@@ -296,6 +355,7 @@ export async function loadInputs(capsulePath) {
   const capsuleBytes = await boundedFile(capsulePath, LIMITS.jsonBytes), capsule = JSON.parse(capsuleBytes);
   requireThat(capsule.schema === 'viewer-acceptance-browser-masks-input/1' && capsule.disposition === DISPOSITION
     && /^[0-9a-f]{40}$/.test(capsule.runtime_commit), 'invalid capsule');
+  if (capsule.temporary_alias !== undefined) validateTemporaryAlias(capsule.temporary_alias);
   const service = new URL(capsule.service.url);
   requireThat(service.protocol === 'http:' && ['127.0.0.1', '[::1]'].includes(service.hostname)
     && service.pathname === '/' && !service.search && !service.hash && !service.username && !service.password,
@@ -634,11 +694,16 @@ async function executeContext(inputs, planned, directory, chromium, emit) {
   let browser, timer, timedOut = false;
   try {
     timer = setTimeout(() => { timedOut = true; if (browser) void browser.close(); }, LIMITS.contextMs);
+    const temporary = await temporaryDirectory(inputs.capsule.temporary_alias, dirname(directory));
+    if (temporary.provenance) {
+      report.temporary_alias = temporary.provenance;
+      await writeFile(join(directory, 'temporary-alias.json'), JSON.stringify(temporary.provenance, null, 2) + '\n', { flag: 'wx' });
+    }
     browser = await chromium.launchPersistentContext(join(directory, 'profile'), {
       executablePath: inputs.capsule.chromium.path, headless: true, timeout: LIMITS.jobMs,
       acceptDownloads: false, downloadsPath: join(directory, 'downloads'),
       serviceWorkers: 'block', args: ['--no-sandbox', '--disable-background-networking', '--disable-breakpad', '--disable-crash-reporter'],
-      env: { ...process.env, TMPDIR: join(dirname(directory), 'tmp') } });
+      env: { ...process.env, TMPDIR: temporary.path } });
     report.browser_version = browser.browser()?.version() ?? null;
     // This local proxy is the sole network destination, including Worker fetches.
     await browser.route('**/*', route => route.request().url().startsWith(`${proxy.url}/`)
@@ -754,7 +819,18 @@ async function run(args) {
   const grantBytes = await boundedFile(args.grant, LIMITS.jsonBytes), grant = JSON.parse(grantBytes);
   const files = committedProtocol(args['protocol-commit']); validateGrant(grant, args, inputs, files);
   requireThat(await realpath(STORE) === STORE, 'approved store root alias changed');
-  const output = join(STORE, args['output-name']); await mkdir(output); // Exclusive; never remove or reuse.
+  const output = join(STORE, args['output-name']);
+  if (inputs.capsule.temporary_alias !== undefined) {
+    const execution = `${output}-execution`;
+    requireThat(inputs.capsule.temporary_alias.backing === join(execution, 'tmp')
+      && dirname(await realpath(args.capsule)) === execution && dirname(await realpath(args.grant)) === execution,
+    'temporary alias must belong to this approved execution group');
+    const lineage = JSON.parse(await boundedFile(join(execution, 'lineage.json'), LIMITS.jsonBytes));
+    requireThat(same(lineage, { operation_owner: grant.operation_owner, attribution: grant.attribution, lineage: grant.lineage }),
+      'temporary alias execution lineage differs from grant');
+  }
+  const temporary = await temporaryDirectory(inputs.capsule.temporary_alias, output);
+  await mkdir(output); // Exclusive; never remove or reuse.
   const result = { schema: 'viewer-acceptance-browser-masks-result/1', status: 'partial', disposition: DISPOSITION,
     protocol_commit: args['protocol-commit'], runtime_commit: inputs.capsule.runtime_commit,
     capsule_sha256: inputs.capsule_sha256, grant_sha256: sha256(grantBytes),
@@ -768,8 +844,9 @@ async function run(args) {
       operation_owner: grant.operation_owner, capsule_sha256: inputs.capsule_sha256, grant_sha256: sha256(grantBytes) }, null, 2) + '\n', { flag: 'wx' });
     await writeFile(join(output, 'plan.json'), JSON.stringify(inputs.plan, null, 2) + '\n', { flag: 'wx' });
     await writeFile(join(output, 'inputs.json'), JSON.stringify({ capsule: inputs.capsule, grant, protocol_files: files }, null, 2) + '\n', { flag: 'wx' });
+    if (temporary.provenance) await writeFile(join(output, 'temporary-alias.json'), JSON.stringify(temporary.provenance, null, 2) + '\n', { flag: 'wx' });
     for (const child of ['tmp', 'cache', 'config']) await mkdir(join(output, child));
-    process.env.TMPDIR = join(output, 'tmp');
+    process.env.TMPDIR = temporary.path;
     process.env.XDG_CACHE_HOME = join(output, 'cache'); process.env.XDG_CONFIG_HOME = join(output, 'config');
     const playwrightPackage = JSON.parse(await readFile(join(REPO, 'node_modules/playwright/package.json'), 'utf8'));
     requireThat(playwrightPackage.version === inputs.capsule.playwright_version, 'installed Playwright version differs');

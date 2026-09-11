@@ -165,6 +165,7 @@ The coordinator supplies JSON schema `viewer-acceptance-browser-masks-input/1`:
 | `service` | `{url, catalogue_sha256, identity}`; URL must be a loopback HTTP origin |
 | `native_evidence` | Pinned `docs/viewer-acceptance-full-scenes-results.json` identity |
 | `representations` | Five `{asset, root}` entries in the order below |
+| `temporary_alias` | Optional `private-linux-tmp/1` binding defined in [the environment repair protocol](viewer-acceptance-browser-environment.md); absent preserves the original paths |
 
 An identity is `{ "path": "/absolute/path", "bytes": INTEGER,
 "sha256": "64 lowercase hexadecimal characters" }`. Static asset paths are the
@@ -200,7 +201,7 @@ The separate coordinator grant uses
 
 - `schema`, `disposition`, `protocol_commit`, `protocol_files`,
   `capsule_sha256`, `plan_sha256`, `output_name`.
-- `protocol_files` maps the runner, this document and the authored test path to
+- `protocol_files` maps the runner, this document, the environment repair protocol and the authored test path to
   their committed SHA-256 values. The exported `committedProtocol(COMMIT)`
   verifies local bytes against Git before returning that map.
 - `max_invocations: 1`, `max_browser_launches: 9`, `runner_retries: 0`.
@@ -226,6 +227,17 @@ raw transcript or reviewer-event capture are requested. Browser downloads and
 service workers are disabled. Raw input samples and masks are never copied into
 JSON evidence. No protected output is placed in Git or build scratch, and no
 protected originals or failed groups are deleted.
+
+The separately selected private mount alias changes only temporary-path routing:
+when explicitly bound in the capsule, Node and Chromium use namespace `/tmp`,
+backed by this invocation's approved execution-group `tmp`. Profiles, downloads,
+XDG homes and results retain their original approved output paths. The runner
+checks pinned device/inode equality and private mount provenance before importing
+Playwright and immediately before every context launch. Ordinary host `/tmp`
+never satisfies this opt-in contract. `validate` checks the alias schema only;
+it does not attest a future mount. Use the single corrected invocation in the
+[environment repair protocol](viewer-acceptance-browser-environment.md) for that
+candidate; the command below remains the default-path protocol.
 
 The execution owner must place capsule, grant and the enclosing process log in
 its separately fresh attributed/lineaged approved execution group. With

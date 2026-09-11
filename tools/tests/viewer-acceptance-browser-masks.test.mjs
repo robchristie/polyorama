@@ -1,13 +1,15 @@
 // Synthetic code/fixtures only. No Playwright import, protected reads or browser launch.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, writeFile, readFile, readlink, stat } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
-import { AUTHORED, ASSETS, DISPOSITION, LIMITS, beneath, parseArgs, sha256, boundedFile,
+import { AUTHORED, STORE, ASSETS, DISPOSITION, LIMITS, beneath, parseArgs, sha256, boundedFile,
   pinnedFile, regionGeometry, requestFor, tilesFor, maskShape, inspectMask, comparePixels,
   makePlan, coverageFor, checkMetrics, boundedResponse, faultResponse, createProofServer, maskRoute,
-  failureProof, pressureProof, validateGrant } from '../viewer-acceptance-browser-masks.mjs';
+  failureProof, pressureProof, validateGrant, validateTemporaryAlias, checkTemporaryAliasMapping,
+  inspectTemporaryAlias, temporaryDirectory } from '../viewer-acceptance-browser-masks.mjs';
 
 await mkdir(AUTHORED, { recursive: true });
 const fixtureRoot = await mkdtemp(join(AUTHORED, 'authored-tests-'));
@@ -15,6 +17,72 @@ const profile = { width: 1025, height: 513, tile_edge: 512, decomposition_levels
 const region = { x: 511, y: 511, width: 4, height: 2, discard: 1, components: [0, 1, 2] };
 const manifest = { target: ASSETS[0], tid: 'ab'.repeat(32), identity: { profile } };
 const identity = (path, bytes) => ({ path, bytes: bytes.length, sha256: sha256(bytes) });
+const alias = { kind: 'private-linux-tmp/1', path: '/tmp',
+  backing: join(STORE, 'viewer-acceptance-browser-masks-authored-execution/tmp'),
+  dev: '42', ino: '123', parent_mount_namespace: 'mnt:[100]' };
+function aliasObservation() {
+  return { platform: 'linux', mount_namespace: 'mnt:[101]',
+    mountinfo: '1 0 8:1 / / rw - ext4 /dev/test rw\n2 1 8:1 /approved/tmp /tmp rw - ext4 /dev/test rw\n',
+    backing: { directory: true, realpath: alias.backing, dev: '42', ino: '123', mount_id: '1' },
+    alias: { directory: true, realpath: '/tmp', dev: '42', ino: '123', mount_id: '2' } };
+}
+test('temporary alias is opt-in and never changes default output temporary paths', async () => {
+  assert.deepEqual(await temporaryDirectory(undefined, '/original/output'), { path: '/original/output/tmp', provenance: null });
+  assert.doesNotThrow(() => validateTemporaryAlias(alias));
+  for (const change of [null, { ...alias, path: '/short' }, { ...alias, backing: '/tmp' },
+    { ...alias, backing: join(STORE, '../outside/tmp') }, { ...alias, backing: join(STORE, 'tmp') },
+    { ...alias, dev: 42 }, { ...alias, parent_mount_namespace: '' }])
+    assert.throws(() => validateTemporaryAlias(change), /invalid private temporary alias/);
+});
+test('temporary alias requires mapped private namespace and pinned device/inode equality', () => {
+  const good = aliasObservation(), proof = checkTemporaryAliasMapping(alias, good);
+  assert.equal(proof.alias.dev, proof.backing.dev); assert.equal(proof.alias.ino, proof.backing.ino);
+  assert.equal(proof.mountinfo_sha256, sha256(good.mountinfo));
+  assert.match(proof.alias_mountinfo, / \/tmp /); assert.match(proof.backing_mountinfo, / \/ /);
+  const stacked = structuredClone(good);
+  stacked.mountinfo += '3 1 0:55 / /tmp rw - tmpfs tmpfs rw\n';
+  assert.equal(checkTemporaryAliasMapping(alias, stacked).alias_mountinfo, proof.alias_mountinfo);
+  for (const mutate of [
+    o => { o.platform = 'darwin'; }, o => { o.mount_namespace = alias.parent_mount_namespace; },
+    o => { o.alias.dev = '43'; }, o => { o.alias.ino = '124'; }, o => { o.backing.ino = '124'; },
+    o => { o.backing.realpath = '/outside'; }, o => { o.alias.realpath = '/other'; },
+    o => { o.alias.directory = false; }, o => { o.mountinfo = o.mountinfo.split('\n')[0]; },
+    o => { o.alias.mount_id = '1'; }, o => { o.alias.mount_id = '999'; },
+    o => { o.mountinfo = o.mountinfo.replace('/tmp rw -', '/tmp rw shared:3 -'); },
+    o => { o.mountinfo = o.mountinfo.replace('/ rw -', '/ rw master:3 -'); },
+    o => { o.mountinfo += '3 2 8:2 / /tmp/escape rw - ext4 /dev/other rw\n'; },
+  ]) { const bad = structuredClone(good); mutate(bad); assert.throws(() => checkTemporaryAliasMapping(alias, bad)); }
+});
+test('temporary alias rejects an ordinary host /tmp using actual filesystem identities', async () => {
+  const backing = await mkdtemp(join(fixtureRoot, 'unmapped-')), s = await stat(backing, { bigint: true });
+  await assert.rejects(inspectTemporaryAlias({ ...alias, backing, dev: String(s.dev), ino: String(s.ino),
+    parent_mount_namespace: 'mnt:[0]' }), /mismatch/);
+});
+test('temporary alias private bind preflight retains authored files and leaves host /tmp unchanged',
+  { skip: process.platform !== 'linux' || process.env.POLYORAMA_TEST_PRIVATE_MOUNT !== '1' }, async () => {
+  const backing = await mkdtemp(join(fixtureRoot, 'mount-')), s = await stat(backing, { bigint: true });
+  const hostTmp = await stat('/tmp', { bigint: true }), parent = await readlink('/proc/self/ns/mnt');
+  const spec = { ...alias, backing, dev: String(s.dev), ino: String(s.ino), parent_mount_namespace: parent };
+  const moduleUrl = new URL('../viewer-acceptance-browser-masks.mjs', import.meta.url).href;
+  const probe = `import { inspectTemporaryAlias } from ${JSON.stringify(moduleUrl)};
+    import { writeFile, readFile } from 'node:fs/promises';
+    const spec = JSON.parse(process.argv[1]);
+    const proof = await inspectTemporaryAlias(spec);
+    await writeFile('/tmp/authored-marker', 'synthetic only', { flag: 'wx' });
+    if (await readFile(spec.backing + '/authored-marker', 'utf8') !== 'synthetic only') throw Error('alias write differs');
+    console.log(JSON.stringify(proof));`;
+  // The low-level mapping probe uses only authored scratch; production additionally enforces STORE and lineage.
+  const stdout = execFileSync('unshare', ['-Urm', '--propagation', 'private', 'sh', '-eu', '-c',
+    'mount --bind "$1" /tmp; shift; exec "$@"', 'alias-probe', backing,
+    process.execPath, '--input-type=module', '-e', probe, JSON.stringify(spec)], { encoding: 'utf8', timeout: 10000 });
+  const proof = JSON.parse(stdout);
+  assert.notEqual(proof.mount_namespace, parent); assert.equal(proof.alias.ino, String(s.ino));
+  assert.equal(await readFile(join(backing, 'authored-marker'), 'utf8'), 'synthetic only');
+  assert.equal(await readlink('/proc/self/ns/mnt'), parent);
+  const after = await stat('/tmp', { bigint: true });
+  assert.equal(after.dev, hostTmp.dev); assert.equal(after.ino, hostTmp.ino);
+  await writeFile(join(backing, 'mount-preflight.json'), JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+});
 function metrics() {
   return Object.fromEntries(['compressed_bytes', 'peak_compressed_bytes', 'descriptor_bytes', 'peak_descriptor_bytes',
     'mask_bytes', 'peak_mask_bytes', 'mask_evictions', 'received_mask_bytes', 'decode_count', 'retries', 'peak_codec_workspace_bytes'].map(k => [k, 0]));
