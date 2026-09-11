@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use polyorama_core::{RegionDemand, RegionKey, RegionalPixels};
+use polyorama_core::{RegionDemand, RegionKey, RegionalFrame, RegionalPixels};
 use serde::{Deserialize, Serialize};
 
 use crate::RequestToken;
@@ -41,6 +41,23 @@ pub struct RegionalUpload {
     pub key: RegionKey,
     pub token: RequestToken,
     pub pixels: RegionalPixels,
+}
+
+/// Opt-in upload carrying separately accounted binary validity.
+#[derive(Debug)]
+pub struct RegionalFrameUpload {
+    pub key: RegionKey,
+    pub token: RequestToken,
+    pub pixels: RegionalFrame,
+}
+impl From<RegionalUpload> for RegionalFrameUpload {
+    fn from(upload: RegionalUpload) -> Self {
+        Self {
+            key: upload.key,
+            token: upload.token,
+            pixels: upload.pixels.into(),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -80,7 +97,7 @@ impl RegionalRuntimeMetrics {
 
 enum RegionState {
     InFlight,
-    Decoded(RegionalPixels),
+    Decoded(RegionalFrame),
     Uploading,
     Resident,
     Failed,
@@ -256,6 +273,14 @@ impl RegionalRuntime {
         request: &RegionalRequest,
         pixels: RegionalPixels,
     ) -> RegionalCompletion {
+        self.complete_frame(request, pixels.into())
+    }
+
+    pub fn complete_frame(
+        &mut self,
+        request: &RegionalRequest,
+        pixels: RegionalFrame,
+    ) -> RegionalCompletion {
         if self.flights.get(&request.token) != Some(request) {
             self.stale += 1;
             return RegionalCompletion::Stale;
@@ -326,13 +351,28 @@ impl RegionalRuntime {
     /// Transfer one visible decoded result to the renderer. Its bytes remain charged
     /// until `finish_upload`, including time spent waiting in a renderer queue.
     pub fn take_decoded(&mut self) -> Option<RegionalUpload> {
+        let upload = self.take_frame(false)?;
+        Some(RegionalUpload {
+            key: upload.key,
+            token: upload.token,
+            pixels: upload.pixels.pixels,
+        })
+    }
+
+    /// Includes binary validity. Legacy take_decoded leaves masked frames queued
+    /// rather than silently stripping their required display contract.
+    pub fn take_decoded_frame(&mut self) -> Option<RegionalFrameUpload> {
+        self.take_frame(true)
+    }
+
+    fn take_frame(&mut self, include_validity: bool) -> Option<RegionalFrameUpload> {
         let key = self
             .desired
             .values()
             .filter(|demand| {
                 self.entries
                     .get(&demand.key)
-                    .is_some_and(|entry| matches!(entry.state, RegionState::Decoded(_)))
+                    .is_some_and(|entry| matches!(&entry.state, RegionState::Decoded(p) if include_validity || p.validity.is_none()))
             })
             .max_by_key(|demand| (demand.priority, demand.key.reduction))?
             .key
@@ -345,7 +385,7 @@ impl RegionalRuntime {
         };
         self.uploads
             .insert(entry.token, (key.clone(), pixels.allocation_bytes()));
-        Some(RegionalUpload {
+        Some(RegionalFrameUpload {
             key,
             token: entry.token,
             pixels,

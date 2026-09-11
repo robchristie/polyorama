@@ -1,7 +1,7 @@
 //! The transport-neutral worker boundary. Codec work is called only by executors.
 use anyhow::{Result, ensure};
 use emuella_viewer_source::{ClientLimits, Manifest, Region, SharedClient};
-use polyorama_core::{RegionalPixels, RepresentationId, SampleLayout};
+use polyorama_core::{RegionalFrame, RegionalPixels, RepresentationId, SampleLayout};
 use polyorama_runtime::RegionalRequest;
 use serde::{Deserialize, Serialize};
 
@@ -79,6 +79,10 @@ pub struct WorkerMetrics {
     pub descriptor_bytes: usize,
     pub received_jpp_bytes: u64,
     pub received_descriptor_bytes: u64,
+    pub received_mask_bytes: u64,
+    pub mask_bytes: usize,
+    pub peak_mask_bytes: usize,
+    pub mask_evictions: u64,
     pub decode_count: u64,
     pub decoded_pixels: u64,
     pub selected_code_blocks: u64,
@@ -100,13 +104,14 @@ pub struct DecodedEvidence {
     pub height: u32,
     pub precision: u8,
     pub fnv1a64_u16le: String,
+    pub validity_sha256: Option<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Event {
     Catalogue(Vec<Manifest>),
     Completed {
         request: RegionalRequest,
-        pixels: RegionalPixels,
+        pixels: RegionalFrame,
         metrics: WorkerMetrics,
     },
     Cancelled {
@@ -163,6 +168,10 @@ impl Engine {
         m.peak_compressed_bytes = c.peak_compressed_bytes;
         m.peak_descriptor_bytes = c.peak_descriptor_bytes;
         m.received_descriptor_bytes = c.received_descriptor_bytes;
+        m.received_mask_bytes = c.received_mask_bytes;
+        m.mask_bytes = self.client.mask_bytes();
+        m.peak_mask_bytes = c.peak_mask_bytes;
+        m.mask_evictions = c.mask_evictions;
         m.decode_count = c.decode_count;
         m.decoded_pixels = c.decoded_pixels;
         m.selected_code_blocks = c.selected_code_blocks;
@@ -177,7 +186,7 @@ impl Engine {
 
         m
     }
-    pub fn decode(&mut self, job: &Job) -> Result<RegionalPixels> {
+    pub fn decode(&mut self, job: &Job) -> Result<RegionalFrame> {
         let region = job.region();
         let scale = 1u64 << region.discard;
         let width = (u64::from(region.x) + u64::from(region.width)).div_ceil(scale)
@@ -185,9 +194,16 @@ impl Engine {
         let height = (u64::from(region.y) + u64::from(region.height)).div_ceil(scale)
             - u64::from(region.y) / scale;
         // Reserve both the codec's planar output and the interleaving destination.
-        let peak = width
-            .checked_mul(height)
-            .and_then(|v| v.checked_mul(region.components.len() as u64 * 4));
+        let peak = width.checked_mul(height).and_then(|v| {
+            v.checked_mul(
+                region.components.len() as u64 * 4
+                    + if job.manifest.identity.validity.is_some() {
+                        2
+                    } else {
+                        0
+                    },
+            )
+        });
         ensure!(
             peak.is_some_and(|n| n <= job.request.max_decoded_bytes as u64),
             "decoded output reservation exceeded"
@@ -232,17 +248,24 @@ impl Engine {
             height: result.height,
             precision: result.bits_per_sample,
             fnv1a64_u16le: format!("{hash:016x}"),
+            validity_sha256: result
+                .validity
+                .as_deref()
+                .map(emuella_viewer_source::sha256),
         });
-        Ok(RegionalPixels {
-            width: result.width,
-            height: result.height,
-            layout: if result.planes.len() == 1 {
-                SampleLayout::Scalar
-            } else {
-                SampleLayout::Rgb
+        Ok(RegionalFrame {
+            validity: result.validity,
+            pixels: RegionalPixels {
+                width: result.width,
+                height: result.height,
+                layout: if result.planes.len() == 1 {
+                    SampleLayout::Scalar
+                } else {
+                    SampleLayout::Rgb
+                },
+                precision: result.bits_per_sample,
+                samples,
             },
-            precision: result.bits_per_sample,
-            samples,
         })
     }
 }

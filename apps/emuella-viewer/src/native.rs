@@ -100,6 +100,36 @@ impl Executor {
                                 .is_empty(),
                             "regional descriptors exceed admitted metadata budget"
                         );
+                        for tile in engine
+                            .client
+                            .missing_masks(&job.manifest.tid, &job.region())?
+                        {
+                            ensure!(!stopped(), "cancelled");
+                            let bytes = body(
+                                http.get(format!(
+                                    "{server}/mask/{}/{}/{tile}?tid={}",
+                                    job.manifest.target,
+                                    job.region().discard,
+                                    job.manifest.tid
+                                ))
+                                .send()?,
+                                HTTP_LIMIT,
+                            )?;
+                            ensure!(!stopped(), "cancelled");
+                            engine.client.install_mask(
+                                &job.manifest.tid,
+                                tile,
+                                job.region().discard,
+                                &bytes,
+                            )?;
+                        }
+                        ensure!(
+                            engine
+                                .client
+                                .missing_masks(&job.manifest.tid, &job.region())?
+                                .is_empty(),
+                            "regional masks exceed admitted budget"
+                        );
                         if engine.client.ready(&job.manifest.tid, &job.region())? {
                             engine.metrics.cache_hits += 1;
                             return engine.decode(&job);
@@ -142,6 +172,36 @@ impl Executor {
                             }
                             engine.client.finish(reader)?;
                             ensure!(!stopped(), "cancelled");
+                            for tile in engine
+                                .client
+                                .missing_masks(&job.manifest.tid, &job.region())?
+                            {
+                                ensure!(!stopped(), "cancelled");
+                                let bytes = body(
+                                    http.get(format!(
+                                        "{server}/mask/{}/{}/{tile}?tid={}",
+                                        job.manifest.target,
+                                        job.region().discard,
+                                        job.manifest.tid
+                                    ))
+                                    .send()?,
+                                    HTTP_LIMIT,
+                                )?;
+                                ensure!(!stopped(), "cancelled");
+                                engine.client.install_mask(
+                                    &job.manifest.tid,
+                                    tile,
+                                    job.region().discard,
+                                    &bytes,
+                                )?;
+                            }
+                            ensure!(
+                                engine
+                                    .client
+                                    .missing_masks(&job.manifest.tid, &job.region())?
+                                    .is_empty(),
+                                "regional masks exceed admitted budget"
+                            );
                             if engine.client.ready(&job.manifest.tid, &job.region())? {
                                 return engine.decode(&job);
                             }
@@ -269,6 +329,7 @@ mod tests {
             target: "response-test".into(),
             tid: String::new(),
             identity: Identity {
+                validity: None,
                 source_sha256: "test-source".into(),
                 bands: vec![0],
                 profile: Profile {

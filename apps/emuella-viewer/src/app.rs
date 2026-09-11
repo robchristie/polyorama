@@ -588,7 +588,7 @@ impl ViewerApp {
                     pixels,
                     metrics,
                 } => {
-                    let outcome = self.runtime.complete(&request, pixels);
+                    let outcome = self.runtime.complete_frame(&request, pixels);
                     self.work_event(&format!("completion_{outcome:?}"), &request);
                     self.snapshot.worker = metrics;
                 }
@@ -926,7 +926,7 @@ impl eframe::App for ViewerApp {
                 .get_mut::<RegionalRenderer>()
                 .unwrap();
             renderer.begin_frame();
-            while let Some(upload) = self.runtime.take_decoded() {
+            while let Some(upload) = self.runtime.take_decoded_frame() {
                 let key = upload.key.clone();
                 let token = upload.token;
                 if !self.runtime.is_upload_current(&key, token) {
@@ -934,7 +934,7 @@ impl eframe::App for ViewerApp {
                     self.runtime.finish_upload(&key, token, false);
                     continue;
                 }
-                match renderer.upload(&state.device, &state.queue, upload) {
+                match renderer.upload_frame(&state.device, &state.queue, upload) {
                     Ok(admission) => {
                         for evicted in admission.evicted {
                             self.resource_event("gpu_evicted", &evicted.key, evicted.token);
@@ -1165,7 +1165,10 @@ fn demand(
             stage: SourceStage(1),
         },
         priority,
-        max_decoded_bytes: width * height * m.identity.profile.components as usize * 4,
+        max_decoded_bytes: width
+            * height
+            * (m.identity.profile.components as usize * 4
+                + if m.identity.validity.is_some() { 2 } else { 0 }),
     }
 }
 #[allow(clippy::too_many_arguments)]

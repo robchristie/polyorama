@@ -185,6 +185,56 @@ impl Raster {
             bits_per_pixel,
         }
     }
+    /// Read the original selected bands' GDAL validity, without sample conversion.
+    pub fn read_masks(&mut self, rect: codec::TileRect) -> Result<Vec<Vec<u8>>> {
+        let mut planes = vec![vec![0; (rect.width * rect.height) as usize]; self.bands.len()];
+        // SAFETY: GDAL's mask handles belong to the live dataset; each output is
+        // a checked tile-sized Byte plane, read synchronously before dataset close.
+        unsafe {
+            let band = self
+                .library
+                .get::<unsafe extern "C" fn(Handle, c_int) -> Handle>(b"GDALGetRasterBand\0")?;
+            let mask = self
+                .library
+                .get::<unsafe extern "C" fn(Handle) -> Handle>(b"GDALGetMaskBand\0")?;
+            let read = self.library.get::<unsafe extern "C" fn(
+                Handle,
+                c_int,
+                c_int,
+                c_int,
+                c_int,
+                c_int,
+                *mut c_void,
+                c_int,
+                c_int,
+                c_int,
+                c_int,
+                c_int,
+            ) -> c_int>(b"GDALRasterIO\0")?;
+            for (&number, plane) in self.bands.iter().zip(&mut planes) {
+                let handle = mask(band(self.dataset, i32::from(number)));
+                ensure!(!handle.is_null(), "GDAL source mask unavailable");
+                ensure!(
+                    read(
+                        handle,
+                        0,
+                        rect.x as i32,
+                        rect.y as i32,
+                        rect.width as i32,
+                        rect.height as i32,
+                        plane.as_mut_ptr().cast(),
+                        rect.width as i32,
+                        rect.height as i32,
+                        1,
+                        0,
+                        0
+                    ) == 0,
+                    "GDAL source mask read failed"
+                );
+            }
+        }
+        Ok(planes)
+    }
     pub fn read_tile(&mut self, rect: codec::TileRect, planes: &mut [Vec<u8>]) -> Result<()> {
         ensure!(planes.len() == self.bands.len(), "plane count");
         // SAFETY: GDAL writes the checked tile-sized, tightly packed native buffer.

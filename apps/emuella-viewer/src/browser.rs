@@ -17,6 +17,8 @@ struct TransferPixels {
     precision: u8,
     #[serde(with = "serde_wasm_bindgen::preserve")]
     samples: js_sys::Uint16Array,
+    #[serde(with = "serde_wasm_bindgen::preserve")]
+    validity: js_sys::Uint8Array,
 }
 #[derive(Deserialize)]
 struct TransferCompletion {
@@ -30,7 +32,11 @@ fn decode_event(value: JsValue) -> Result<Event, JsValue> {
         return serde_wasm_bindgen::from_value(value).map_err(Into::into);
     }
     let c: TransferCompletion = serde_wasm_bindgen::from_value(completion)?;
-    if c.pixels.samples.length() as usize > c.request.max_decoded_bytes / 4 {
+    if (c.pixels.samples.length() as usize)
+        .saturating_mul(4)
+        .saturating_add((c.pixels.validity.length() as usize).saturating_mul(2))
+        > c.request.max_decoded_bytes
+    {
         return Ok(Event::Failed {
             request: Some(c.request),
             error: "transferred output exceeds reservation".into(),
@@ -38,12 +44,15 @@ fn decode_event(value: JsValue) -> Result<Event, JsValue> {
         });
     }
     // Typed transfer plus one exact-sized WASM copy stays within the reserved pair.
-    let pixels = polyorama_core::RegionalPixels {
-        width: c.pixels.width,
-        height: c.pixels.height,
-        layout: c.pixels.layout,
-        precision: c.pixels.precision,
-        samples: c.pixels.samples.to_vec(),
+    let pixels = polyorama_core::RegionalFrame {
+        validity: (c.pixels.validity.length() > 0).then(|| c.pixels.validity.to_vec()),
+        pixels: polyorama_core::RegionalPixels {
+            width: c.pixels.width,
+            height: c.pixels.height,
+            layout: c.pixels.layout,
+            precision: c.pixels.precision,
+            samples: c.pixels.samples.to_vec(),
+        },
     };
     Ok(Event::Completed {
         request: c.request,
@@ -166,6 +175,23 @@ impl WorkerClient {
         )
         .map_err(Into::into)
     }
+    pub fn missing_masks(&mut self, value: JsValue) -> Result<JsValue, JsValue> {
+        let j: Job = serde_wasm_bindgen::from_value(value)?;
+        serde_wasm_bindgen::to_value(
+            &self
+                .engine
+                .client
+                .missing_masks(&j.manifest.tid, &j.region())
+                .map_err(js)?,
+        )
+        .map_err(Into::into)
+    }
+    pub fn mask(&mut self, tid: &str, tile: u16, discard: u8, bytes: &[u8]) -> Result<(), JsValue> {
+        self.engine
+            .client
+            .install_mask(tid, tile, discard, bytes)
+            .map_err(js)
+    }
     pub fn descriptor(&mut self, tid: &str, tile: u16, bytes: &[u8]) -> Result<(), JsValue> {
         self.engine
             .client
@@ -235,6 +261,7 @@ impl WorkerClient {
             layout: pixels.layout,
             precision: pixels.precision,
             samples: js_sys::Uint16Array::from(pixels.samples.as_slice()),
+            validity: js_sys::Uint8Array::from(pixels.validity.as_deref().unwrap_or(&[])),
         };
         serde_wasm_bindgen::to_value(&transfer).map_err(Into::into)
     }
