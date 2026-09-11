@@ -1,10 +1,17 @@
-# Real-scene viewer calibration
+# Real-scene viewer integration
 
-This bounded B increment binds the viewer to merged codec
-`dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`. The frozen campaign plan belongs to
+The final viewer binds merged codec
+`6586e3d50f95429b242cb2e3535742b002784f2d` (codec PR 106). Historical B/C
+builds bind `dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`; prepared assets retain
+that original encoder identity. The frozen campaign plan belongs to
 the private workspace at checkpoint `1c469f7f21ef1355e47ef33a6a8b2e8ad605aa35`.
 The source-coordinate freeze is [the factual JSON record](real-scene-viewing-source-views.json),
-committed before compressed output inspection. Calibration remains provisional.
+committed before compressed output inspection. B rejects the display profile; C
+rejects its sole presentation candidate. Neither result is reopened by integration.
+The [reproduction commands](real-scene-viewing-reproduction.md) use checked-in
+tools. [The binding correction](real-scene-viewing-binding-correction.json)
+separates two historical traces' observed codec checkout HEAD from their actual
+linked decoder. Original records remain unchanged.
 
 ## Source and quality
 
@@ -241,7 +248,7 @@ are retained with zero ring drops. Their same-realm UI receipt-to-frame wait is
 295.10–310.90 ms; precise browser cross-realm delivery totals are not established.
 [The C evidence](real-scene-viewing-c-evidence.json) retains every baseline.
 
-Select exactly one **native-only opt-in** candidate: `--present-mode auto-no-vsync`
+The historical freeze selected exactly one **native-only opt-in** candidate: `--present-mode auto-no-vsync`
 changes only the WGPU surface present mode to `AutoNoVsync`, keeping the existing
 LOW_LATENCY frame-latency setting. Default native and browser configuration,
 repaint reasons, one-worker scheduling, cache resets, resource ceilings and
@@ -249,7 +256,7 @@ cancellation/stale/recovery rules remain unchanged. The attribution supports
 probing this native presentation boundary; it is not already a qualified benefit
 and does not establish GPU execution or scanout latency.
 
-Freeze five alternating fresh-process development pairs for cheap rejection:
+The freeze required five alternating fresh-process development pairs for cheap rejection:
 reject at ≤5% mean warm-reconstruction benefit, any incomplete journey or resource
 regression. If promising, run 20 new AB/BA fresh-process development pairs with
 the same instrumented binary and explicit default/opt-in configuration. Apply the
@@ -312,6 +319,7 @@ fixtures and native lab/gallery smoke. Canonical software-GPU smoke is separate
 from the NVIDIA application evidence. Build and capture paths, log hashes,
 process completion and the exact candidate checkpoints are retained in the C JSON.
 Final changes after that verification only reconcile evidence and this receipt.
-No owned measurement, display, service or build process remains. Codec dependencies
-stay at the frozen `dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`; independent review,
-merged-owner consumer qualification and campaign integration remain main-owned.
+At C closeout no owned measurement, display, service or build process remained.
+Those builds used frozen `dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`. The final
+integration now pins merged `6586e3d50f95429b242cb2e3535742b002784f2d`; review,
+landing and post-merge consumer confirmation remain coordinator-owned.
