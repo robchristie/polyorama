@@ -195,3 +195,35 @@ python3 tools/viewer-acceptance-independent.py \
 The execution context returns a compact factual report (at most 1,000 words),
 with immutable result paths/hashes and the matched-byte and diagnosis limitations.
 No protected excerpts or raw process transcripts enter that report or Git.
+
+## Executed cohort result
+
+The single authorised cohort completed against exact protocol source
+`78150c8a07feafd19222db6c4ad54ff2f8f90557`: 16 encoder invocations,
+two expansions, no process failures and no retries. The group is consumed.
+The [result record](viewer-acceptance-independent-results.json) binds immutable
+store evidence, all trial hashes and paired per-cell quality metrics. No protected
+samples, payloads, decoded rasters or process transcripts enter this repository.
+
+| Product | Byte match | Source-valid quality | Separate Emuella reconstruction check |
+|---|---|---|---|
+| Mansfield RGB16 12 | First match: trial 8, 1,062,356 B versus 1,056,940 B; +5,416 B (+0.5124%) | 48/48 pass versus baseline 42/48; every cell's RMSE improves | Exact agreement fails in all four views |
+| Tok RGB8 4 | Unmatched after eight conforming trials; final trial 1,549,494 B versus 1,573,332 B (−1.5151%) | Not decoded or scored | Not run |
+
+RGB16's worst display RMSE is 1.733231 and worst p99 absolute error is 4 U8
+units (gates 3 and 12). Its selected qstep is `2.3804078207652011E-4`.
+The separate existing-Emuella-stream expansion exits successfully but emits four
+stdout warning lines mentioning quantisation and tiles. View 0 has at most one
+native unit disagreement; views 1–3 have large disagreements, with overall maximum
+absolute error 16,034 and maximum per-band/view RMSE 12,986.876374 native units.
+No causal explanation is established. Detailed raw-band errors and diagnostic
+identities remain linked from the result record; process text stays in the store.
+
+The supplied committed harness and execution instruction separate exact
+reconstruction from source-quality efficiency; this result uses that eligibility
+rule despite the older agreement-dependent wording retained above. RGB16 supplies
+bounded evidence of recoverable display distortion at approximately the same
+payload. Tok supplies no efficiency conclusion, so the two-product hypothesis is
+**not supported by this bounded cohort**. No minimal quantiser/allocation policy
+change is justified. This numerical experiment establishes no product, visual,
+full-scene or performance acceptance. No additional encodes or full scenes ran.
