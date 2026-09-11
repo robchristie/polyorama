@@ -89,6 +89,41 @@ payload/manifest/descriptor SHA-256 before and after journeys. Report absolute
 latencies without a repeated statistical speed claim. Stop the owned service
 and display after qualification.
 
+For a directly executable extraction step, set `REFERENCE_INPUTS` to the paths
+of each retained `app.json`, `app.json.stages.json`, `browser.json` and
+`browser-recovery.json` being compared, and export `SCENE_EVIDENCE`. The following
+writes unique observed records without generating reference checksums itself:
+
+```sh
+python3 - $REFERENCE_INPUTS <<'PYTHON'
+import collections, json, os, sys
+from pathlib import Path
+records = collections.defaultdict(dict)
+def visit(value):
+    if isinstance(value, dict):
+        for record in value.get('decoded_evidence', []):
+            records[record['tid']][json.dumps(record, sort_keys=True)] = record
+        for child in value.values():
+            visit(child)
+    elif isinstance(value, list):
+        for child in value:
+            visit(child)
+for name in sys.argv[1:]:
+    visit(json.loads(Path(name).read_text()))
+output = Path(os.environ['SCENE_EVIDENCE']) / 'reference-requests'
+output.mkdir(exist_ok=False)
+for tid, unique in records.items():
+    rows = list(unique.values())
+    for offset in range(0, len(rows), 1024):
+        path = output / f'{tid}-{offset // 1024:02}.json'
+        path.write_text(json.dumps(rows[offset:offset + 1024], indent=2) + '\n')
+PYTHON
+```
+
+Match each filename's `tid` to the representation manifest, then pass that file
+to the documented `reference --representation PATH --requests FILE` command.
+Retain its complete JSON result and exit status inside the same approved group.
+
 Run `cargo xtask verify` on the final report-bearing commit. Keep its canonical
 log hash in delivery metadata rather than adding another unverified tracked
 receipt. On this protected-data host, the canonical logical `.tools/runtime`

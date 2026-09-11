@@ -323,3 +323,52 @@ At C closeout no owned measurement, display, service or build process remained.
 Those builds used frozen `dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`. The final
 integration now pins merged `6586e3d50f95429b242cb2e3535742b002784f2d`; review,
 landing and post-merge consumer confirmation remain coordinator-owned.
+
+## Final merged-decoder representative integration
+
+The native viewer, service/reference tool and complete browser static root were
+built from clean commit `211a714753da5c7c7b9bc959bfa6840ac0fd35b7`, tree
+`e7e657dd1df50d116d88cd77d77e8c890be5edf2`, with merged codec
+`6586e3d50f95429b242cb2e3535742b002784f2d`. The retained build record binds
+Cargo.lock, commands and every runtime hash. Report consolidation follows these
+journeys with unchanged application and harness source; these binaries are not
+claimed to have been built at the later report commit.
+
+[Final numerical evidence](real-scene-viewing-final-evidence.json) records one
+development native journey, one actual hardware-browser journey, and explicit
+development/Boca PAN pressure journeys. All four complete and pass their unchanged
+benchmark-owner limits. Native reports RTX 3090/Vulkan; Chromium 151.0.7922.34
+reports NVIDIA/Ampere without its device model. No rate bracket, historical Tok
+matrix, second C candidate or repeated statistical qualification was run.
+
+| CPU-observed boundary (ms) | Native | Hardware browser |
+|---|---:|---:|
+| First primary region resident | 89.55 | 137.40 |
+| Complete overview and visible gallery | 720.28 | 520.10 |
+| Detection detail | 86.04 | 134.50 |
+| Gallery completion | 532.08 | 433.80 |
+| Warm GPU/bookmark revisit | 48.35 | 34.00 |
+| Warm compressed reconstruction | 619.93 | 400.20 |
+
+These are absolute representative observations, not a statistical speed claim.
+Both pressure journeys observe all seven required events, including interrupted
+receipt, retry, connection loss, reconnect, actual stale-result rejection,
+cancellation acknowledgement and eviction. Both evict a representation and GPU
+textures within unchanged 1/4/16 MiB caps. The inherited image/gallery default is
+unchanged, and initial failed pressure evidence remains retained.
+
+The final decoder's complete selected-tile reference matches all 346 distinct
+retained application records over 42,942,495 pixels across the four exercised
+representations, including pressure windows. This remains same-codec FNV,
+dimension and precision agreement. The reference report's `codec_revision` is
+the representation's original encoder identity, not the linked decoder. All nine
+historical representations retain identical payload, manifest and descriptor
+hashes before and after this integration. Prepared assets were not regenerated.
+
+The B display rejection, Tok detail failures, C candidate rejection, nodata and
+browser clock limits, independent-decoder one-code boundary, unavailable physical
+GPU timing and unestablished human/analytical acceptance remain unchanged.
+All journey displays and services stopped. The final report-bearing commit is
+the input to canonical `cargo xtask verify`; its exact commit and successful log
+hash belong in delivery metadata. Independent review, landing and the final
+post-merge consumer confirmation remain coordinator-owned.
