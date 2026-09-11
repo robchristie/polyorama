@@ -69,7 +69,7 @@ actual hardware-browser development journeys precede the application threshold
 freeze. A validation failure cannot retune the thresholds. If no rate passes
 quality, retain an explicit rejection and measure application limitations on a
 clearly identified rejected diagnostic representation; do not call that validation.
-C remains unselected: entropy, synthesis, requested output and repeated-demand
+At the initial B checkpoint C remained unselected: entropy, synthesis, requested output and repeated-demand
 observations inform the coordinator's later choice, without an optimisation here.
 
 ## Measured B result
@@ -132,8 +132,8 @@ both development and Boca. The initial Boca probe is retained as failed: later
 overlapping requests had already supplied the interrupted cache data before
 Retry. The adapted probe holds subsequent JPP traffic offline until explicit
 Retry and cycles the actual catalogue. All inherited recovery ceilings and the
-mandatory actual-eviction condition remain unchanged. Overall recovery still
-**fails**: the two-image pressure journeys did not exhaust the 1/4/16 MiB budgets,
+mandatory actual-eviction condition remain unchanged. At that initial B checkpoint recovery
+**failed**: the two-image pressure journeys did not exhaust the 1/4/16 MiB budgets,
 so neither representation nor GPU eviction occurred. This is an unsupported
 pressure case, not a waived gate or an application crash.
 
@@ -144,7 +144,7 @@ nodata, but the UInt16 full-storage display is very dark. These observations do
 not establish exhaustive per-view visual acceptance, human acceptance or
 analytical/ML suitability. The numeric failure alone is sufficient for rejection.
 
-## C observations, without implementation
+## Initial C observations, before instrumentation
 
 Warm compressed replay repeats exactly 30 native or 24 browser regions, with no
 new JPP or descriptor bytes. It repeats all entropy and synthesis work; a warm
@@ -162,7 +162,7 @@ entropy and synthesis wall times and physical GPU execution timing are unavailab
 the residual cannot all be attributed to one mechanism from these counters.
 No C candidate was selected or implemented by this worker.
 
-## Verification and hand-off
+## Initial B verification and hand-off
 
 Full `cargo xtask verify` passed: formatting, native/WASM Clippy, workspace tests,
 architecture, release native/WASM builds, both browser smoke suites, five frozen
@@ -193,7 +193,8 @@ campaign delivery was performed by this bounded worker.
 
 ## C instrumentation checkpoint
 
-The bounded pacing probe frozen by the workspace at `024b514098ed9697b1846d17fc45a0d7f6d5fa43` is in preparation.
+The bounded pacing probe was frozen by the workspace at
+`024b514098ed9697b1846d17fc45a0d7f6d5fa43`.
 The baseline retains the existing application behaviour, one worker and all cache
 budgets. Worker execution now records start, reconstruction finish and publication;
 UI diagnostics separately record message receipt, frame drain and next dispatch
@@ -203,10 +204,10 @@ counted as invalid observations. The existing 128-event ring contains request
 samples, while constant-size cumulative totals survive ring truncation. These
 measure CPU-observed boundaries, not scanout or physical GPU execution.
 
-The first authorised execution phase will build and verify this diagnostic
-baseline, then run five fresh native and five hardware-browser development
-journeys with the existing full-scene workload and budgets. No scheduling or
-presentation candidate is selected until those observations are attributed.
+The authorised execution phase built and verified this diagnostic baseline,
+then ran five fresh native and five hardware-browser development journeys with
+the existing full-scene workload and budgets. Candidate selection followed
+those attributed observations.
 Any selected candidate must be frozen before its five alternating development
 pairs; promising results require the campaign's 20 fresh-process AB/BA pairs,
 99% confidence and 5% practical warm-reconstruction gate, first-region and
@@ -274,3 +275,23 @@ service-conditioning journey, so both arms can truthfully use the inherited
 by design, before measurement; it cannot replace a failed trial. Every measured
 arm is a fresh application process with empty client caches, followed by the
 same within-process warm-compressed reset in the frozen workload.
+
+
+## C bounded decision
+
+**Reject the native `AutoNoVsync` candidate.** The frozen five AB/BA screening
+pairs complete every journey and pass all unchanged native admissions, but mean
+warm reconstruction rises from 625.47 to 642.77 ms (+2.77%). First-region means
+are 78.39/78.10 ms and complete-visible means are 748.61/729.88 ms. The screen's
+conservative warm ratio interval is −11.63% to +18.61%; this is not a significant
+regression claim, but it plainly fails the predeclared >5% benefit screen.
+The 20-pair qualification and reserved C Boca/Tok confirmation are therefore not
+run. No second candidate, presentation retuning or codec change is attempted.
+
+The experimental native option and harness forwarding are removed from current
+production source. Its exact source, binary and all ten measured traces plus
+separate service conditioning remain retained. Timing diagnostics and the
+explicit recovery pressure repair remain. The publication-to-UI wait is directly
+observed; removing requested presentation synchronisation did not reduce it in
+this bounded experiment. A narrower causal explanation remains unresolved.
+This negative result closes the bounded C probe, not the integration campaign.

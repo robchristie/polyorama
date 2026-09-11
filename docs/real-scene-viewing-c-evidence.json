@@ -283,5 +283,162 @@
         "sha256": "866594a75734b0873cb36c218a3f34906d1b2bc231062aa59ac4ea302daf097f"
       }
     }
-  ]
+  ],
+  "candidate_freeze_revision": "88cead2fb0b4a04a61c2e3b9376654fcf3e66758",
+  "candidate_source_revision": "7d2f5470b2529ac99a5e3c67192ebdea72d40952",
+  "paired_harness_revision": "10770314222b7ae23398d46b56cec8f09aa7ef17",
+  "screen": {
+    "manifest": {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-screen-01/pairs.json",
+      "sha256": "063e03635bb959eb280f91e16a8c83b9e2b1428619add9665744124a955a5885"
+    },
+    "assessment": {
+      "passed": false,
+      "screening_only": true,
+      "endpoints": {
+        "warm_compressed_ms": {
+          "baseline": {
+            "mean": 625.4681148,
+            "low": 595.6392799884411,
+            "high": 655.2969496115588,
+            "minimum": 613.982731,
+            "maximum": 638.8677639999999,
+            "values": [
+              619.6971530000002,
+              637.7803070000001,
+              638.8677639999999,
+              613.982731,
+              617.012619
+            ]
+          },
+          "candidate": {
+            "mean": 642.7711284000001,
+            "low": 579.0817907044199,
+            "high": 706.4604660955803,
+            "minimum": 622.41238,
+            "maximum": 684.4986160000001,
+            "values": [
+              648.6160060000001,
+              625.3774910000001,
+              622.41238,
+              632.9511489999999,
+              684.4986160000001
+            ]
+          },
+          "relative_99_percent_interval": [
+            -0.11630629282238703,
+            0.18605419392302291
+          ],
+          "mean_relative_change": 0.027664101799230734
+        },
+        "first_useful_ms": {
+          "baseline": {
+            "mean": 78.386153,
+            "low": 65.62931116044156,
+            "high": 91.14299483955843,
+            "minimum": 74.100541,
+            "maximum": 86.83299,
+            "values": [
+              86.83299,
+              78.52338400000001,
+              77.800225,
+              74.100541,
+              74.67362499999999
+            ]
+          },
+          "candidate": {
+            "mean": 78.1022894,
+            "low": 72.07575285420899,
+            "high": 84.12882594579102,
+            "minimum": 74.270998,
+            "maximum": 79.869391,
+            "values": [
+              79.60906,
+              77.16606800000001,
+              74.270998,
+              79.869391,
+              79.59593
+            ]
+          },
+          "relative_99_percent_interval": [
+            -0.20920139851575037,
+            0.28187885044419225
+          ],
+          "mean_relative_change": -0.0036213487859263482
+        },
+        "whole_overview_ms": {
+          "baseline": {
+            "mean": 748.6094246,
+            "low": 653.7660372066601,
+            "high": 843.4528119933399,
+            "minimum": 699.405603,
+            "maximum": 785.4687150000001,
+            "values": [
+              785.4687150000001,
+              717.0646429999999,
+              771.78809,
+              699.405603,
+              769.320072
+            ]
+          },
+          "candidate": {
+            "mean": 729.877212,
+            "low": 660.5669804636271,
+            "high": 799.1874435363728,
+            "minimum": 699.66881,
+            "maximum": 765.376934,
+            "values": [
+              751.200451,
+              699.66881,
+              765.376934,
+              723.061496,
+              710.078369
+            ]
+          },
+          "relative_99_percent_interval": [
+            -0.21682995056652543,
+            0.22243646511686865
+          ],
+          "mean_relative_change": -0.025022678027342593
+        }
+      },
+      "method": "benchmark-owner conservative99.5% marginal Student t intervals; Bonferroni99% ratio bounds per endpoint; no outlier removal; no family-wide claim",
+      "identity": {
+        "revisions": {
+          "polyorama": "10770314222b7ae23398d46b56cec8f09aa7ef17",
+          "codec": "dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db",
+          "benchmark": "f78c9c4edc2c606a0037b1445753830781726646"
+        },
+        "builds": {
+          "native": "c80679143170a6c9b1c4d8864b8a359788e03ec85881274e84519a989041803d",
+          "web/bootstrap.js": "2d2ab31541bc4391d0d347977ecb1cae075fcbc655cbfa61aa2bd448d166a115",
+          "web/index.html": "b333a11ac87eb1910cef1cb5e5d129aaa02dd33b9fbdab46afeba3f3336429f0",
+          "web/pkg/emuella_viewer.d.ts": "eb47d40218063d8d1aafe8c91651cdead64725b63f6db62b0b021ee1d0eba343",
+          "web/pkg/emuella_viewer.js": "f008710db2df7d1d6f05ecf13d0da8305865d57d60aabffa2f0a1824c107f990",
+          "web/pkg/emuella_viewer_bg.wasm": "e46a1b3cc5a4dfc783ea2bfebb09a0a7a977d7e791976c9d424da833f58ffa24",
+          "web/pkg/emuella_viewer_bg.wasm.d.ts": "c83a3e8bea7b0d99fa155f99881d646a332c41e5b966e7f0f9a7f7e67cbf9e89",
+          "web/response.js": "166cdf7228437c660033dc7a75fbc3d8ac07be75518f25431da75bfae5c229aa",
+          "web/worker.js": "49fb0043efd74e6503bb3270c6c984c5af990dcf6020bbf377c0d13355ad68b7"
+        },
+        "inputs": {
+          "94_104001000b823500-pan16-4": "e131a1ee478302799956925cd8f8c09f3d3f6e414dd8a2a94e6020b196efbbd2",
+          "94_104001000b823500-rgb16-4": "d5476f492a9b3680c348b7511ce4f02723064c4ddb2b276a77bdda48a2f5d0ac"
+        },
+        "workload_sha256": "9c11bead76a2c556dd49c13164dd7a462aa01e325ed6d3fb03510054e17f50dd"
+      },
+      "environment": {
+        "hardware": "x86_64 ; lv426",
+        "operating_system": "Linux-7.1.3-arch1-1-x86_64-with-glibc2.43",
+        "runtime": "native native eframe/wgpu",
+        "gpu": "AdapterInfo { name: \"NVIDIA GeForce RTX 3090\", vendor: 4318, device: 8708, device_type: DiscreteGpu, device_pci_bus_id: \"0000:01:00.0\", driver: \"NVIDIA\", driver_info: \"610.43.03\", backend: Vulkan, subgroup_min_size: 32, subgroup_max_size: 32, transient_saves_memory: Some(false), limit_bucket: None }",
+        "hardware_gpu": true
+      }
+    },
+    "assessment_identity": {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-screen-01/assessment.json",
+      "sha256": "e924aaac88c09e10fb0426720223e46b6736a9388549e4e401ff72074dcfb8be"
+    }
+  },
+  "decision": "Reject native AutoNoVsync after the frozen five-pair screen; no20-pair qualification or reserved C confirmation. Restore production main/options; retain diagnostic attribution and failed-benefit evidence.",
+  "screen_failures": "No crashed/incomplete/threshold-failed journeys. The candidate fails the practical benefit gate: mean warm reconstruction is2.7664% slower."
 }

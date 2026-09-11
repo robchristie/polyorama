@@ -19,21 +19,15 @@ fn main() -> eframe::Result {
     let script = output.is_some();
     let workload =
         value("--workload").map(|path| std::fs::read_to_string(path).expect("read workload"));
-    let mut native_options = eframe::NativeOptions {
-        renderer: eframe::Renderer::Wgpu,
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1440., 900.])
-            .with_min_inner_size([960., 640.]),
-        ..Default::default()
-    };
-    // Consumer opt-in: preserve every other surface and application default.
-    if let Some(mode) = value("--present-mode") {
-        assert_eq!(mode, "auto-no-vsync", "unsupported --present-mode");
-        native_options.wgpu_options.surface.present_mode = wgpu::PresentMode::AutoNoVsync;
-    }
     eframe::run_native(
         "Emuella image viewer",
-        native_options,
+        eframe::NativeOptions {
+            renderer: eframe::Renderer::Wgpu,
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([1440., 900.])
+                .with_min_inner_size([960., 640.]),
+            ..Default::default()
+        },
         Box::new(move |cc| {
             let mut app = emuella_viewer::ViewerApp::new(
                 cc, server, compressed, decoded, gpu, script, output,
