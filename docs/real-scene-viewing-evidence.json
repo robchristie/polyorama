@@ -16207,5 +16207,15 @@
   },
   "provenance_limitations": [
     "GTiff preparation used installed GDAL 3.13.0 at the explicit Pixi library path and recorded SHA-256. No source-revision identity for that installed library or maintained-GDAL build equivalence is asserted. GTiff preparation did not require or load the NITF JP2 plugin."
-  ]
+  ],
+  "bounded_C_followup": {
+    "evidence": {
+      "path": "docs/real-scene-viewing-c-evidence.json",
+      "sha256": "c2543a585d66f5d22ef3977d107264a4c539011b5244f3aa6540f32c1ecbf98a",
+      "bytes": 33945
+    },
+    "decision": "Native presentation candidate rejected after actual five-pair screen; production option removed.",
+    "recovery": "Pressure repair is explicit opt-in; frozen-B and instrumented-C development/Boca traces pass unchanged recovery gates; original failed attempts retained above.",
+    "canonical": "C canonical verify passed after production option removal; final independent review/integration remains main-owned."
+  }
 }

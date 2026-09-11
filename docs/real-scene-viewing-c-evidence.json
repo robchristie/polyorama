@@ -440,5 +440,322 @@
     }
   },
   "decision": "Reject native AutoNoVsync after the frozen five-pair screen; no20-pair qualification or reserved C confirmation. Restore production main/options; retain diagnostic attribution and failed-benefit evidence.",
-  "screen_failures": "No crashed/incomplete/threshold-failed journeys. The candidate fails the practical benefit gate: mean warm reconstruction is2.7664% slower."
+  "screen_failures": "No crashed/incomplete/threshold-failed journeys. The candidate fails the practical benefit gate: mean warm reconstruction is2.7664% slower.",
+  "phase_reports": [
+    {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-03/phase-summary.json",
+      "sha256": "ba71e830fc62d533a2d4fad3280fd72573cc73dc23b581342456f71ce9b8c1cd",
+      "bytes": 4444
+    },
+    {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/phase-summary.json",
+      "sha256": "01428a01790fcede92865c33ab042a4f5094a2d5878600c332455618c9ff0ecb",
+      "bytes": 19938
+    },
+    {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-screen-01/pairs.json",
+      "sha256": "063e03635bb959eb280f91e16a8c83b9e2b1428619add9665744124a955a5885",
+      "bytes": 29389
+    },
+    {
+      "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/phase-summary.json",
+      "sha256": "62e8fc1d069b62d4a91671b7124e2b849804950f6b6b91acc686f64b6ad0307c",
+      "bytes": 4556
+    }
+  ],
+  "instrumented_recovery": [
+    {
+      "scene": "development",
+      "completed": true,
+      "benchmark_exit": 0,
+      "gpu_evictions": 47,
+      "representation_evictions": 1,
+      "compressed_peak_bytes": 1048576,
+      "decoded_peak_bytes": 1048576,
+      "gpu_peak_bytes": 16776848,
+      "trace": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/development/composed-trace.json",
+        "sha256": "730f4d98dc4a6c9d23c42e210f1ae3d714da3cb06cd9b654216f000b42f6be85",
+        "bytes": 18097
+      },
+      "raw": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/development/browser-recovery.json",
+        "sha256": "1a751f949f12eeb8c398a1ca1533afedba11d3119ab06158d140e9907ea435ab",
+        "bytes": 14962812
+      },
+      "admission": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/development/benchmark-admission.json",
+        "sha256": "03449f837c4a8eee1d6ed872751d29779200648cee679a24568b5b4373975a22",
+        "bytes": 572
+      }
+    },
+    {
+      "scene": "boca",
+      "completed": true,
+      "benchmark_exit": 0,
+      "gpu_evictions": 119,
+      "representation_evictions": 1,
+      "compressed_peak_bytes": 1048576,
+      "decoded_peak_bytes": 1319220,
+      "gpu_peak_bytes": 16774758,
+      "trace": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/boca/composed-trace.json",
+        "sha256": "bfea9d24a978a43c21600cb218c7557c2ef46c6d1a32619b11b19d185ad6fa7a",
+        "bytes": 18124
+      },
+      "raw": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/boca/browser-recovery.json",
+        "sha256": "5dabc16544daf7ee08cae02252c4f7751ec7daf5f9a0af702257c166bb9fa316",
+        "bytes": 15103085
+      },
+      "admission": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-instrumented-01/boca/benchmark-admission.json",
+        "sha256": "a23ef0210f6fee9752b335f9e8aaba23bb1b851ee35358608a254f200eb1b367",
+        "bytes": 565
+      }
+    }
+  ],
+  "builds": {
+    "baseline": {
+      "source_revision": "1b01bbad62850fd749bc9ac6aee4af596d5dae19",
+      "baseline_behaviour": "original application defaults, instrumentation only",
+      "files": [
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/measured-bin/emuella-viewer",
+          "sha256": "4174cbffd7174c8d80330e9a756d311414284d33d2a739d14678cbecd08f3e38"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/bootstrap.js",
+          "sha256": "2d2ab31541bc4391d0d347977ecb1cae075fcbc655cbfa61aa2bd448d166a115"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/index.html",
+          "sha256": "b333a11ac87eb1910cef1cb5e5d129aaa02dd33b9fbdab46afeba3f3336429f0"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/pkg/emuella_viewer.d.ts",
+          "sha256": "eb47d40218063d8d1aafe8c91651cdead64725b63f6db62b0b021ee1d0eba343"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/pkg/emuella_viewer.js",
+          "sha256": "f008710db2df7d1d6f05ecf13d0da8305865d57d60aabffa2f0a1824c107f990"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/pkg/emuella_viewer_bg.wasm",
+          "sha256": "e46a1b3cc5a4dfc783ea2bfebb09a0a7a977d7e791976c9d424da833f58ffa24"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/pkg/emuella_viewer_bg.wasm.d.ts",
+          "sha256": "c83a3e8bea7b0d99fa155f99881d646a332c41e5b966e7f0f9a7f7e67cbf9e89"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/response.js",
+          "sha256": "166cdf7228437c660033dc7a75fbc3d8ac07be75518f25431da75bfae5c229aa"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web/worker.js",
+          "sha256": "49fb0043efd74e6503bb3270c6c984c5af990dcf6020bbf377c0d13355ad68b7"
+        }
+      ],
+      "checks": [
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/focused-tests-01.log",
+          "sha256": "e18baa4657d7fe1ad18bdea616be000584083dfbd71562a3115344ac8827cf36"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/python-tests-02.log",
+          "sha256": "6e02daccd662a91c3603787e2485e91b2c96639ace251a4df0724d85e9f61692"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/native-build-01.log",
+          "sha256": "28bb9cc50fa2d57f3e75e9feab7a638a61c5451927c5f96dbabd0c060b37919b"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/web-build-01.log",
+          "sha256": "03a8da453e93bc3f370a8129524c30793a6e61a01699339c2e2a4c97aad89581"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/native-clippy-01.log",
+          "sha256": "9a7a351835a9666af3688b25beb98fb801c8eaec9575fad2ecb854c8ece6f827"
+        },
+        {
+          "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/wasm-clippy-01.log",
+          "sha256": "1c6fabe3d36be31600661bb9ebb6104dac8dad232123f89a865e7f1811e6eaf6"
+        }
+      ],
+      "setup_failures": [
+        "Initial new test incorrectly required floating-point width to equal integer512 exactly (observed511.99999999999994); corrected test tolerance only; 33 Python tests then passed."
+      ],
+      "c_freeze_revision": "024b514098ed9697b1846d17fc45a0d7f6d5fa43"
+    },
+    "screen": {
+      "native_source_revision": "7d2f5470b2529ac99a5e3c67192ebdea72d40952",
+      "candidate_freeze": "88cead2fb0b4a04a61c2e3b9376654fcf3e66758",
+      "native": {
+        "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/candidate-bin/emuella-viewer",
+        "sha256": "c80679143170a6c9b1c4d8864b8a359788e03ec85881274e84519a989041803d"
+      },
+      "web_source_revision": "1b01bbad62850fd749bc9ac6aee4af596d5dae19",
+      "treatment": "same native binary: no option versus --present-mode auto-no-vsync; original defaults retained"
+    }
+  },
+  "screen_work_resources": {
+    "A": {
+      "warm_decode_counts": [
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "warm_samples": [
+        162052,
+        162052,
+        162052,
+        162052,
+        162052
+      ],
+      "warm_new_jpp_bytes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "compressed_peak_bytes": 1906060,
+      "decoded_peak_bytes": 1048576,
+      "gpu_peak_bytes": 9149072,
+      "peak_worker_concurrency": 1,
+      "codec_workspace_peak_bytes": 6489012
+    },
+    "B": {
+      "warm_decode_counts": [
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "warm_samples": [
+        162052,
+        162052,
+        162052,
+        162052,
+        162052
+      ],
+      "warm_new_jpp_bytes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "compressed_peak_bytes": 1906060,
+      "decoded_peak_bytes": 1048576,
+      "gpu_peak_bytes": 9149072,
+      "peak_worker_concurrency": 1,
+      "codec_workspace_peak_bytes": 6489012
+    }
+  },
+  "post_probe_immutability": [
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-pan16-1bpp-01/representation",
+      "manifest_sha256": "f407301e028f985f9ad0939cd6bbb3f09328819b5fa9bada45c27c4fac9c69e1",
+      "payload_sha256": "bf332d087f4be6b08055b1dfb7bed563063b2c87a99755f6633fead7b519a020",
+      "descriptors": 60,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-rgb16-1bpp-01/representation",
+      "manifest_sha256": "9c43bf7431b3e9fce6b49a26ee382616bdd00aeb691cc481b1f9a6cf8e502232",
+      "payload_sha256": "dbb12404eb86ad7375e5f60285972010f545b5616739c958d875d9de39d727ff",
+      "descriptors": 6,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-pan16-2bpp-01/representation",
+      "manifest_sha256": "f059907314234d9ddec63c9f00af937cf6ffe4d17da6c7772966e26ca1cc0607",
+      "payload_sha256": "6c8625e1893143dcd13bd1c0ac90ee62c2feaf27c3b27f09b9f4f7bdeece0625",
+      "descriptors": 60,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-rgb16-2bpp-01/representation",
+      "manifest_sha256": "e62b969db068f6332c8446ae62be606bc98b296fc4ff240eb8dbbe015928cc78",
+      "payload_sha256": "6250e374547d422ae3031ade08043674e9d01482d57b9f906035639d3e68e3a5",
+      "descriptors": 6,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-pan16-4bpp-01/representation",
+      "manifest_sha256": "2bdd1f9ad014c47dfd342071bc64a09d923b760a2ae42d8f2ed944f2d1fcf219",
+      "payload_sha256": "fb8d653c63b1995a3d7b18ab6c649d5e14962dd5bb2e7d8245c17397f7923d5b",
+      "descriptors": 60,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-dev-rgb16-4bpp-01/representation",
+      "manifest_sha256": "adfc38279f37d79ed406b0de23ca407d668c39c3b14d5fdd5d724943daa15444",
+      "payload_sha256": "e23959e2c5a6543ebaf36bf1334d0fb3f3380a7008ffbf3981c5066d5973b507",
+      "descriptors": 6,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-boca-pan16-4bpp-01/representation",
+      "manifest_sha256": "901f858f19e6f6a256fa597cece6726059d3c641149481a2d7747429e10f4753",
+      "payload_sha256": "9e499a26e4bb39b7c3c7bdeeaba28efb83a83c2b98d12f8fc264f9139e8dddf9",
+      "descriptors": 110,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-boca-rgb16-4bpp-01/representation",
+      "manifest_sha256": "5e91e945bee852c1eb343c0e52779420e3c9d95b2e91516f3712491840097f16",
+      "payload_sha256": "c82bf8614a21a5ca2deb46bd8e7f4db21fe79699210e7796ce9053d1c7523d7e",
+      "descriptors": 9,
+      "unchanged": true
+    },
+    {
+      "representation": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-tok-rgb8-4bpp-01/representation",
+      "manifest_sha256": "a4d61ad63d6ad2b35ca8aed24326ae8700e269df54dc5511b7c6dae1bb0220fe",
+      "payload_sha256": "b9d9ee83008acba2d806ab1a01b4145c7746db847726c870e04dce01c3d4666e",
+      "descriptors": 84,
+      "unchanged": true
+    }
+  ],
+  "verification": {
+    "canonical": "passed",
+    "source_revision": "faa26f62411c57467d02eec8dcc015565d0db39d",
+    "command": "CARGO_TARGET_DIR=/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/cargo POLYORAMA_VIEWER_WEB_DIR=/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/canonical-web LD_LIBRARY_PATH=/home/rob/.cache/ms-playwright/chromium-1234/chrome-linux64:/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/sysroot/usr/lib bwrap --die-with-parent --bind / / --dev-bind /dev /dev --proc /proc --bind /nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-canonical-01/runtime /nvme/development/emuella/worktrees/real-scene-viewing/polyorama/.tools/runtime cargo xtask verify",
+    "log": {
+      "path": "/nvme/development/emuella/.build-targets/real-scene-viewing/viewer/c/canonical-verify-01.log",
+      "sha256": "d825db5dc700c7d8e442c7e23b56e796ecb029799638005818e94289af4f1b54",
+      "bytes": 36439
+    },
+    "surface": "35 Python regressions, format, native/WASM Clippy, workspace tests, architecture, release native/WASM, response headers, browser smoke, all5frozen UI fixtures, native lab/gallery smoke; canonical GL/llvmpipe separate from actual NVIDIA measurements",
+    "final_changes_after_verification": "Evidence/receipt reconciliation only; no application, harness or test source changed."
+  },
+  "process_completion": {
+    "tracked_phase_processes": [
+      3856003,
+      3856022,
+      3858613,
+      3866509,
+      3866526,
+      3938850,
+      3938859,
+      3975883,
+      3975903,
+      3978005
+    ],
+    "remaining": [],
+    "canonical_exit": 0,
+    "grant_watchers": "both completed",
+    "review_integration_delivery": "main-owned; no downstream delegation, PR, publication or merge performed"
+  },
+  "limits": [
+    "Native requested AutoNoVsync had no qualifying benefit; physical realised presentation synchronisation/scanout not independently observed.",
+    "Browser cross-realm clock precision prevents complete valid cross-realm delivery totals; strict invalid counts retained.",
+    "HT quality rejection and original Tok detail-threshold failures remain unchanged.",
+    "All C builds and local probes used the frozen dc8ff1f codec; no merged-codec retarget or final integration confirmation performed."
+  ]
 }

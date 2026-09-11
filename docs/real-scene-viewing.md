@@ -295,3 +295,23 @@ explicit recovery pressure repair remain. The publication-to-UI wait is directly
 observed; removing requested presentation synchronisation did not reduce it in
 this bounded experiment. A narrower causal explanation remains unresolved.
 This negative result closes the bounded C probe, not the integration campaign.
+
+
+Final instrumented recovery also passes development and Boca, including actual
+representation/GPU eviction and every required recovery event; both owner
+admissions exit 0. Across the ten paired native trials, both arms reconstruct
+exactly 30 warm regions and 162,052 samples with zero additional JPP bytes.
+Their compressed, decoded, GPU and codec-workspace peaks are identical, and
+worker concurrency remains one. All nine retained representations still match
+payload, manifest and descriptor hashes after C viewing.
+
+`cargo xtask verify` passes at restored-production source `faa26f62411c57467d02eec8dcc015565d0db39d`:
+35 Python regressions, formatting, native/WASM lint, workspace tests, architecture,
+release native/WASM builds, response-header checks, browser smoke, all five UI
+fixtures and native lab/gallery smoke. Canonical software-GPU smoke is separate
+from the NVIDIA application evidence. Build and capture paths, log hashes,
+process completion and the exact candidate checkpoints are retained in the C JSON.
+Final changes after that verification only reconcile evidence and this receipt.
+No owned measurement, display, service or build process remains. Codec dependencies
+stay at the frozen `dc8ff1f432e132c0fddbbd94d8bcccfd6f5cf7db`; independent review,
+merged-owner consumer qualification and campaign integration remain main-owned.
