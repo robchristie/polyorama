@@ -186,3 +186,45 @@ python3 tools/viewer-acceptance-full-scenes.py run \
   --grant /PATH/TO/COORDINATOR-GRANT.json \
   --source-coverage /nvme/development/emuella/emuella-workspace-viewer-acceptance/docs/evidence/viewer-acceptance/source-coverage.json
 ```
+
+## Executed diagnostic results — 11 September 2026
+
+All five frozen `run` invocations completed serially under operation owner
+`full-scenes-execution-cli`, once per granted representation, with exit code 0
+and zero retries. Protocol `4184189763c5fb844fb199b1fb616a2c35b6fa92` used the
+archived native source `4a1594b0840eadae26a4d6005d50d9201734a1a7`.
+The runner enforced the frozen source, binary and library bindings; all original
+source identities matched before and after execution. This section was appended
+only after all five invocations completed.
+
+| Representation | Tiles × levels | False-valid / false-invalid | Frozen / full numerical predicates | Persistent bytes | Mask bytes |
+|---|---:|---:|---|---:|---:|
+| mansfield-pan16-4 | 60 × 7 | 0 / 0 | pass / pass | 9,522,670 | 2,781,284 |
+| mansfield-rgb16-12 | 6 × 7 | 0 / 0 | fail / fail | 1,783,964 | 521,826 |
+| boca-pan16-4 | 110 × 7 | 0 / 0 | pass / pass | 13,696,218 | 5,851,548 |
+| boca-rgb16-12 | 9 × 7 | 0 / 0 | pass / pass | 2,674,688 | 1,097,535 |
+| tok-rgb8-4 | 84 × 7 | 0 / 0 | fail / fail | 19,073,334 | 10,528,158 |
+
+Every original tile and clipped edge was covered. All complete-catalogue and
+regional mask comparisons matched the original GDAL oracle, and cached regional
+samples matched the same-codec complete-tile references. Boca contained invalid
+source samples and observed transitions; the selected Mansfield and Tok sources
+were entirely valid. All payload, descriptor, manifest, mask and total storage
+predicates passed.
+
+[The aggregate result record](viewer-acceptance-full-scenes-results.json) contains
+exact result/evidence SHA-256 values, per-band valid/invalid populations, frozen
+and full quality metrics, full ANY/ALL/PARTIAL populations, persistent bytes and
+logical direct-read accounting. All protected outputs and process logs remain
+in the grant-named approved-store groups and their `-views` siblings.
+
+The disposition remains **quality-rejected-diagnostic-only**. Numerical passes
+do not revise historical screening or establish selected-configuration, viewer,
+human or analytical acceptance. Browser proof and independent decoder evidence
+remain absent; application-delivered bytes are null. Logical reads exclude
+hashing, Python/GDAL reads and OS cache effects; timing supports no performance
+claim. Canonical application verification remains with the coordinator.
+
+Next safe action: use the retained request/sample/mask identities for the
+separately owned browser/app comparison and coordinator verification. These
+representations are consumed and must not be silently re-prepared.
