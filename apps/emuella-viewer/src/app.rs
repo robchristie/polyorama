@@ -178,6 +178,12 @@ struct View {
     draws: Vec<RegionalDraw>,
 }
 
+#[derive(Clone, Debug, Deserialize)]
+struct ScriptStep {
+    label: String,
+    intent: Intent,
+}
+
 pub struct ViewerApp {
     server: String,
     compressed_limit: usize,
@@ -204,6 +210,7 @@ pub struct ViewerApp {
     script_stages: Vec<Snapshot>,
     started: Instant,
     script: bool,
+    script_workload: Vec<ScriptStep>,
     script_step: usize,
     step_started: Instant,
     #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
@@ -275,6 +282,8 @@ impl ViewerApp {
             script_stages: Vec::new(),
             started: Instant::now(),
             script,
+            script_workload: serde_json::from_str(include_str!("../qualification-workload.json"))
+                .unwrap(),
             script_step: 0,
             step_started: Instant::now(),
             script_output,
@@ -431,6 +440,28 @@ impl ViewerApp {
         self.camera.y = (self.camera.y + dy * self.camera.height)
             .clamp(0., (p.height as f32 - self.camera.height).max(0.));
     }
+    /// Install an explicit bounded qualification workload before its first action.
+    pub fn set_script_workload(&mut self, json: &str) -> Result<(), String> {
+        if self.script_step != 0 || self.snapshot.script_complete {
+            return Err("workload already started".into());
+        }
+        if json.len() > 64 * 1024 {
+            return Err("workload exceeds 64 KiB".into());
+        }
+        let steps: Vec<ScriptStep> = serde_json::from_str(json).map_err(|e| e.to_string())?;
+        let labels: std::collections::BTreeSet<_> = steps.iter().map(|s| &s.label).collect();
+        if steps.is_empty()
+            || steps.len() > 64
+            || labels.len() != steps.len()
+            || steps
+                .iter()
+                .any(|s| s.label.is_empty() || s.label == "empty-client-overview")
+        {
+            return Err("workload requires 1–64 uniquely labelled actions".into());
+        }
+        self.script_workload = steps;
+        Ok(())
+    }
     pub fn script_stages(&self) -> &[Snapshot] {
         &self.script_stages
     }
@@ -513,14 +544,7 @@ impl ViewerApp {
             return;
         }
         self.script_stages.push(self.snapshot.clone());
-        #[derive(Deserialize)]
-        struct Step {
-            label: String,
-            intent: Intent,
-        }
-        let steps: Vec<Step> =
-            serde_json::from_str(include_str!("../qualification-workload.json")).unwrap();
-        let Some(step) = steps.into_iter().nth(self.script_step) else {
+        let Some(step) = self.script_workload.get(self.script_step).cloned() else {
             self.snapshot.script_complete = true;
             return;
         };
