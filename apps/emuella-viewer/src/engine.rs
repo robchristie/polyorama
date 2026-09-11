@@ -75,6 +75,14 @@ pub struct WorkerMetrics {
     pub synthesis_output_samples: u64,
 
     pub wasm_linear_bytes: Option<u64>,
+    #[serde(default)]
+    pub request_working_set_bytes: usize,
+    #[serde(default)]
+    pub request_pin_metadata_bytes: usize,
+    #[serde(default)]
+    pub peak_request_working_set_bytes: usize,
+    #[serde(default)]
+    pub peak_request_pin_metadata_bytes: usize,
     pub compressed_bytes: usize,
     pub peak_compressed_bytes: usize,
     pub peak_descriptor_bytes: usize,
@@ -146,6 +154,7 @@ pub fn representation(manifest: &Manifest) -> RepresentationId {
 pub struct Engine {
     pub client: SharedClient,
     pub metrics: WorkerMetrics,
+    scope: Option<emuella_viewer_source::RequestScope>,
 }
 impl Engine {
     pub fn new(compressed_bytes: usize) -> Self {
@@ -156,11 +165,34 @@ impl Engine {
                 ..Default::default()
             }),
             metrics: WorkerMetrics::default(),
+            scope: None,
+        }
+    }
+    pub fn begin_request(&mut self, job: &Job) -> Result<()> {
+        ensure!(self.scope.is_none(), "worker request already active");
+        self.scope = Some(
+            self.client
+                .begin_request(&job.manifest.tid, &job.region())?,
+        );
+        let (payload, metadata) = self.client.request_reservation();
+        self.metrics.peak_request_working_set_bytes =
+            self.metrics.peak_request_working_set_bytes.max(payload);
+        self.metrics.peak_request_pin_metadata_bytes =
+            self.metrics.peak_request_pin_metadata_bytes.max(metadata);
+        Ok(())
+    }
+    /// Executors call this before every terminal publication, including stale or
+    /// cancelled results. Complete payload remains reusable; partial bins are reclaimed.
+    pub fn end_request(&mut self) {
+        if let Some(scope) = self.scope.take() {
+            self.client.end_request(scope);
         }
     }
     pub fn snapshot(&self) -> WorkerMetrics {
         let mut m = self.metrics.clone();
         let (compressed, descriptors) = self.client.resident_bytes();
+        (m.request_working_set_bytes, m.request_pin_metadata_bytes) =
+            self.client.request_reservation();
         m.compressed_bytes = compressed;
         m.descriptor_bytes = descriptors;
         let c = &self.client.metrics;

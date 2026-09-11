@@ -193,6 +193,14 @@ impl WorkerClient {
         )
         .map_err(Into::into)
     }
+    pub fn begin_request(&mut self, value: JsValue) -> Result<(), JsValue> {
+        let job: Job = serde_wasm_bindgen::from_value(value)?;
+        self.engine.begin_request(&job).map_err(js)
+    }
+    pub fn end_request(&mut self) {
+        self.reader = None;
+        self.engine.end_request();
+    }
     pub fn missing_masks(&mut self, value: JsValue) -> Result<JsValue, JsValue> {
         let j: Job = serde_wasm_bindgen::from_value(value)?;
         serde_wasm_bindgen::to_value(

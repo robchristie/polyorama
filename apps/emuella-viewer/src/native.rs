@@ -125,6 +125,7 @@ impl Executor {
                                 .is_empty(),
                             "regional descriptors exceed admitted metadata budget"
                         );
+                        engine.begin_request(&job)?;
                         for tile in engine
                             .client
                             .missing_masks(&job.manifest.tid, &job.region())?
@@ -197,45 +198,13 @@ impl Executor {
                             }
                             engine.client.finish(reader)?;
                             ensure!(!stopped(), "cancelled");
-                            for tile in engine
-                                .client
-                                .missing_masks(&job.manifest.tid, &job.region())?
-                            {
-                                ensure!(!stopped(), "cancelled");
-                                let bytes = body(
-                                    http.get(format!(
-                                        "{server}/mask/{}/{}/{tile}?tid={}",
-                                        job.manifest.target,
-                                        job.region().discard,
-                                        job.manifest.tid
-                                    ))
-                                    .send()?,
-                                    HTTP_LIMIT,
-                                )?;
-                                ensure!(!stopped(), "cancelled");
-                                engine.client.install_mask(
-                                    &job.manifest.tid,
-                                    tile,
-                                    job.region().discard,
-                                    &bytes,
-                                )?;
-                            }
-                            ensure!(
-                                engine
-                                    .client
-                                    .missing_masks(&job.manifest.tid, &job.region())?
-                                    .is_empty(),
-                                "regional masks exceed admitted budget"
-                            );
                             if engine.client.ready(&job.manifest.tid, &job.region())? {
                                 return engine.decode(&job);
                             }
                         }
-                        Err(anyhow!(
-                            "regional decode failed after bounded retry budget: {}",
-                            engine.decode(&job).unwrap_err()
-                        ))
+                        Err(anyhow!("regional continuation exhausted after 64 rounds"))
                     })();
+                    engine.end_request();
                     engine.metrics.timing = Some(WorkerTiming {
                         started_ms,
                         finished_ms: pacing_now_ms(),

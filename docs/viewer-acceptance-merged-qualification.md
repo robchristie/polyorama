@@ -190,10 +190,9 @@ Preparation permits syntax, authored no-launch tests and whitespace checks only.
 Canonical `cargo xtask verify` is separately main-owned and still required for
 delivery. Existing `tools/ui-capture.mjs` creates `.tools/runtime/ui-x11-*`, binds
 it over `/tmp` inside bwrap, then recursively removes it. An outer approved alias
-is shadowed; even approved `.tools/runtime` backing retains the deletion issue.
-The retention option and private mapping below resolve that routing; no canonical
-UI edit is assigned here. Do not claim scoped prose verification qualifies this
-report. One owner PR can land verified mask/diagnostic implementation; final
+is shadowed. The retention option and private mapping below preserve the
+approved backing. No canonical run has yet been performed for this candidate;
+scoped prose verification does not qualify this report. One owner PR can land verified mask/diagnostic implementation; final
 merged qualification evidence belongs in the workspace terminal receipt and owner
 PR comment, without a recursive owner closeout PR.
 
