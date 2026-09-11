@@ -9,6 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let args: Vec<String> = std::env::args().collect();
     let value = |flag: &str| args.windows(2).find(|v| v[0] == flag).map(|v| v[1].clone());
+    let completion_pump = completion_pump_option(&args).map_err(std::io::Error::other)?;
     let server = value("--server").unwrap_or_else(|| "http://127.0.0.1:8088".into());
     let compressed = value("--compressed-mib")
         .and_then(|v| v.parse::<usize>().ok())
@@ -56,6 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 output,
                 diagnostic,
             );
+            app.set_completion_pump(completion_pump);
             app.attach_memory_markers(memory);
             if let Some(json) = workload {
                 app.set_script_workload(&json)
@@ -68,3 +70,48 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 #[cfg(target_arch = "wasm32")]
 fn main() {}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn completion_pump_option(args: &[String]) -> Result<bool, &'static str> {
+    let mut selected = None;
+    for (i, arg) in args.iter().enumerate() {
+        let value = if arg == "--completion-pump" {
+            Some(
+                args.get(i + 1)
+                    .filter(|v| !v.starts_with("--"))
+                    .map_or("true", String::as_str),
+            )
+        } else {
+            arg.strip_prefix("--completion-pump=")
+        };
+        if let Some(value) = value {
+            if selected.is_some() {
+                return Err("duplicate --completion-pump");
+            }
+            selected = Some(match value {
+                "true" => true,
+                "false" => false,
+                _ => return Err("--completion-pump expects true or false"),
+            });
+        }
+    }
+    Ok(selected.unwrap_or(false))
+}
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+mod scheduling_tests {
+    use super::*;
+    #[test]
+    fn completion_pump_is_explicit_and_defaults_to_production() {
+        let parse = |args: &[&str]| {
+            completion_pump_option(&args.iter().map(|s| s.to_string()).collect::<Vec<_>>())
+        };
+        assert_eq!(parse(&[]), Ok(false));
+        assert_eq!(parse(&["--completion-pump"]), Ok(true));
+        assert_eq!(parse(&["--completion-pump", "false"]), Ok(false));
+        assert_eq!(parse(&["--completion-pump=true"]), Ok(true));
+        assert_eq!(parse(&["--completion-pump=false"]), Ok(false));
+        assert!(parse(&["--completion-pump=maybe"]).is_err());
+        assert!(parse(&["--completion-pump", "--completion-pump=false"]).is_err());
+    }
+}

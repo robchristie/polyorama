@@ -133,7 +133,10 @@ def main():
                         help='add bounded Linux proc diagnostics; preserve existing process-memory acceptance')
     parser.add_argument('--native-diagnostics', action='store_true', help='identify native completion/memory instrument; no scheduling repair')
     parser.add_argument('--authored-immediate-completion', action='store_true', help='native authored inputs/workload only; never acceptance evidence')
+    parser.add_argument('--completion-pump', choices=['false', 'true'], help='explicit native scheduling candidate arm; omitted preserves production defaults')
     args = parser.parse_args()
+    if args.completion_pump is not None and args.mode != 'native':
+        parser.error('--completion-pump requires --mode native')
     if (args.native_diagnostics or args.authored_immediate_completion) and args.mode != 'native':
         parser.error('native diagnostic flags require --mode native')
     if args.authored_immediate_completion and (not args.native_diagnostics or not args.workload):
@@ -183,6 +186,8 @@ def main():
     app_url = 'http://127.0.0.1:' + str(proxy.server_address[1])
     command = ([str(args.native_bin), '--server', app_url, '--script-output', str(args.output / 'app.json')]
                if args.mode == 'native' else ['node', str(root / ('tools/viewer-browser-recovery.mjs' if args.mode == 'recovery' else 'tools/viewer-composed-browser.mjs')), app_url, str(args.output)])
+    if args.completion_pump is not None:
+        command += ['--completion-pump=' + args.completion_pump]
     if args.native_diagnostics:
         command += ['--native-diagnostics']
     if args.authored_immediate_completion:
