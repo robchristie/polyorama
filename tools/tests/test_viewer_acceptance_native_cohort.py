@@ -12,13 +12,48 @@ C = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(C)
 
 
+def authored_protocol(path):
+    """Rebase copied repository inputs without rewriting historical evidence."""
+    protocol = copy.deepcopy(C.load(path))
+    historical_root = Path(protocol['workload']['path']).parents[2]
+    for key in ('workload', 'thresholds', 'inherited_thresholds', 'build_receipt'):
+        record = protocol[key]
+        record['path'] = str(C.ROOT / Path(record['path']).relative_to(historical_root))
+        C.verify(record)
+    for record in protocol['frozen_helpers']:
+        record['path'] = str(C.ROOT / Path(record['path']).relative_to(historical_root))
+    return protocol
+
+
 class CohortTests(unittest.TestCase):
     def test_default_and_explicit_repaired_protocol(self):
-        path, original = C.select_protocol()
+        original_fixture = authored_protocol(C.PROTOCOL)
+        repaired_fixture = authored_protocol(C.REPAIRED_PROTOCOL)
+        receipt_path = Path(repaired_fixture['build_receipt']['path'])
+        receipt = C.load(receipt_path)
+        # Reconstruct only committed manifest metadata, never build outputs.
+        # Its historical digest is still checked by select_protocol's real verify.
+        manifest = [dict(row, path=str(Path(row['path']).relative_to(repaired_fixture['web_root'])))
+                    for row in repaired_fixture['web_files']]
+        real_load = C.load
+        with tempfile.TemporaryDirectory() as temporary:
+            manifest_path = Path(temporary) / 'web-manifest.json'
+            manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+            receipt['web']['manifest']['path'] = str(manifest_path)
+            fixtures = {C.PROTOCOL: original_fixture, C.REPAIRED_PROTOCOL: repaired_fixture,
+                        receipt_path: receipt}
+
+            def load(path, *args):
+                if Path(path) in fixtures:
+                    return copy.deepcopy(fixtures[Path(path)])
+                return real_load(path, *args)
+
+            with patch.object(C, 'load', side_effect=load):
+                path, original = C.select_protocol()
+                repaired_path, repaired = C.select_protocol(C.REPAIRED_PROTOCOL)
         self.assertEqual(path, C.PROTOCOL)
-        self.assertEqual(original, C.load(C.PROTOCOL))
-        path, repaired = C.select_protocol(C.REPAIRED_PROTOCOL)
-        self.assertEqual(path, C.REPAIRED_PROTOCOL)
+        self.assertEqual(original, original_fixture)
+        self.assertEqual(repaired_path, C.REPAIRED_PROTOCOL)
         self.assertEqual(repaired['runtime_revision'], '8633754fa28f2ca34f159a7368e0b8e7e953d205')
         for field in original.keys() - C.IDENTITY_FIELDS - {'frozen_helpers'}:
             self.assertEqual(repaired[field], original[field], field)
@@ -136,7 +171,7 @@ class CohortTests(unittest.TestCase):
                 C.committed('abc')
 
     def test_contract_preserves_every_inherited_number_and_cycles(self):
-        protocol = C.load(C.PROTOCOL)
+        protocol = authored_protocol(C.PROTOCOL)
         C.validate_contract(protocol)
         for key in protocol['budget']:
             changed = copy.deepcopy(protocol)

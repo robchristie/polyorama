@@ -14,7 +14,15 @@ SPEC.loader.exec_module(screen)
 
 class ScreenTests(unittest.TestCase):
     def setUp(self):
-        self.protocol = screen.load(screen.PROTOCOL)
+        self.protocol = copy.deepcopy(screen.load(screen.PROTOCOL))
+        # Rebase only copied authored inputs; retain and verify their frozen hashes.
+        historical_root = Path(self.protocol['workload']['path']).parents[2]
+        for key in ('workload', 'thresholds'):
+            record = self.protocol[key]
+            path = ROOT / Path(record['path']).relative_to(historical_root)
+            record['path'] = str(path)
+            record['resolved_path'] = str(path.resolve())
+            screen.cohort.verify(record)
 
     def rows(self):
         return [dict(**s, absolute_pass=True,
