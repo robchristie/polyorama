@@ -1,0 +1,287 @@
+{
+  "schema": "real-scene-viewing-C/1",
+  "instrumentation_source": "1b01bbad62850fd749bc9ac6aee4af596d5dae19",
+  "freeze_plan": "024b514098ed9697b1846d17fc45a0d7f6d5fa43",
+  "baseline": [
+    {
+      "mode": "native",
+      "run": 1,
+      "warm_ms": 628.080633,
+      "overview_ms": 778.022928,
+      "first_region_ms": 76.63112199999999,
+      "warm_pacing": {
+        "requests": 30,
+        "invalid_samples": 0,
+        "dispatch_to_worker_ms": 0.4976579999997739,
+        "worker_execution_ms": 78.48324699999944,
+        "finish_to_publish_ms": 0.10746700000049714,
+        "publish_to_receive_ms": 543.7356749999993,
+        "receive_to_ui_ms": 0.013230000000589826,
+        "same_frame_next_dispatches": 29,
+        "ui_to_next_dispatch_ms": 4.36420000000021
+      },
+      "warm_worker_elapsed_ms": 78.48624699999998,
+      "warm_decodes": 30,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/native-01/app.json.stages.json",
+        "sha256": "b44a1cc12d8a742aaf71eb7ee5c27117c348905d952244ea2cb3947cd4f6b936"
+      }
+    },
+    {
+      "mode": "native",
+      "run": 2,
+      "warm_ms": 666.410212,
+      "overview_ms": 719.2056660000001,
+      "first_region_ms": 74.127218,
+      "warm_pacing": {
+        "requests": 30,
+        "invalid_samples": 0,
+        "dispatch_to_worker_ms": 0.48942399999975805,
+        "worker_execution_ms": 74.2240779999994,
+        "finish_to_publish_ms": 0.1839390000008052,
+        "publish_to_receive_ms": 584.8999979999996,
+        "receive_to_ui_ms": 0.016759999999862885,
+        "same_frame_next_dispatches": 29,
+        "ui_to_next_dispatch_ms": 5.550799000000552
+      },
+      "warm_worker_elapsed_ms": 74.22874799999998,
+      "warm_decodes": 30,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/native-02/app.json.stages.json",
+        "sha256": "d74814910a222dd208e31b880cf009ea1875582b9ba17f697dfa669752003a8b"
+      }
+    },
+    {
+      "mode": "native",
+      "run": 3,
+      "warm_ms": 627.6149879999998,
+      "overview_ms": 703.1804950000001,
+      "first_region_ms": 74.566356,
+      "warm_pacing": {
+        "requests": 30,
+        "invalid_samples": 0,
+        "dispatch_to_worker_ms": 0.39218500000072254,
+        "worker_execution_ms": 77.39456999999969,
+        "finish_to_publish_ms": 0.12302200000033281,
+        "publish_to_receive_ms": 544.5002159999992,
+        "receive_to_ui_ms": 0.010440000000585314,
+        "same_frame_next_dispatches": 29,
+        "ui_to_next_dispatch_ms": 4.4439039999994066
+      },
+      "warm_worker_elapsed_ms": 77.39840000000002,
+      "warm_decodes": 30,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/native-03/app.json.stages.json",
+        "sha256": "b480c5a6befe422fb1962da3d9a8560fd99510937a97f9c47c3d690a693df0e0"
+      }
+    },
+    {
+      "mode": "native",
+      "run": 4,
+      "warm_ms": 637.5003700000001,
+      "overview_ms": 719.209501,
+      "first_region_ms": 77.096941,
+      "warm_pacing": {
+        "requests": 30,
+        "invalid_samples": 0,
+        "dispatch_to_worker_ms": 0.3668460000003506,
+        "worker_execution_ms": 70.93457399999922,
+        "finish_to_publish_ms": 0.08780300000080388,
+        "publish_to_receive_ms": 562.0184590000007,
+        "receive_to_ui_ms": 0.01113099999906808,
+        "same_frame_next_dispatches": 29,
+        "ui_to_next_dispatch_ms": 3.3313560000001416
+      },
+      "warm_worker_elapsed_ms": 70.937304,
+      "warm_decodes": 30,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/native-04/app.json.stages.json",
+        "sha256": "dd803c5633c4b90f460ea5199f2b0c2949f61f19ca9e1c43f966a9d124b93b3c"
+      }
+    },
+    {
+      "mode": "native",
+      "run": 5,
+      "warm_ms": 638.338026,
+      "overview_ms": 776.3628500000001,
+      "first_region_ms": 77.37764299999999,
+      "warm_pacing": {
+        "requests": 30,
+        "invalid_samples": 0,
+        "dispatch_to_worker_ms": 0.3083699999993996,
+        "worker_execution_ms": 71.39878399999975,
+        "finish_to_publish_ms": 0.08591500000113683,
+        "publish_to_receive_ms": 561.9535949999994,
+        "receive_to_ui_ms": 0.01165999999966516,
+        "same_frame_next_dispatches": 29,
+        "ui_to_next_dispatch_ms": 3.7497580000004973
+      },
+      "warm_worker_elapsed_ms": 71.40149399999991,
+      "warm_decodes": 30,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/native-05/app.json.stages.json",
+        "sha256": "d392fadbe24d0a5841483a7b4f43b7559c171ed5d2adc6e1fbf6d808c2ba6668"
+      }
+    },
+    {
+      "mode": "browser",
+      "run": 1,
+      "warm_ms": 400.700001,
+      "overview_ms": 494.600001,
+      "first_region_ms": 111.9,
+      "warm_pacing": {
+        "requests": 9,
+        "invalid_samples": 15,
+        "dispatch_to_worker_ms": 2.301513671875,
+        "worker_execution_ms": 23.80029296875,
+        "finish_to_publish_ms": 0.89990234375,
+        "publish_to_receive_ms": 11.19873046875,
+        "receive_to_ui_ms": 105.7998046875,
+        "same_frame_next_dispatches": 23,
+        "ui_to_next_dispatch_ms": 13.7998046875
+      },
+      "warm_worker_elapsed_ms": 72.20000076293945,
+      "warm_decodes": 24,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/browser-01/app.json.stages.json",
+        "sha256": "e2391fee2e102a7d62bb8887ab5d2770b0d10484925b0bcea9924386fd1e7ac5"
+      }
+    },
+    {
+      "mode": "browser",
+      "run": 2,
+      "warm_ms": 400.600001,
+      "overview_ms": 530.8000010000001,
+      "first_region_ms": 147.7,
+      "warm_pacing": {
+        "requests": 19,
+        "invalid_samples": 5,
+        "dispatch_to_worker_ms": 1.19873046875,
+        "worker_execution_ms": 57.599853515625,
+        "finish_to_publish_ms": 2.799072265625,
+        "publish_to_receive_ms": 3.70263671875,
+        "receive_to_ui_ms": 242.7001953125,
+        "same_frame_next_dispatches": 23,
+        "ui_to_next_dispatch_ms": 10.39990234375
+      },
+      "warm_worker_elapsed_ms": 70.10000324249268,
+      "warm_decodes": 24,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/browser-02/app.json.stages.json",
+        "sha256": "910efbb4c6af5f3c60b831b77fc5f485e0f7485ebad121c6fab669219cf35ab6"
+      }
+    },
+    {
+      "mode": "browser",
+      "run": 3,
+      "warm_ms": 400.30000100000007,
+      "overview_ms": 495,
+      "first_region_ms": 112.19999999999999,
+      "warm_pacing": {
+        "requests": 22,
+        "invalid_samples": 2,
+        "dispatch_to_worker_ms": 4.001708984375,
+        "worker_execution_ms": 65.300537109375,
+        "finish_to_publish_ms": 2.69970703125,
+        "publish_to_receive_ms": 12.697998046875,
+        "receive_to_ui_ms": 269.899169921875,
+        "same_frame_next_dispatches": 23,
+        "ui_to_next_dispatch_ms": 12.5009765625
+      },
+      "warm_worker_elapsed_ms": 70.50000095367432,
+      "warm_decodes": 24,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/browser-03/app.json.stages.json",
+        "sha256": "32a25eb04840de59e41f6e3b160feefee236ddc1653478560c5e6e0b74005341"
+      }
+    },
+    {
+      "mode": "browser",
+      "run": 4,
+      "warm_ms": 400.5,
+      "overview_ms": 494.2,
+      "first_region_ms": 111.3,
+      "warm_pacing": {
+        "requests": 20,
+        "invalid_samples": 4,
+        "dispatch_to_worker_ms": 5.096435546875,
+        "worker_execution_ms": 52.599853515625,
+        "finish_to_publish_ms": 1.49951171875,
+        "publish_to_receive_ms": 10.204345703125,
+        "receive_to_ui_ms": 253.699951171875,
+        "same_frame_next_dispatches": 23,
+        "ui_to_next_dispatch_ms": 11.599853515625
+      },
+      "warm_worker_elapsed_ms": 68.69999694824219,
+      "warm_decodes": 24,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/browser-04/app.json.stages.json",
+        "sha256": "85044a7099b9a114aa781a6cce042d440a5cd31ecbc0ff9dcd1b16d463f09d92"
+      }
+    },
+    {
+      "mode": "browser",
+      "run": 5,
+      "warm_ms": 400.5000000000001,
+      "overview_ms": 521.3,
+      "first_region_ms": 138.200001,
+      "warm_pacing": {
+        "requests": 23,
+        "invalid_samples": 1,
+        "dispatch_to_worker_ms": 2.997802734375,
+        "worker_execution_ms": 68.19970703125,
+        "finish_to_publish_ms": 1.700439453125,
+        "publish_to_receive_ms": 12.00244140625,
+        "receive_to_ui_ms": 286.49951171875,
+        "same_frame_next_dispatches": 23,
+        "ui_to_next_dispatch_ms": 11.80029296875
+      },
+      "warm_worker_elapsed_ms": 71.39999771118164,
+      "warm_decodes": 24,
+      "stages": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-baseline-01/browser-05/app.json.stages.json",
+        "sha256": "ad703a946d2101de2709686f84dcda979883a53c9610f058c33457afae850bc1"
+      }
+    }
+  ],
+  "selected_candidate": {
+    "scope": "native explicit --present-mode auto-no-vsync; no default change",
+    "behaviour": "Override only NativeOptions.wgpu_options.surface.present_mode with AutoNoVsync. Preserve LOW_LATENCY frame-latency setting, all repaint reasons, runtime scheduling, workers, cache resets and budgets.",
+    "target": "warm_compressed_ms",
+    "cheap_probe": "five fresh-process alternating AB/BA development pairs; reject if <=5% mean benefit, any failed journey or resource regression",
+    "qualification": "twenty new fresh-process alternating AB/BA development pairs; owner conservative 99.5% marginal Student t intervals (df19 upward bucket3.287), Bonferroni99% ratio interval upper <-0.05 for warm_compressed_ms; first_useful_ms and whole_overview_ms ratio upper <=+0.05; every existing native threshold and recovery gate unchanged",
+    "reserved": "Freeze this choice before Boca/Tok confirmation; no retuning on reserved evidence. Native-only benefit; no browser pacing change.",
+    "comparison_inputs": "one candidate-source binary with default/opt-in configuration; diagnostics identical on both arms. Existing frozen workload, input identities, one worker, 64/16/16/64MiB compressed/descriptor/decoded/GPU,64MiB codec workspace."
+  },
+  "browser_clock_limit": "One to15 warm samples per run have cross-realm inversions up to0.1003ms. Strict aggregate rejects those complete samples. All24 warm per-request samples remain in untruncated rings; same-realm UI receipt-to-frame wait is295.10\u2013310.90ms. No precise cross-realm delivery total claimed.",
+  "recovery_repair": [
+    {
+      "scene": "development",
+      "completed": true,
+      "benchmark_exit": 0,
+      "representation_evictions": 1,
+      "gpu_evictions": 47,
+      "compressed_peak_bytes": 1048576,
+      "decoded_peak_bytes": 1048576,
+      "gpu_peak_bytes": 16776848,
+      "report": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-03/development/browser-recovery.json",
+        "sha256": "2381e1fe279fc6c3b8bcfc291f6bbcb4b4a91b57a821506b925543b0199c12fe"
+      }
+    },
+    {
+      "scene": "boca",
+      "completed": true,
+      "benchmark_exit": 0,
+      "representation_evictions": 1,
+      "gpu_evictions": 119,
+      "compressed_peak_bytes": 1048576,
+      "decoded_peak_bytes": 1319220,
+      "gpu_peak_bytes": 16774758,
+      "report": {
+        "path": "/nvme/development/emuella/emuella-testdata/artifacts/rareplanes-expanded-v1/real-scene-viewing-viewer-c-recovery-03/boca/browser-recovery.json",
+        "sha256": "866594a75734b0873cb36c218a3f34906d1b2bc231062aa59ac4ea302daf097f"
+      }
+    }
+  ]
+}

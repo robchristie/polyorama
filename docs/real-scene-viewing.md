@@ -225,3 +225,44 @@ The inherited image/gallery default remains available. The selected pressure
 name and both harness sources contribute to its recorded identity. This workload
 change requires a new workload hash with the same frozen recovery
 bounds before development/Boca execution using the existing frozen B binary.
+
+
+## C attribution and candidate freeze
+
+Five native and five hardware-browser baselines at `1b01bbad62850fd749bc9ac6aee4af596d5dae19`
+completed all phases. Native warm reconstruction takes 627.61–666.41 ms:
+543.74–584.90 ms is worker-publication-to-UI-receipt waiting, 70.93–78.48 ms
+is worker execution, and 3.33–5.55 ms is same-frame drain-to-next-dispatch work.
+All 150 native warm timing samples are valid. Browser settlement is 400.30–400.70 ms.
+Browser cross-realm timestamps invert by up to 0.1003 ms in 1–15 warm samples
+per run; strict aggregate rejection remains visible. All 24 warm request samples
+are retained with zero ring drops. Their same-realm UI receipt-to-frame wait is
+295.10–310.90 ms; precise browser cross-realm delivery totals are not established.
+[The C evidence](real-scene-viewing-c-evidence.json) retains every baseline.
+
+Select exactly one **native-only opt-in** candidate: `--present-mode auto-no-vsync`
+changes only the WGPU surface present mode to `AutoNoVsync`, keeping the existing
+LOW_LATENCY frame-latency setting. Default native and browser configuration,
+repaint reasons, one-worker scheduling, cache resets, resource ceilings and
+cancellation/stale/recovery rules remain unchanged. The attribution supports
+probing this native presentation boundary; it is not already a qualified benefit
+and does not establish GPU execution or scanout latency.
+
+Freeze five alternating fresh-process development pairs for cheap rejection:
+reject at ≤5% mean warm-reconstruction benefit, any incomplete journey or resource
+regression. If promising, run 20 new AB/BA fresh-process development pairs with
+the same instrumented binary and explicit default/opt-in configuration. Apply the
+benchmark owner's 99.5% marginal Student t intervals with conservative df19
+critical value 3.287 and Bonferroni 99% ratio bounds: warm reconstruction's upper
+relative bound must be below −5%; first-primary-region and complete-visible upper
+bounds must be ≤+5%. All inherited native acceptance and recovery gates still
+apply. Preserve failures and use no successful subset. This choice and these
+criteria precede Boca/Tok confirmation; do not retune. Original defaults remain
+intact even if the opt-in qualifies.
+
+The explicit pressure workload now passes development and Boca on the original
+frozen B binaries. Both record one representation eviction; GPU evictions are
+47 and 119. Compressed peaks reach exactly 1 MiB, decoded peaks remain below
+1.26 MiB and GPU peaks remain below 16 MiB. The benchmark owner admits both
+against the new workload identity and unchanged bounds (exit 0). All seven
+required recovery events occur. The two earlier pressure failures remain retained.
