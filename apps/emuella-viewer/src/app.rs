@@ -219,18 +219,6 @@ pub struct DiagnosticBoundary {
 pub struct Snapshot {
     #[serde(default)]
     pub instrument: Option<String>,
-    #[cfg(not(target_arch = "wasm32"))]
-    #[serde(default)]
-    pub completion_pump: bool,
-    #[cfg(not(target_arch = "wasm32"))]
-    #[serde(default)]
-    pub completion_pump_max_batch: usize,
-    #[cfg(not(target_arch = "wasm32"))]
-    #[serde(default)]
-    pub completion_pump_max_turn_ms: f64,
-    #[cfg(not(target_arch = "wasm32"))]
-    #[serde(default)]
-    pub completion_pump_max_receive_ms: f64,
     #[serde(default)]
     pub diagnostic_options: crate::DiagnosticOptions,
     #[serde(default)]
@@ -711,224 +699,76 @@ impl ViewerApp {
     }
     fn receive(&mut self) {
         self.pacing_receipt = None;
-        for event in self.executor.drain() {
-            self.receive_event(event);
-        }
-    }
-    fn receive_event(&mut self, mut event: Event) {
-        let drained_ms = pacing_now_ms();
-        let timing = event.metrics_mut().and_then(|m| m.timing.clone());
-        let request = match &event {
-            Event::Completed { request, .. } | Event::Cancelled { request, .. } => Some(request),
-            Event::Failed { request, .. } => request.as_ref(),
-            Event::Catalogue(_) => None,
-        };
-        let sample = request.and_then(|request| {
-            let (token, dispatch_ms) = self.pacing_dispatch?;
-            let t = timing?;
-            if token != request.token {
-                return None;
-            }
-            self.pacing_dispatch = None;
-            Some(PacingSample {
-                dispatch_ms,
-                worker_started_ms: t.started_ms,
-                worker_finished_ms: t.finished_ms,
-                published_ms: t.published_ms,
-                received_ms: t.received_ms?,
-                ui_drained_ms: drained_ms,
-                wakeup_requested_ms: t.wakeup_requested_ms,
-            })
-        });
-        if let Some(sample) = &sample {
-            self.snapshot.pacing.record(sample);
-            self.pacing_receipt = Some(drained_ms);
-        }
-        match event {
-            Event::Catalogue(c) => {
-                self.catalogue = c;
-                self.fit();
-            }
-            Event::Completed {
-                request,
-                pixels,
-                metrics,
-            } => {
-                self.boundary("ui-drain", Some(request.token));
-                let outcome = self.runtime.complete_frame(&request, pixels);
-                self.work_event(&format!("completion_{outcome:?}"), &request);
-                self.snapshot.worker = metrics;
-            }
-            Event::Cancelled { request, metrics } => {
-                self.work_event("cancel_acknowledged", &request);
-                self.runtime.acknowledge_cancelled(&request);
-                self.snapshot.worker = metrics;
-            }
-            Event::Failed {
-                request,
-                error,
-                metrics,
-            } => {
-                if let Some(request) = request {
-                    self.work_event("failed", &request);
-                    self.runtime.fail(&request);
+        for mut event in self.executor.drain() {
+            let drained_ms = pacing_now_ms();
+            let timing = event.metrics_mut().and_then(|m| m.timing.clone());
+            let request = match &event {
+                Event::Completed { request, .. } | Event::Cancelled { request, .. } => {
+                    Some(request)
                 }
-                self.error(error);
-                self.snapshot.worker = metrics;
-            }
-        }
-        if let Some(sample) = sample
-            && let Some(event) = self.snapshot.events.last_mut()
-        {
-            event.pacing = Some(sample);
-        }
-    }
-    /// Configure the sole native scheduling candidate; construction defaults to false.
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn set_completion_pump(&mut self, enabled: bool) {
-        self.snapshot.completion_pump = enabled;
-    }
-    fn completion_pump_enabled(&self) -> bool {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            self.snapshot.completion_pump
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            false
-        }
-    }
-    fn apply_candidate_intents(
-        &mut self,
-        intents: &mut Vec<Intent>,
-        demands: &mut Vec<RegionDemand>,
-    ) -> bool {
-        if !self.completion_pump_enabled() || intents.is_empty() {
-            return false;
-        }
-        // These views describe the pre-intent state. Cancel it now and defer new
-        // admission until the next UI pass derives current demands and priorities.
-        for intent in intents.drain(..) {
-            self.intent(intent);
-        }
-        demands.clear();
-        true
-    }
-    fn reconcile_demands(&mut self, demands: Vec<RegionDemand>) -> bool {
-        // Reconcile the complete desired state across panes and materialised thumbnails.
-        let reconciled = match self.runtime.reconcile(self.generation, demands.clone()) {
-            Ok(cancelled) => {
-                for request in cancelled {
-                    self.work_event("cancel_requested", &request);
-                    self.executor.cancel(&request);
-                }
-                true
-            }
-            Err(e) => {
-                self.error(format!("Demand reconciliation: {e:?}"));
-                false
-            }
-        };
-        self.last_demands = demands;
-        reconciled
-    }
-    fn upload_decoded(
-        &mut self,
-        limit: usize,
-        upload_frame: &mut impl FnMut(
-            polyorama_runtime::RegionalFrameUpload,
-        ) -> Result<
-            polyorama_render_wgpu::RegionalGpuAdmission,
-            (
-                Box<polyorama_runtime::RegionalFrameUpload>,
-                polyorama_render_wgpu::RegionalGpuError,
-            ),
-        >,
-    ) {
-        for _ in 0..limit {
-            let Some(upload) = self.runtime.take_decoded_frame() else {
-                break;
+                Event::Failed { request, .. } => request.as_ref(),
+                Event::Catalogue(_) => None,
             };
-            let key = upload.key.clone();
-            let token = upload.token;
-            if !self.runtime.is_upload_current(&key, token) {
-                drop(upload);
-                self.runtime.finish_upload(&key, token, false);
-                continue;
-            }
-            self.boundary("upload-start", Some(token));
-            match upload_frame(upload) {
-                Ok(admission) => {
-                    for evicted in admission.evicted {
-                        self.resource_event("gpu_evicted", &evicted.key, evicted.token);
-                        self.runtime.evict_resident(&evicted.key, evicted.token);
-                    }
-                    self.runtime.finish_upload(&key, token, true);
-                    self.boundary("upload-finished", Some(token));
+            let sample = request.and_then(|request| {
+                let (token, dispatch_ms) = self.pacing_dispatch?;
+                let t = timing?;
+                if token != request.token {
+                    return None;
                 }
-                Err((upload, error)) => {
-                    drop(upload);
-                    self.runtime.finish_upload(&key, token, false);
-                    self.error(format!("GPU admission: {error:?}"));
-                }
-            }
-        }
-    }
-    fn dispatch(&mut self) {
-        for request in self.runtime.dispatch() {
-            let dispatch_ms = pacing_now_ms();
-            if let Some(received_ms) = self.pacing_receipt.take() {
-                self.snapshot.pacing.same_frame_next_dispatches += 1;
-                self.snapshot.pacing.ui_to_next_dispatch_ms += dispatch_ms - received_ms;
-            }
-            self.pacing_dispatch = Some((request.token, dispatch_ms));
-            self.work_event("dispatched", &request);
-            self.boundary("dispatch", Some(request.token));
-            if let Some(manifest) = self
-                .catalogue
-                .iter()
-                .find(|m| representation(m) == request.key.representation)
-                && let Err(e) = self.executor.submit(Job {
-                    request: request.clone(),
-                    manifest: manifest.clone(),
+                self.pacing_dispatch = None;
+                Some(PacingSample {
+                    dispatch_ms,
+                    worker_started_ms: t.started_ms,
+                    worker_finished_ms: t.finished_ms,
+                    published_ms: t.published_ms,
+                    received_ms: t.received_ms?,
+                    ui_drained_ms: drained_ms,
+                    wakeup_requested_ms: t.wakeup_requested_ms,
                 })
+            });
+            if let Some(sample) = &sample {
+                self.snapshot.pacing.record(sample);
+                self.pacing_receipt = Some(drained_ms);
+            }
+            match event {
+                Event::Catalogue(c) => {
+                    self.catalogue = c;
+                    self.fit();
+                }
+                Event::Completed {
+                    request,
+                    pixels,
+                    metrics,
+                } => {
+                    self.boundary("ui-drain", Some(request.token));
+                    let outcome = self.runtime.complete_frame(&request, pixels);
+                    self.work_event(&format!("completion_{outcome:?}"), &request);
+                    self.snapshot.worker = metrics;
+                }
+                Event::Cancelled { request, metrics } => {
+                    self.work_event("cancel_acknowledged", &request);
+                    self.runtime.acknowledge_cancelled(&request);
+                    self.snapshot.worker = metrics;
+                }
+                Event::Failed {
+                    request,
+                    error,
+                    metrics,
+                } => {
+                    if let Some(request) = request {
+                        self.work_event("failed", &request);
+                        self.runtime.fail(&request);
+                    }
+                    self.error(error);
+                    self.snapshot.worker = metrics;
+                }
+            }
+            if let Some(sample) = sample
+                && let Some(event) = self.snapshot.events.last_mut()
             {
-                self.runtime.fail(&request);
-                self.error(e.to_string());
+                event.pacing = Some(sample);
             }
         }
-    }
-    #[cfg(not(target_arch = "wasm32"))]
-    fn pump_completions(
-        &mut self,
-        mut upload: impl FnMut(&mut Self),
-        mut now: impl FnMut() -> Instant,
-    ) {
-        let started = now();
-        let mut turn = crate::native::CompletionTurn::new(started);
-        self.pacing_receipt = None;
-        upload(self);
-        self.dispatch();
-        while turn.can_receive(now()) && self.runtime.metrics().in_flight != 0 {
-            let receive_started = now();
-            let event = self.executor.receive_until(turn.deadline);
-            self.snapshot.completion_pump_max_receive_ms = self
-                .snapshot
-                .completion_pump_max_receive_ms
-                .max(now().duration_since(receive_started).as_secs_f64() * 1000.);
-            let Some(event) = event else { break };
-            turn.count += 1; // Includes failure/cancel acknowledgements conservatively.
-            self.receive_event(event);
-            upload(self);
-            // Complete the same admission/refund/dispatch transaction even at the boundary.
-            self.dispatch();
-        }
-        self.snapshot.completion_pump_max_batch =
-            self.snapshot.completion_pump_max_batch.max(turn.count);
-        self.snapshot.completion_pump_max_turn_ms = self
-            .snapshot
-            .completion_pump_max_turn_ms
-            .max(now().duration_since(started).as_secs_f64() * 1000.);
     }
     fn script(&mut self) {
         if !self.script || self.catalogue.is_empty() || self.snapshot.script_complete {
@@ -985,11 +825,7 @@ impl eframe::App for ViewerApp {
             self.error("Authored diagnostic workload must be admitted before dispatch".into());
             return;
         }
-        // No requests can exist before catalogue admission. Preserve its original
-        // pre-layout drain so the first demand pass needs no extra repaint.
-        if !self.completion_pump_enabled() || self.catalogue.is_empty() {
-            self.receive();
-        }
+        self.receive();
         self.script();
         let state = frame.wgpu_render_state().expect("WGPU");
         if self.clear_display_cache {
@@ -1260,52 +1096,71 @@ impl eframe::App for ViewerApp {
                 }
             });
         }
-        if self.apply_candidate_intents(&mut intents, &mut demands) {
-            views.clear();
-        }
-        let reconciled = self.reconcile_demands(demands);
-        #[cfg(target_arch = "wasm32")]
-        let _ = reconciled;
-        if self.completion_pump_enabled() {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                state
-                    .renderer
-                    .write()
-                    .callback_resources
-                    .get_mut::<RegionalRenderer>()
-                    .unwrap()
-                    .begin_frame();
-                if reconciled {
-                    self.pump_completions(
-                        |app| {
-                            // The renderer lock covers only UI-owned admission, never the wait.
-                            let mut backend = state.renderer.write();
-                            let renderer = backend
-                                .callback_resources
-                                .get_mut::<RegionalRenderer>()
-                                .unwrap();
-                            app.upload_decoded(1, &mut |upload| {
-                                renderer.upload_frame(&state.device, &state.queue, upload)
-                            });
-                        },
-                        Instant::now,
-                    );
+        // The complete desired state across panes and materialised thumbnails is reconciled once.
+        match self.runtime.reconcile(self.generation, demands.clone()) {
+            Ok(cancelled) => {
+                for request in cancelled {
+                    self.work_event("cancel_requested", &request);
+                    self.executor.cancel(&request);
                 }
             }
-        } else {
-            {
-                let mut backend = state.renderer.write();
-                let renderer = backend
-                    .callback_resources
-                    .get_mut::<RegionalRenderer>()
-                    .unwrap();
-                renderer.begin_frame();
-                self.upload_decoded(usize::MAX, &mut |upload| {
-                    renderer.upload_frame(&state.device, &state.queue, upload)
-                });
+            Err(e) => self.error(format!("Demand reconciliation: {e:?}")),
+        }
+        self.last_demands = demands;
+        {
+            let mut backend = state.renderer.write();
+            let renderer = backend
+                .callback_resources
+                .get_mut::<RegionalRenderer>()
+                .unwrap();
+            renderer.begin_frame();
+            while let Some(upload) = self.runtime.take_decoded_frame() {
+                let key = upload.key.clone();
+                let token = upload.token;
+                if !self.runtime.is_upload_current(&key, token) {
+                    drop(upload);
+                    self.runtime.finish_upload(&key, token, false);
+                    continue;
+                }
+                self.boundary("upload-start", Some(token));
+                match renderer.upload_frame(&state.device, &state.queue, upload) {
+                    Ok(admission) => {
+                        for evicted in admission.evicted {
+                            self.resource_event("gpu_evicted", &evicted.key, evicted.token);
+                            self.runtime.evict_resident(&evicted.key, evicted.token);
+                        }
+                        self.runtime.finish_upload(&key, token, true);
+                        self.boundary("upload-finished", Some(token));
+                    }
+                    Err((upload, error)) => {
+                        drop(upload);
+                        self.runtime.finish_upload(&key, token, false);
+                        self.error(format!("GPU admission: {error:?}"));
+                    }
+                }
             }
-            self.dispatch();
+        }
+        for request in self.runtime.dispatch() {
+            let dispatch_ms = pacing_now_ms();
+            if let Some(received_ms) = self.pacing_receipt.take() {
+                self.snapshot.pacing.same_frame_next_dispatches += 1;
+                self.snapshot.pacing.ui_to_next_dispatch_ms += dispatch_ms - received_ms;
+            }
+            self.pacing_dispatch = Some((request.token, dispatch_ms));
+            self.work_event("dispatched", &request);
+            self.boundary("dispatch", Some(request.token));
+            if let Some(manifest) = self
+                .catalogue
+                .iter()
+                .find(|m| representation(m) == request.key.representation)
+                && let Err(e) = self.executor.submit(Job {
+                    request: request.clone(),
+                    manifest: manifest.clone(),
+                })
+            {
+                self.runtime.fail(&request);
+                self.error(e.to_string());
+            }
         }
         {
             let mut backend = state.renderer.write();
@@ -1883,397 +1738,5 @@ mod tests {
             assert!(thumb.max_decoded_bytes < detail.max_decoded_bytes);
             assert!(region.x + region.width <= m.identity.profile.width);
         }
-    }
-}
-
-#[cfg(all(test, not(target_arch = "wasm32")))]
-mod scheduling_tests {
-    use super::*;
-    use crate::engine::Engine;
-    use polyorama_render_wgpu::{RegionalGpuAdmission, RegionalGpuError, RegionalResidency};
-    use std::{cell::Cell, sync::mpsc};
-
-    // No graphics context, network, application start or execution worker is needed.
-    fn fixture() -> (
-        ViewerApp,
-        mpsc::Receiver<Job>,
-        mpsc::SyncSender<crate::native::Receipt>,
-    ) {
-        let (executor, jobs, publish) = Executor::authored_channel();
-        let now = Instant::now();
-        let app = ViewerApp {
-            server: String::new(),
-            compressed_limit: 64 << 20,
-            decoded_limit: 16 << 20,
-            gpu_limit: 64 << 20,
-            clear_display_cache: false,
-            context: egui::Context::default(),
-            executor,
-            runtime: RegionalRuntime::new(RegionalRuntimeLimits {
-                max_demands: 1024,
-                max_in_flight: 1,
-                decoded_bytes: 16 << 20,
-            }),
-            catalogue: vec![crate::engine::diagnostic_tests::job().manifest],
-            image: 0,
-            camera: Camera {
-                x: 0.,
-                y: 0.,
-                width: 1024.,
-                height: 1024.,
-            },
-            detail: None,
-            comparison: None,
-            bookmark_cursor: 0,
-            bookmarks: Vec::new(),
-            generation: 1,
-            gamma: 1.,
-            low: 0.,
-            high: 65535.,
-            diagnostics: false,
-            scroll_to: None,
-            snapshot: Snapshot {
-                completion_pump: true,
-                ..Default::default()
-            },
-            script_stages: Vec::new(),
-            started: now,
-            script: false,
-            script_workload: Vec::new(),
-            script_step: 0,
-            step_started: now,
-            script_output: None,
-            last_demands: Vec::new(),
-            pacing_dispatch: None,
-            pacing_receipt: None,
-            diagnostic: Default::default(),
-            authored_workload_admitted: false,
-            cycle: None,
-            memory: None,
-        };
-        (app, jobs, publish)
-    }
-    fn demand(index: u32, priority: DemandPriority) -> RegionDemand {
-        let mut key = crate::engine::diagnostic_tests::job().request.key;
-        key.region = ImageRegion {
-            x: index * 8,
-            y: 0,
-            width: 8,
-            height: 8,
-        };
-        RegionDemand {
-            consumer: RegionConsumerId(index as u64),
-            key,
-            priority,
-            max_decoded_bytes: 8 * 8 * 3 * 4,
-        }
-    }
-    fn admission(upload: polyorama_runtime::RegionalFrameUpload) -> RegionalGpuAdmission {
-        let resident = RegionalResidency {
-            key: upload.key.clone(),
-            token: upload.token,
-        };
-        drop(upload); // The UI releases CPU ownership before acknowledging admission.
-        RegionalGpuAdmission {
-            resident,
-            evicted: Vec::new(),
-        }
-    }
-    fn completed(job: Job, invalid_mask: bool) -> Event {
-        let mut pixels = Engine::new(64 << 20).authored_immediate(&job).unwrap();
-        pixels.validity = Some(vec![if invalid_mask { 2 } else { 1 }; 64]);
-        Event::Completed {
-            request: job.request,
-            pixels,
-            metrics: Default::default(),
-        }
-    }
-
-    #[test]
-    fn idle_pump_leaves_catalogue_for_original_pre_layout_admission() {
-        let (mut app, _jobs, publish) = fixture();
-        let catalogue = std::mem::take(&mut app.catalogue);
-        publish
-            .try_send((Event::Catalogue(catalogue.clone()), None))
-            .unwrap();
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(|_| {}, || synthetic);
-        assert_eq!(app.snapshot.completion_pump_max_batch, 0);
-        assert!(app.catalogue.is_empty());
-        app.receive(); // The original nonblocking pre-layout route derives the first view.
-        assert_eq!(app.catalogue.len(), catalogue.len());
-        assert_eq!(app.camera.width, 1024.);
-        assert_eq!(app.runtime.metrics().in_flight, 0);
-    }
-
-    #[test]
-    fn immediate_burst_services_64_results_on_ui_with_one_next_reservation() {
-        let (mut app, jobs, publish) = fixture();
-        assert!(
-            app.reconcile_demands(
-                (0..70)
-                    .map(|i| demand(i, DemandPriority::Visible))
-                    .collect()
-            )
-        );
-        let ui_thread = std::thread::current().id();
-        let uploaded = Cell::new(0);
-        // Synthetic frozen clock: exercise the count boundary without measuring speed.
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(
-            |app| {
-                assert!(app.runtime.metrics().in_flight <= 1);
-                app.upload_decoded(1, &mut |upload| {
-                    assert_eq!(std::thread::current().id(), ui_thread);
-                    assert_eq!(upload.pixels.validity.as_deref(), Some([1; 64].as_slice()));
-                    uploaded.set(uploaded.get() + 1);
-                    Ok(admission(upload))
-                });
-                assert_eq!(app.runtime.metrics().accounted_decoded_bytes(), 0);
-            },
-            || {
-                if let Ok(job) = jobs.try_recv() {
-                    publish.try_send((completed(job, false), None)).unwrap();
-                }
-                synthetic
-            },
-        );
-        assert_eq!(uploaded.get(), 64);
-        assert_eq!(app.snapshot.completion_pump_max_batch, 64);
-        assert_eq!(app.runtime.metrics().completed, 64);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        assert_eq!(app.snapshot.frame, 0); // No UI-frame roundtrip inside the burst.
-        assert!(app.runtime.dispatch().is_empty());
-    }
-
-    #[test]
-    fn decoded_backpressure_stops_until_ui_upload_acknowledges_ownership() {
-        let (mut app, jobs, publish) = fixture();
-        let first = demand(0, DemandPriority::Visible);
-        app.runtime = RegionalRuntime::new(RegionalRuntimeLimits {
-            max_demands: 2,
-            max_in_flight: 1,
-            decoded_bytes: first.max_decoded_bytes,
-        });
-        app.reconcile_demands(vec![first, demand(1, DemandPriority::Visible)]);
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        let mut clock = || {
-            if let Ok(job) = jobs.try_recv() {
-                publish.try_send((completed(job, false), None)).unwrap();
-            }
-            synthetic
-        };
-        app.pump_completions(|_| {}, &mut clock);
-        assert_eq!(app.runtime.metrics().completed, 1);
-        assert_eq!(app.runtime.metrics().in_flight, 0);
-        assert_eq!(
-            app.runtime.metrics().accounted_decoded_bytes(),
-            8 * 8 * 3 * 2 + 64
-        );
-        assert!(app.runtime.dispatch().is_empty());
-        app.pump_completions(
-            |app| app.upload_decoded(1, &mut |u| Ok(admission(u))),
-            &mut clock,
-        );
-        assert_eq!(app.runtime.metrics().completed, 2);
-        assert_eq!(app.runtime.metrics().accounted_decoded_bytes(), 0);
-    }
-
-    #[test]
-    fn deadline_exits_with_reservation_and_publication_intact() {
-        let (mut app, jobs, publish) = fixture();
-        app.reconcile_demands(vec![demand(0, DemandPriority::Visible)]);
-        let start = Instant::now();
-        let calls = Cell::new(0);
-        app.pump_completions(
-            |_| {},
-            || {
-                let call = calls.get();
-                calls.set(call + 1);
-                start
-                    + if call == 0 {
-                        Duration::ZERO
-                    } else {
-                        Duration::from_millis(4)
-                    }
-            },
-        );
-        assert_eq!(app.snapshot.completion_pump_max_batch, 0);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        let job = jobs.try_recv().unwrap();
-        publish.try_send((completed(job, false), None)).unwrap();
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(
-            |app| app.upload_decoded(1, &mut |u| Ok(admission(u))),
-            || synthetic,
-        );
-        assert_eq!(app.runtime.metrics().completed, 1);
-        assert_eq!(app.runtime.metrics().accounted_decoded_bytes(), 0);
-    }
-
-    #[test]
-    fn pending_intent_cancels_before_dispatch_and_stale_receipt_refunds_before_priority() {
-        let (mut app, jobs, publish) = fixture();
-        let old = demand(0, DemandPriority::Prefetch);
-        app.reconcile_demands(vec![old.clone()]);
-        app.dispatch();
-        let old_job = jobs.try_recv().unwrap();
-        let mut intents = vec![Intent::Pan { dx: 0.1, dy: 0. }];
-        let mut obsolete = vec![old];
-        assert!(app.apply_candidate_intents(&mut intents, &mut obsolete));
-        assert!(intents.is_empty() && obsolete.is_empty());
-        app.reconcile_demands(obsolete);
-        assert_eq!(app.runtime.metrics().cancelled, 1);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        assert!(app.runtime.dispatch().is_empty());
-        let urgent = demand(2, DemandPriority::Visible);
-        app.reconcile_demands(vec![demand(1, DemandPriority::Prefetch), urgent.clone()]);
-        assert!(app.runtime.dispatch().is_empty());
-        publish.try_send((completed(old_job, false), None)).unwrap();
-        let calls = Cell::new(0);
-        let start = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(
-            |app| app.upload_decoded(1, &mut |_| panic!("stale upload")),
-            || {
-                let call = calls.get();
-                calls.set(call + 1);
-                start
-                    + if call < 4 {
-                        Duration::ZERO
-                    } else {
-                        Duration::from_millis(4)
-                    }
-            },
-        );
-        assert_eq!(app.runtime.metrics().stale, 1);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        let next = jobs.try_recv().unwrap();
-        assert_eq!(next.request.key, urgent.key);
-        assert_eq!(next.request.token.demand_epoch, app.generation);
-    }
-
-    #[test]
-    fn invalid_mask_and_upload_failure_use_normal_rejection_and_refund() {
-        let (mut app, jobs, publish) = fixture();
-        app.reconcile_demands(vec![
-            demand(0, DemandPriority::Visible),
-            demand(1, DemandPriority::Visible),
-        ]);
-        let published = Cell::new(0);
-        let uploaded = Cell::new(0);
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(
-            |app| {
-                app.upload_decoded(1, &mut |upload| {
-                    uploaded.set(uploaded.get() + 1);
-                    assert_eq!(upload.pixels.validity.as_deref(), Some([1; 64].as_slice()));
-                    if uploaded.get() == 1 {
-                        Err((Box::new(upload), RegionalGpuError::UploadScratchCapacity))
-                    } else {
-                        Ok(admission(upload))
-                    }
-                })
-            },
-            || {
-                if let Ok(job) = jobs.try_recv() {
-                    publish
-                        .try_send((completed(job, published.get() == 0), None))
-                        .unwrap();
-                    published.set(published.get() + 1);
-                }
-                synthetic
-            },
-        );
-        assert_eq!(published.get(), 3); // Upload rejection retains the existing retry contract.
-        assert_eq!(uploaded.get(), 2); // Invalid validity was rejected by complete_frame.
-        assert_eq!(app.runtime.metrics().accounted_decoded_bytes(), 0);
-        assert_eq!(app.runtime.metrics().in_flight, 0);
-        assert!(
-            app.snapshot
-                .events
-                .iter()
-                .any(|e| e.kind == "completion_InvalidPayload")
-        );
-        assert!(
-            app.snapshot
-                .errors
-                .iter()
-                .any(|e| e.contains("UploadScratchCapacity"))
-        );
-    }
-
-    #[test]
-    fn repeated_upload_backpressure_is_still_bounded_to_64_receipts() {
-        let (mut app, jobs, publish) = fixture();
-        app.reconcile_demands(vec![demand(0, DemandPriority::Visible)]);
-        let uploads = Cell::new(0);
-        let synthetic = Instant::now() + Duration::from_secs(60);
-        app.pump_completions(
-            |app| {
-                app.upload_decoded(1, &mut |upload| {
-                    uploads.set(uploads.get() + 1);
-                    Err((Box::new(upload), RegionalGpuError::UploadScratchCapacity))
-                })
-            },
-            || {
-                if let Ok(job) = jobs.try_recv() {
-                    publish.try_send((completed(job, false), None)).unwrap();
-                }
-                synthetic
-            },
-        );
-        assert_eq!(uploads.get(), 64);
-        assert_eq!(app.snapshot.completion_pump_max_batch, 64);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-        assert_eq!(
-            app.runtime.metrics().accounted_decoded_bytes(),
-            8 * 8 * 3 * 4
-        );
-    }
-
-    #[test]
-    fn upload_overshoot_finishes_transaction_without_another_receive() {
-        let (mut app, jobs, publish) = fixture();
-        app.reconcile_demands(vec![
-            demand(0, DemandPriority::Visible),
-            demand(1, DemandPriority::Visible),
-        ]);
-        let start = Instant::now() + Duration::from_secs(60);
-        let elapsed = Cell::new(Duration::ZERO);
-        let uploads = Cell::new(0);
-        app.pump_completions(
-            |app| {
-                app.upload_decoded(1, &mut |upload| {
-                    uploads.set(uploads.get() + 1);
-                    elapsed.set(Duration::from_millis(5)); // Authored work overshoot, not a measurement.
-                    Ok(admission(upload))
-                })
-            },
-            || {
-                if let Ok(job) = jobs.try_recv() {
-                    publish.try_send((completed(job, false), None)).unwrap();
-                }
-                start + elapsed.get()
-            },
-        );
-        assert_eq!(uploads.get(), 1);
-        assert_eq!(app.snapshot.completion_pump_max_batch, 1);
-        assert_eq!(app.snapshot.completion_pump_max_turn_ms, 5.);
-        assert_eq!(app.runtime.metrics().in_flight, 1);
-    }
-
-    #[test]
-    fn default_intents_keep_existing_order_and_reconcile_failure_cannot_admit() {
-        let (mut app, _jobs, _publish) = fixture();
-        app.set_completion_pump(false);
-        let mut intents = vec![Intent::Gallery { row: 1 }];
-        let mut demands = vec![demand(0, DemandPriority::Visible)];
-        assert!(!app.apply_candidate_intents(&mut intents, &mut demands));
-        assert_eq!(intents.len(), 1);
-        assert_eq!(demands.len(), 1);
-        demands[0].max_decoded_bytes = usize::MAX;
-        assert!(!app.reconcile_demands(demands));
-        assert_eq!(app.runtime.metrics().in_flight, 0);
     }
 }

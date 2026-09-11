@@ -9,28 +9,12 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub(crate) type Receipt = (Event, Option<Arc<std::sync::OnceLock<f64>>>);
-
 pub struct Executor {
     sender: mpsc::SyncSender<Job>,
-    events: mpsc::Receiver<Receipt>,
+    events: mpsc::Receiver<(Event, Option<Arc<std::sync::OnceLock<f64>>>)>,
     cancelled: Arc<Mutex<BTreeSet<RequestToken>>>,
 }
 impl Executor {
-    #[cfg(test)]
-    pub(crate) fn authored_channel() -> (Self, mpsc::Receiver<Job>, mpsc::SyncSender<Receipt>) {
-        let (sender, jobs) = mpsc::sync_channel(1);
-        let (publish, events) = mpsc::sync_channel(2);
-        (
-            Self {
-                sender,
-                events,
-                cancelled: Arc::new(Mutex::new(BTreeSet::new())),
-            },
-            jobs,
-            publish,
-        )
-    }
     pub fn new(server: String, compressed: usize, context: egui::Context) -> Self {
         Self::new_diagnostic(
             server,
@@ -319,35 +303,28 @@ impl Executor {
     pub fn drain(&self) -> Vec<Event> {
         self.events
             .try_iter()
-            .map(|receipt| self.receipt(receipt))
+            .map(|(mut event, wakeup)| {
+                if let Some(timing) = event.metrics_mut().and_then(|m| m.timing.as_mut()) {
+                    timing.received_ms = Some(pacing_now_ms());
+                    timing.wakeup_requested_ms = wakeup.and_then(|w| w.get().copied());
+                }
+                let request = match &event {
+                    Event::Completed { request, .. } | Event::Cancelled { request, .. } => {
+                        Some(request)
+                    }
+                    Event::Failed { request, .. } => request.as_ref(),
+                    Event::Catalogue(_) => None,
+                };
+                if let Some(request) = request {
+                    // Cancellation may race with worker publication after its own cleanup.
+                    self.cancelled
+                        .lock()
+                        .expect("cancellation lock")
+                        .remove(&request.token);
+                }
+                event
+            })
             .collect()
-    }
-
-    /// Wait only for the remainder of this UI turn, on the normal bounded channel.
-    pub fn receive_until(&self, deadline: Instant) -> Option<Event> {
-        let remaining = deadline.checked_duration_since(Instant::now())?;
-        let receipt = self.events.recv_timeout(remaining).ok()?;
-        Some(self.receipt(receipt))
-    }
-
-    fn receipt(&self, (mut event, wakeup): Receipt) -> Event {
-        if let Some(timing) = event.metrics_mut().and_then(|m| m.timing.as_mut()) {
-            timing.received_ms = Some(pacing_now_ms());
-            timing.wakeup_requested_ms = wakeup.and_then(|w| w.get().copied());
-        }
-        let request = match &event {
-            Event::Completed { request, .. } | Event::Cancelled { request, .. } => Some(request),
-            Event::Failed { request, .. } => request.as_ref(),
-            Event::Catalogue(_) => None,
-        };
-        if let Some(request) = request {
-            // Cancellation may race with worker publication after its own cleanup.
-            self.cancelled
-                .lock()
-                .expect("cancellation lock")
-                .remove(&request.token);
-        }
-        event
     }
 }
 fn body(response: reqwest::blocking::Response, limit: usize) -> Result<Vec<u8>> {
@@ -660,77 +637,5 @@ mod tests {
         assert_eq!(client.metrics.received_jpp_bytes, bytes.len() as u64);
         headers.append("jpip-tid", HeaderValue::from_static("another-target"));
         rejects_without_admission(&mut client, &tid, &headers);
-    }
-}
-
-/// One fixed candidate; elapsed time includes receipt, admission and dispatch work.
-pub(crate) struct CompletionTurn {
-    pub deadline: Instant,
-    pub count: usize,
-}
-impl CompletionTurn {
-    pub const BUDGET: Duration = Duration::from_millis(4);
-    pub const LIMIT: usize = 64;
-    pub fn new(now: Instant) -> Self {
-        Self {
-            deadline: now + Self::BUDGET,
-            count: 0,
-        }
-    }
-    pub fn can_receive(&self, now: Instant) -> bool {
-        self.count < Self::LIMIT && now < self.deadline
-    }
-}
-
-#[cfg(test)]
-mod scheduling_tests {
-    use super::*;
-    #[test]
-    fn fixed_deadline_and_batch_are_independent_bounds() {
-        let start = Instant::now();
-        let mut turn = CompletionTurn::new(start);
-        assert!(turn.can_receive(start + Duration::from_micros(3999)));
-        assert!(!turn.can_receive(start + Duration::from_millis(4)));
-        assert!(!turn.can_receive(start + Duration::from_millis(40)));
-        turn.count = 63;
-        assert!(turn.can_receive(start));
-        turn.count = 64;
-        assert!(!turn.can_receive(start));
-    }
-    #[test]
-    fn expired_receive_preserves_queued_result_and_cancel_until_receipt() {
-        let (executor, _jobs, publish) = Executor::authored_channel();
-        let request = crate::engine::diagnostic_tests::job().request;
-        executor.cancel(&request);
-        publish
-            .send((
-                Event::Cancelled {
-                    request: request.clone(),
-                    metrics: Default::default(),
-                },
-                None,
-            ))
-            .unwrap();
-        assert!(
-            executor
-                .receive_until(Instant::now() - Duration::from_secs(1))
-                .is_none()
-        );
-        assert!(executor.cancelled.lock().unwrap().contains(&request.token));
-        assert!(matches!(
-            executor.drain().as_slice(),
-            [Event::Cancelled { .. }]
-        ));
-        assert!(executor.cancelled.lock().unwrap().is_empty());
-    }
-    #[test]
-    fn disconnected_channel_returns_without_spinning_or_reserving() {
-        let (executor, _jobs, publish) = Executor::authored_channel();
-        drop(publish);
-        assert!(
-            executor
-                .receive_until(Instant::now() + Duration::from_secs(60))
-                .is_none()
-        );
     }
 }

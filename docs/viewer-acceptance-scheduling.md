@@ -1,5 +1,14 @@
 # Native completion pump candidate
 
+Status: **rejected; production completion-pump code removed**. The one fixed
+screen is retained in [the results](viewer-acceptance-scheduling-results.md).
+Warm-compressed improvement did not compensate for detail, warm-GPU and other
+latency regressions or the conditioning absolute failure. No retuning, second
+candidate or twenty-pair confirmation occurred. The mechanism and commands below
+are historical reproduction instructions for the pinned candidate source/binary;
+the current production executable does not expose `--completion-pump`.
+
+
 Status: provisional implementation, authored checks only; no timing, application,
 GPU or browser launch in this work package. Main owns independent review, source
 freeze and the separate timing authorisation. There is exactly one candidate,
