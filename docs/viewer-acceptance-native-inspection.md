@@ -29,3 +29,21 @@ monitor/scanout measurement, source-array fidelity, analytical/ML suitability,
 Boca/Tok inspection, browser inspection or an accepted viewing configuration.
 Mansfield source masks contain no invalid transitions; these captures cannot
 prove visible behaviour at Boca's valid/invalid boundaries.
+
+## Repaired runtime cohort
+
+The coordinator also opened all ten original captures from
+[the repaired five-start cohort](viewer-acceptance-native-repaired-cohort-results.md),
+using its recorded 2-second and 5-second files. No additional application start
+or image transformation was performed. At 2 seconds all five show the Mansfield
+PAN16 primary and linked overview, at gamma 1.00; the displayed ready counts are
+7, 24, 7, 7 and 24. Roads, runway and buildings remain discernible but very dark.
+At 5 seconds the primary is PAN16 and the comparison is RGB16 at gamma 1.40.
+The ready counts are 4, 24, 4, 5 and 2. Runs 1, 3 and 5 have visibly coarse
+comparison pixels; run 5's primary is also coarse. Run 2 has populated gallery
+thumbnails; the other 5-second captures have mostly unpopulated gallery cells.
+These fixed-time images intersect workload transitions and do not establish
+settlement, a new quality pass or a display-retuning result. The actual native
+hardware/backend evidence belongs to the linked cohort. Its two measured detail
+failures and the distinctions from human acceptance and analytical suitability
+remain unchanged.
