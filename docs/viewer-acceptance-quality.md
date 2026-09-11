@@ -103,3 +103,44 @@ Reserved validation additionally requires `--selection PATH` with schema
 owns this receipt after complete development evidence; reserved runs reject a
 missing receipt, another rate, another binary or view freeze, and all screen
 requests. PAN16 remains 4 bpp. The receipt is retained and hashed in each run.
+
+## Declared screen result
+
+**The unchanged encoder fails the complete RGB16 development bracket.** All
+five serial preparations and reconstructions completed without process failure
+or retry at script checkpoint `1a1580b1a4e3557737ae3d0adcdfe1a8c48942f9`.
+[The numerical record](viewer-acceptance-quality-results.json) binds every source,
+crop, exact tile support, script, build, preparation, quality result and component
+packet attribution. This is a screen rejection; no full-scene configuration was
+selected and reserved Boca validation was not run.
+
+| Screen | Payload bytes | Descriptors | Manifest | Failed display cells | Worst RMSE | Worst p99 |
+|---|---:|---:|---:|---:|---:|---:|
+| Mansfield RGB16 4 bpp | 352,530 | 3,299 | 1,234 | 24/48 | 18.6973 | 50 |
+| Mansfield RGB16 8 bpp | 704,788 | 3,530 | 1,234 | 24/48 | 8.30454 | 22 |
+| Mansfield RGB16 12 bpp | 1,056,940 | 3,665 | 1,237 | 6/48 | 3.53161 | 9 |
+| Mansfield PAN16 4 bpp | 1,966,903 | 6,680 | 2,010 | 0/16 | 2.74760 | 7 |
+| Tok RGB8 4 bpp | 1,573,332 | 11,042 | 1,811 | 24/48 | 9.63651 | 25 |
+
+All payload, descriptor and manifest sizes satisfy their frozen ceilings. These
+are cropped screen representations: RGB16 covers four original tiles, PAN16 15
+and Tok 12. Mask storage and application-delivered bytes remain separate,
+unproved predicates. At 12 bpp all six RGB16 failures are percentile-stretch
+RMSE failures; p99 passes. The worst remains the frozen tile-crossing view's
+third selected component (original MS band 2), at 1:1. Increasing bytes improves
+quality through the bracket but does not meet every frozen gate. PAN16 passing
+a crop screen does not establish complete-scene acceptance.
+
+Final QCD values and actual packet header/body counts are available per tile and
+component. They establish which component received bytes and its final shared
+quantiser; they do not establish that a different allocation or encoder policy
+would pass at matched bytes. No extra rate, encoder change or independent
+comparison was run.
+
+GDAL emitted missing PROJ database diagnostics during each crop's geospatial
+metadata handling. Cropping required no reprojection, and every derivative's
+selected sample arrays and tile supports matched the original exactly. No CRS
+interpretation is claimed. All original source hashes match after measurement.
+The single measurement operation and its single watcher completed. The next
+coordinator decision is a bounded quality rejection or one separately selected
+remaining authorised comparison/policy probe; a second rate sweep is excluded.

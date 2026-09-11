@@ -2,6 +2,7 @@
 """Run and export one immutable composed-journey observation; never freeze limits."""
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -128,12 +129,24 @@ def main():
     parser.add_argument('--recovery-pressure', choices=['image-gallery', 'real-scene-pan-sweep'], default='image-gallery')
     parser.add_argument('--workload', type=Path, help='explicit actions; preserves default workload when omitted')
     parser.add_argument('--catalogue-contract', type=Path, help='exact ordered source hashes, bands and full geometry for real scenes')
+    parser.add_argument('--memory-diagnostics', action='store_true',
+                        help='add bounded Linux proc diagnostics; preserve existing process-memory acceptance')
     args = parser.parse_args()
     if args.mode != 'recovery' and args.recovery_pressure != 'image-gallery':
         parser.error('--recovery-pressure requires --mode recovery')
     # Exclusive creation preserves every failed probe and prevents accidental replacement.
     args.output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[1]
+    memory_diagnostics = None
+    marker_path = args.output.resolve() / 'memory-phase-markers.jsonl'
+    if args.memory_diagnostics:
+        specification = importlib.util.spec_from_file_location(
+            'viewer_memory_diagnostics', root / 'tools/viewer-memory-diagnostics.py')
+        module = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(module)
+        memory_diagnostics = module.MemoryDiagnostics()
+        (args.output / 'viewer-memory-diagnostics.py').write_bytes(
+            (root / 'tools/viewer-memory-diagnostics.py').read_bytes())
     started = time.time_ns() // 1_000_000
     for relative in ['apps/emuella-viewer/qualification-workload.json', 'tools/viewer-composed-journey.py', 'tools/viewer-composed-browser.mjs', 'tools/viewer-browser-recovery.mjs', 'tools/viewer-recovery-workload.mjs']:
         (args.output / Path(relative).name).write_bytes((root / relative).read_bytes())
@@ -170,8 +183,12 @@ def main():
         command += (['--workload', str(args.workload)] if args.mode == 'native' else [str(args.workload)])
     memory_samples = []
     observed_pid_high_water = {}
+    environment = os.environ.copy()
+    if memory_diagnostics is not None:
+        # Optional native marker producer; the runner never synthesises phases.
+        environment['EMUELLA_VIEWER_MEMORY_MARKERS'] = str(marker_path)
     with (args.output / 'process.log').open('w') as log:
-        process = subprocess.Popen(command, cwd=root, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        process = subprocess.Popen(command, cwd=root, stdout=log, stderr=subprocess.STDOUT, start_new_session=True, env=environment)
         deadline = time.monotonic() + 660
         while process.poll() is None and time.monotonic() < deadline:
             if platform.system() == 'Linux':
@@ -195,6 +212,8 @@ def main():
                     if pid in processes:
                         observed_pid_high_water[pid] = max(observed_pid_high_water.get(pid, 0), processes[pid][2])
                 memory_samples.append({'at_ms': time.time_ns() // 1_000_000 - started, 'rss_bytes': sum(processes[pid][1] for pid in descendants if pid in processes), 'processes': sorted(descendants)})
+                if memory_diagnostics is not None:
+                    memory_diagnostics.sample(descendants)
             time.sleep(0.05)
         if process.poll() is None:
             os.killpg(process.pid, signal.SIGKILL)
@@ -211,6 +230,11 @@ def main():
     write_json(args.output / 'service-after.json', after)
     final = read_json(args.output / 'app.json') if (args.output / 'app.json').exists() else {}
     stages = read_json(args.output / 'app.json.stages.json') if (args.output / 'app.json.stages.json').exists() else []
+    if memory_diagnostics is not None:
+        diagnostic_report = memory_diagnostics.report(marker_path, stages)
+        diagnostic_report['platform_unavailable_reason'] = (
+            None if platform.system() == 'Linux' else 'Linux proc diagnostics unavailable on this platform')
+        write_json(args.output / 'process-memory-diagnostics.json', diagnostic_report)
     browser = read_json(args.output / 'browser.json') if (args.output / 'browser.json').exists() else {}
     recovery = read_json(args.output / 'browser-recovery.json') if (args.output / 'browser-recovery.json').exists() else {}
     if args.mode == 'recovery':
