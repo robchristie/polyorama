@@ -120,16 +120,33 @@ try {
   const cancelled=await capture(pressure,'cancellation-acknowledged');
   if(!transfers.some(t=>t.mode==='delay'&&t.client_closed_ms!==undefined))throw new Error('actual delayed transfer was not closed');
   record('cancel_acknowledged',cancelled,'delayed actual JPP connection closed after image switch; worker aborted counter incremented and reservation released',catalogue[0].target);
-  for(let step=2;step<=8;step++){
-    const index=step % catalogue.length;
+  // Frozen bounded pressure: 64 full-resolution primary views across the
+  // largest single-component parent. Small overviews/gallery tiles alone do
+  // not fill the unchanged budgets in a two-parent real-scene catalogue.
+  const panIndex=catalogue.reduce((best,m,index)=>{
+    const p=m.identity.profile,b=catalogue[best].identity.profile;
+    return p.components===1&&(b.components!==1||p.width*p.height>b.width*b.height)?index:best;
+  },0);
+  const profile=catalogue[panIndex].identity.profile;
+  if(profile.components!==1)throw new Error('pressure workload requires a single-component parent');
+  const factor=Math.min(1,512/Math.max(profile.width,profile.height));
+  const viewWidth=Math.max(32,profile.width*factor),viewHeight=Math.max(32,profile.height*factor);
+  const apply=async intent=>{
     const generation=(await snapshot(pressure)).generation;
-    await pressure.evaluate(index=>window.emuellaViewer.intent({kind:'select_image',index}),index);
-    await pressure.waitForFunction(g=>window.emuellaViewer.snapshot().generation>g,generation);
-    await settled(pressure);await capture(pressure,'pressure-image-'+index);
-  }
-  for(let row=200;row<4800;row+=400){
-    await pressure.evaluate(row=>window.emuellaViewer.intent({kind:'gallery',row}),row);
-    await pressure.waitForTimeout(100);await settled(pressure);
+    await pressure.evaluate(intent=>window.emuellaViewer.intent(intent),intent);
+    await pressure.waitForFunction(g=>window.emuellaViewer.snapshot().generation>g,generation,{timeout:60000});
+    await settled(pressure);
+  };
+  await apply({kind:'select_image',index:panIndex});
+  await apply({kind:'zoom',factor});
+  await apply({kind:'pan',dx:-profile.width/viewWidth,dy:-profile.height/viewHeight});
+  const dx=(profile.width-viewWidth)/(7*viewWidth),dy=(profile.height-viewHeight)/(7*viewHeight);
+  for(let row=0;row<8;row++){
+    if(row)await apply({kind:'pan',dx:0,dy});
+    for(let col=0;col<8;col++){
+      if(col)await apply({kind:'pan',dx:row%2?-dx:dx,dy:0});
+      await capture(pressure,`pressure-pan-${row}-${col}`);
+    }
   }
   const final=await capture(pressure,'pressure-complete');
   if(!final.worker.representation_evictions||!final.gpu_evictions||final.worker.peak_compressed_bytes>1<<20||final.decoded_peak_bytes>4<<20||final.gpu_peak_bytes>16<<20||final.errors.length)throw new Error('pressure bounds or actual eviction failed');

@@ -189,3 +189,36 @@ does not require the NITF plugin. Timed native binaries are retained separately
 from canonical workspace builds, whose feature unification changes binary hashes.
 No C implementation, independent review, Git publication, merge or terminal
 campaign delivery was performed by this bounded worker.
+
+
+## C instrumentation checkpoint
+
+The bounded pacing probe frozen by the workspace at `024b514` is in preparation.
+The baseline retains the existing application behaviour, one worker and all cache
+budgets. Worker execution now records start, reconstruction finish and publication;
+UI diagnostics separately record message receipt, frame drain and next dispatch
+in that same frame. Native timestamps share one monotonic process origin. Browser
+realms use `performance.timeOrigin + performance.now()`; clock inversions remain
+counted as invalid observations. The existing 128-event ring contains request
+samples, while constant-size cumulative totals survive ring truncation. These
+measure CPU-observed boundaries, not scanout or physical GPU execution.
+
+The first authorised execution phase will build and verify this diagnostic
+baseline, then run five fresh native and five hardware-browser development
+journeys with the existing full-scene workload and budgets. No scheduling or
+presentation candidate is selected until those observations are attributed.
+Any selected candidate must be frozen before its five alternating development
+pairs; promising results require the campaign's 20 fresh-process AB/BA pairs,
+99% confidence and 5% practical warm-reconstruction gate, first-region and
+complete-visible non-regression, unchanged resources and recovery. Selection
+must precede reserved Boca/Tok confirmation. Production defaults remain intact.
+
+The recovery pressure repair replaces the unsuccessful image/gallery cycle with
+an eight-by-eight serpentine sweep of full-resolution primary windows, whose
+longer dimension is 512 samples, over the largest single-component parent.
+Existing select-image, zoom and pan intents establish each settled view. The
+fixed 64-view cap and existing per-phase/outer deadlines bound the work. The
+1 MiB compressed, 4 MiB decoded and 16 MiB GPU caps and mandatory representation
+and GPU eviction checks are unchanged. Earlier failed attempts remain retained.
+This workload change requires a new workload hash with the same frozen recovery
+bounds before development/Boca execution using the existing frozen B binary.
