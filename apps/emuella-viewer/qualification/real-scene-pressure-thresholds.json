@@ -1,7 +1,7 @@
 {
   "schema": "composed_journey_thresholds/1",
-  "frozen_unix_ms": 1789088065855,
-  "workload_sha256": "a22e1548768eeef19e6414380418fee622e2ec4c2925874ae68c16a16dd5acd8",
+  "frozen_unix_ms": 1789088920133,
+  "workload_sha256": "6a6d5434d6e23bc147140fb69289000b6e56c8b7f94ee636f0a15f324922d9d9",
   "baseline_evidence_sha256": {
     "recovery-probe-03": "f64c71131543600639aafe94891f3288af1a79a267b8b09b6d2c288953a8c0c2"
   },

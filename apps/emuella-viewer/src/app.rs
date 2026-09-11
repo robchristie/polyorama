@@ -152,8 +152,14 @@ pub struct PacingTotals {
 }
 impl PacingTotals {
     fn record(&mut self, s: &PacingSample) {
-        let stamps = [s.dispatch_ms, s.worker_started_ms, s.worker_finished_ms,
-            s.published_ms, s.received_ms, s.ui_drained_ms];
+        let stamps = [
+            s.dispatch_ms,
+            s.worker_started_ms,
+            s.worker_finished_ms,
+            s.published_ms,
+            s.received_ms,
+            s.ui_drained_ms,
+        ];
         // Keep clock inversions visible instead of silently clipping them.
         if stamps.iter().any(|v| !v.is_finite()) || stamps.windows(2).any(|w| w[1] < w[0]) {
             self.invalid_samples += 1;
@@ -165,7 +171,9 @@ impl PacingTotals {
         self.finish_to_publish_ms += s.published_ms - s.worker_finished_ms;
         self.publish_to_receive_ms += s.received_ms - s.published_ms;
         self.receive_to_ui_ms += s.ui_drained_ms - s.received_ms;
-        self.finish_to_ui_max_ms = self.finish_to_ui_max_ms.max(s.ui_drained_ms - s.worker_finished_ms);
+        self.finish_to_ui_max_ms = self
+            .finish_to_ui_max_ms
+            .max(s.ui_drained_ms - s.worker_finished_ms);
     }
 }
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -544,18 +552,27 @@ impl ViewerApp {
             let drained_ms = pacing_now_ms();
             let timing = event.metrics_mut().and_then(|m| m.timing.clone());
             let request = match &event {
-                Event::Completed { request, .. } | Event::Cancelled { request, .. } => Some(request),
+                Event::Completed { request, .. } | Event::Cancelled { request, .. } => {
+                    Some(request)
+                }
                 Event::Failed { request, .. } => request.as_ref(),
                 Event::Catalogue(_) => None,
             };
             let sample = request.and_then(|request| {
                 let (token, dispatch_ms) = self.pacing_dispatch?;
                 let t = timing?;
-                if token != request.token { return None; }
+                if token != request.token {
+                    return None;
+                }
                 self.pacing_dispatch = None;
-                Some(PacingSample { dispatch_ms, worker_started_ms: t.started_ms,
-                    worker_finished_ms: t.finished_ms, published_ms: t.published_ms,
-                    received_ms: t.received_ms?, ui_drained_ms: drained_ms })
+                Some(PacingSample {
+                    dispatch_ms,
+                    worker_started_ms: t.started_ms,
+                    worker_finished_ms: t.finished_ms,
+                    published_ms: t.published_ms,
+                    received_ms: t.received_ms?,
+                    ui_drained_ms: drained_ms,
+                })
             });
             if let Some(sample) = &sample {
                 self.snapshot.pacing.record(sample);
@@ -1276,8 +1293,12 @@ mod tests {
     #[test]
     fn pacing_separates_worker_from_delivery_and_frame_wait() {
         let sample = PacingSample {
-            dispatch_ms: 10., worker_started_ms: 11., worker_finished_ms: 14.,
-            published_ms: 16., received_ms: 18., ui_drained_ms: 30.,
+            dispatch_ms: 10.,
+            worker_started_ms: 11.,
+            worker_finished_ms: 14.,
+            published_ms: 16.,
+            received_ms: 18.,
+            ui_drained_ms: 30.,
         };
         let mut totals = PacingTotals::default();
         totals.record(&sample);
@@ -1290,7 +1311,10 @@ mod tests {
         assert_eq!(totals.finish_to_ui_max_ms, 16.);
         assert_eq!(totals.same_frame_next_dispatches, 0);
         for received_ms in [15., f64::NAN] {
-            totals.record(&PacingSample { received_ms, ..sample.clone() });
+            totals.record(&PacingSample {
+                received_ms,
+                ..sample.clone()
+            });
         }
         assert_eq!(totals.invalid_samples, 2);
         assert_eq!(totals.requests, 2);

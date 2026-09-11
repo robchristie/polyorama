@@ -125,14 +125,17 @@ def main():
     parser.add_argument('--benchmark-repo', type=Path, required=True)
     parser.add_argument('--server-cache-state', choices=['uncontrolled-first-observation', 'warm-server'], required=True)
     parser.add_argument('--thresholds', type=Path)
+    parser.add_argument('--recovery-pressure', choices=['image-gallery', 'real-scene-pan-sweep'], default='image-gallery')
     parser.add_argument('--workload', type=Path, help='explicit actions; preserves default workload when omitted')
     parser.add_argument('--catalogue-contract', type=Path, help='exact ordered source hashes, bands and full geometry for real scenes')
     args = parser.parse_args()
+    if args.mode != 'recovery' and args.recovery_pressure != 'image-gallery':
+        parser.error('--recovery-pressure requires --mode recovery')
     # Exclusive creation preserves every failed probe and prevents accidental replacement.
     args.output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[1]
     started = time.time_ns() // 1_000_000
-    for relative in ['apps/emuella-viewer/qualification-workload.json', 'tools/viewer-composed-journey.py', 'tools/viewer-composed-browser.mjs', 'tools/viewer-browser-recovery.mjs']:
+    for relative in ['apps/emuella-viewer/qualification-workload.json', 'tools/viewer-composed-journey.py', 'tools/viewer-composed-browser.mjs', 'tools/viewer-browser-recovery.mjs', 'tools/viewer-recovery-workload.mjs']:
         (args.output / Path(relative).name).write_bytes((root / relative).read_bytes())
     workload_path = args.workload or root / 'apps/emuella-viewer/qualification-workload.json'
     (args.output / 'qualification-workload.json').write_bytes(workload_path.read_bytes())
@@ -161,6 +164,8 @@ def main():
     app_url = 'http://127.0.0.1:' + str(proxy.server_address[1])
     command = ([str(args.native_bin), '--server', app_url, '--script-output', str(args.output / 'app.json')]
                if args.mode == 'native' else ['node', str(root / ('tools/viewer-browser-recovery.mjs' if args.mode == 'recovery' else 'tools/viewer-composed-browser.mjs')), app_url, str(args.output)])
+    if args.mode == 'recovery':
+        command += ['--pressure-workload', args.recovery_pressure]
     if args.workload and args.mode != 'recovery':
         command += (['--workload', str(args.workload)] if args.mode == 'native' else [str(args.workload)])
     memory_samples = []
@@ -300,7 +305,7 @@ def main():
     gpu = json.dumps(recovery.get('adapters')) if recovery else json.dumps(browser.get('adapters')) if browser else final.get('gpu_adapter', 'unavailable')
     hardware_gpu = ('DiscreteGpu' in gpu or 'IntegratedGpu' in gpu or 'nvidia' in gpu.lower() or 'intel' in gpu.lower() or 'amd' in gpu.lower()) and not any(x in gpu.lower() for x in ['swiftshader', 'llvmpipe', 'software'])
     trace = dict(schema='composed_journey_trace/1', started_unix_ms=started, completed=bool(recovery.get('completed')) if args.mode == 'recovery' else bool(final.get('script_complete')) and len(stages) == 1 + len(read_json(workload_path)), failures=failures,
-        identity=dict(revisions=revisions,builds=builds,inputs={m['target']:m['tid'] for m in catalogue},workload_sha256=digest((root / 'tools/viewer-browser-recovery.mjs' if args.mode == 'recovery' else workload_path).read_bytes())),
+        identity=dict(revisions=revisions,builds=builds,inputs={m['target']:m['tid'] for m in catalogue},workload_sha256=(digest((root / 'tools/viewer-browser-recovery.mjs').read_bytes() + (root / 'tools/viewer-recovery-workload.mjs').read_bytes() + args.recovery_pressure.encode()) if args.mode == 'recovery' else digest(workload_path.read_bytes()))),
         environment=dict(hardware=platform.machine() + ' ' + platform.processor() + '; ' + os.uname().nodename,operating_system=platform.platform(),runtime=runtime,gpu=gpu,hardware_gpu=hardware_gpu),
         cache_state=dict(source_storage='uncontrolled; no OS or NFS cache conditioning',server=args.server_cache_state,client_compressed='empty fresh executor',client_decoded='empty fresh runtime',gpu='empty fresh renderer',initialisation='three sequential fresh browser contexts: transport retry/reconnect, stale completion, cancellation/cache pressure; each starts with empty client caches' if args.mode == 'recovery' else 'fresh process/context; warm compressed and warm GPU phases explicitly recorded; warm-server baseline is a second fresh client after the prior complete run'),
         evidence_sha256={p.name:digest(p.read_bytes()) for p in sorted(args.output.iterdir()) if p.is_file()}, observations=observations,events=sorted(events,key=lambda e:e['at_ms']),thresholds_sha256=digest(args.thresholds.read_bytes()) if args.thresholds else None)

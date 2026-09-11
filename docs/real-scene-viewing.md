@@ -193,7 +193,7 @@ campaign delivery was performed by this bounded worker.
 
 ## C instrumentation checkpoint
 
-The bounded pacing probe frozen by the workspace at `024b514` is in preparation.
+The bounded pacing probe frozen by the workspace at `024b514098ed9697b1846d17fc45a0d7f6d5fa43` is in preparation.
 The baseline retains the existing application behaviour, one worker and all cache
 budgets. Worker execution now records start, reconstruction finish and publication;
 UI diagnostics separately record message receipt, frame drain and next dispatch
@@ -211,14 +211,17 @@ Any selected candidate must be frozen before its five alternating development
 pairs; promising results require the campaign's 20 fresh-process AB/BA pairs,
 99% confidence and 5% practical warm-reconstruction gate, first-region and
 complete-visible non-regression, unchanged resources and recovery. Selection
-must precede reserved Boca/Tok confirmation. Production defaults remain intact.
+must precede reserved Boca/Tok confirmation. Production defaults remain intact, including if an opt-in candidate qualifies.
 
-The recovery pressure repair replaces the unsuccessful image/gallery cycle with
+The explicit `--recovery-pressure real-scene-pan-sweep` workload replaces the
+unsuccessful small-catalogue image/gallery cycle with
 an eight-by-eight serpentine sweep of full-resolution primary windows, whose
 longer dimension is 512 samples, over the largest single-component parent.
 Existing select-image, zoom and pan intents establish each settled view. The
 fixed 64-view cap and existing per-phase/outer deadlines bound the work. The
 1 MiB compressed, 4 MiB decoded and 16 MiB GPU caps and mandatory representation
 and GPU eviction checks are unchanged. Earlier failed attempts remain retained.
-This workload change requires a new workload hash with the same frozen recovery
+The inherited image/gallery default remains available. The selected pressure
+name and both harness sources contribute to its recorded identity. This workload
+change requires a new workload hash with the same frozen recovery
 bounds before development/Boca execution using the existing frozen B binary.

@@ -3,7 +3,9 @@ import {chromium} from 'playwright';
 import {createServer, request as httpRequest} from 'node:http';
 import {writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
-const [upstreamUrl, output] = process.argv.slice(2);
+import {pressureWorkload, panSweep} from './viewer-recovery-workload.mjs';
+const [upstreamUrl, output, ...pressureArgs] = process.argv.slice(2);
+const pressure_workload=pressureWorkload(pressureArgs);
 const started=performance.now(), states=[], events=[], transfers=[], errors=[], adapters=[];
 const pageIdentities=new WeakMap();
 let mode='truncate-once', browser, browser_version, proxy, activePage, workers=0;
@@ -120,17 +122,11 @@ try {
   const cancelled=await capture(pressure,'cancellation-acknowledged');
   if(!transfers.some(t=>t.mode==='delay'&&t.client_closed_ms!==undefined))throw new Error('actual delayed transfer was not closed');
   record('cancel_acknowledged',cancelled,'delayed actual JPP connection closed after image switch; worker aborted counter incremented and reservation released',catalogue[0].target);
+  if(pressure_workload==='real-scene-pan-sweep'){
   // Frozen bounded pressure: 64 full-resolution primary views across the
   // largest single-component parent. Small overviews/gallery tiles alone do
   // not fill the unchanged budgets in a two-parent real-scene catalogue.
-  const panIndex=catalogue.reduce((best,m,index)=>{
-    const p=m.identity.profile,b=catalogue[best].identity.profile;
-    return p.components===1&&(b.components!==1||p.width*p.height>b.width*b.height)?index:best;
-  },0);
-  const profile=catalogue[panIndex].identity.profile;
-  if(profile.components!==1)throw new Error('pressure workload requires a single-component parent');
-  const factor=Math.min(1,512/Math.max(profile.width,profile.height));
-  const viewWidth=Math.max(32,profile.width*factor),viewHeight=Math.max(32,profile.height*factor);
+  const {panIndex,profile,factor,viewWidth,viewHeight}=panSweep(catalogue);
   const apply=async intent=>{
     const generation=(await snapshot(pressure)).generation;
     await pressure.evaluate(intent=>window.emuellaViewer.intent(intent),intent);
@@ -148,14 +144,27 @@ try {
       await capture(pressure,`pressure-pan-${row}-${col}`);
     }
   }
+  }else{
+  for(let step=2;step<=8;step++){
+    const index=step % catalogue.length;
+    const generation=(await snapshot(pressure)).generation;
+    await pressure.evaluate(index=>window.emuellaViewer.intent({kind:'select_image',index}),index);
+    await pressure.waitForFunction(g=>window.emuellaViewer.snapshot().generation>g,generation);
+    await settled(pressure);await capture(pressure,'pressure-image-'+index);
+  }
+  for(let row=200;row<4800;row+=400){
+    await pressure.evaluate(row=>window.emuellaViewer.intent({kind:'gallery',row}),row);
+    await pressure.waitForTimeout(100);await settled(pressure);
+  }
+  }
   const final=await capture(pressure,'pressure-complete');
   if(!final.worker.representation_evictions||!final.gpu_evictions||final.worker.peak_compressed_bytes>1<<20||final.decoded_peak_bytes>4<<20||final.gpu_peak_bytes>16<<20||final.errors.length)throw new Error('pressure bounds or actual eviction failed');
   record('cache_eviction',final,'shared compressed representation and GPU eviction counters incremented within 1/4/16 MiB pressure budgets');
   if(errors.length)throw new Error('unexpected browser errors');
   await pressure.screenshot({path:join(output,'browser-recovery-final.png')});
-  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:true,started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
+  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:true,pressure_workload,started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
 } catch(error) {
   if(activePage)await capture(activePage,'failure-observation').catch(()=>{});
-  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:false,error:String(error),started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
+  await writeFile(join(output,'browser-recovery.json'),JSON.stringify({completed:false,pressure_workload,error:String(error),started_monotonic_ms:started,browser_version,workers,workers_boundary,adapters,states,events,transfers,errors},null,2));
   throw error;
 } finally {if(browser)await browser.close();proxy.closeAllConnections();await new Promise(resolve=>proxy.close(resolve));}

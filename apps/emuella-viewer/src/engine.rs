@@ -34,11 +34,18 @@ pub fn pacing_now_ms() -> f64 {
     #[cfg(not(target_arch = "wasm32"))]
     {
         static ORIGIN: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
-        ORIGIN.get_or_init(std::time::Instant::now).elapsed().as_secs_f64() * 1000.
+        ORIGIN
+            .get_or_init(std::time::Instant::now)
+            .elapsed()
+            .as_secs_f64()
+            * 1000.
     }
     #[cfg(target_arch = "wasm32")]
     {
-        let performance = web_sys::window().expect("UI window").performance().expect("performance clock");
+        let performance = web_sys::window()
+            .expect("UI window")
+            .performance()
+            .expect("performance clock");
         performance.time_origin() + performance.now()
     }
 }
@@ -116,7 +123,8 @@ impl Event {
     pub fn metrics_mut(&mut self) -> Option<&mut WorkerMetrics> {
         match self {
             Self::Catalogue(_) => None,
-            Self::Completed { metrics, .. } | Self::Cancelled { metrics, .. }
+            Self::Completed { metrics, .. }
+            | Self::Cancelled { metrics, .. }
             | Self::Failed { metrics, .. } => Some(metrics),
         }
     }
