@@ -191,8 +191,21 @@ Canonical `cargo xtask verify` is separately main-owned and still required for
 delivery. Existing `tools/ui-capture.mjs` creates `.tools/runtime/ui-x11-*`, binds
 it over `/tmp` inside bwrap, then recursively removes it. An outer approved alias
 is shadowed; even approved `.tools/runtime` backing retains the deletion issue.
-Main must resolve canonical UI mapping/retention before granting it; no canonical
+The retention option and private mapping below resolve that routing; no canonical
 UI edit is assigned here. Do not claim scoped prose verification qualifies this
 report. One owner PR can land verified mask/diagnostic implementation; final
 merged qualification evidence belongs in the workspace terminal receipt and owner
 PR comment, without a recursive owner closeout PR.
+
+## Canonical temporary retention
+
+`POLYORAMA_RETAIN_UI_TEMP=1` leaves the UI capture's owned temporary directory
+for caller-managed retention and records `logs/temporary-lifecycle.json`. The
+default cleanup behaviour is unchanged. For this campaign, bind fresh approved
+backing to the ignored `.tools/runtime` and `.tools/tmp` paths within a private
+mount namespace, and enable retention before canonical verification. Confirm
+path identities and effective mounts; keep the backing directories afterwards.
+The existing inner bwrap mapping then points at that same approved backing.
+This setting changes diagnostic-file lifecycle only, not capture, workload,
+renderer, comparison or acceptance behaviour. Use already-installed dependencies
+and offline package caches; no bootstrap acquisition is authorised.
