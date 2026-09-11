@@ -18,7 +18,7 @@ proxy=createServer((incoming,outgoing)=>{
   if(isJpp&&mode==='offline') {t.connection_destroyed_ms=at();outgoing.destroy();return;}
   const request=httpRequest(new URL(incoming.url,upstreamUrl),response=>{
     if(isJpp&&mode==='truncate-once') {
-      mode='online';const chunks=[];
+      mode='offline';const chunks=[];
       response.on('data',chunk=>chunks.push(chunk));
       response.on('end',()=>{const bytes=Buffer.concat(chunks);const part=bytes.subarray(0,Math.max(1,Math.floor(bytes.length/2)));outgoing.writeHead(response.statusCode,response.headers);outgoing.write(part);t.original_body_bytes=bytes.length;t.forwarded_body_bytes=part.length;setTimeout(()=>{t.connection_destroyed_ms=at();outgoing.destroy();},30);});
     } else {
@@ -62,6 +62,7 @@ try {
   const interrupted=await capture(page,'partial-transfer-failed');
   if(!transfers.some(t=>t.forwarded_body_bytes>0&&t.forwarded_body_bytes<t.original_body_bytes))throw new Error('partial real response was not interrupted');
   record('transfer_interrupted',interrupted,'proxy wrote a strict nonempty body prefix then destroyed the actual HTTP connection; worker reported failure');
+  mode='online';
   await page.evaluate(()=>window.emuellaViewer.intent({kind:'action',action:'retry'}));
   await settled(page);
   const retried=await capture(page,'partial-transfer-retried');
@@ -119,7 +120,8 @@ try {
   const cancelled=await capture(pressure,'cancellation-acknowledged');
   if(!transfers.some(t=>t.mode==='delay'&&t.client_closed_ms!==undefined))throw new Error('actual delayed transfer was not closed');
   record('cancel_acknowledged',cancelled,'delayed actual JPP connection closed after image switch; worker aborted counter incremented and reservation released',catalogue[0].target);
-  for(let index=2;index<=8;index++){
+  for(let step=2;step<=8;step++){
+    const index=step % catalogue.length;
     const generation=(await snapshot(pressure)).generation;
     await pressure.evaluate(index=>window.emuellaViewer.intent({kind:'select_image',index}),index);
     await pressure.waitForFunction(g=>window.emuellaViewer.snapshot().generation>g,generation);
