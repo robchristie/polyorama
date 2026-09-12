@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { sha256, STORE, ASSETS, makePlan as legacyPlan, pressureProof } from '../viewer-acceptance-browser-masks.mjs';
 import { LIMITS, compactIdentity, inspectCompactMask, released, oversizedRequirement,
-  makePlan, validateTemporaryAlias, parseArgs, createProofServer } from '../representation-efficiency-browser-masks.mjs';
+  makePlan, validateTemporaryAlias, parseArgs, createProofServer, hardwareAdapter } from '../representation-efficiency-browser-masks.mjs';
 
 const profile = { width: 3, height: 1, tile_edge: 512, decomposition_levels: 6, components: 1, bits_per_sample: 16 };
 function fixture(state, discard = 0) {
@@ -104,4 +104,11 @@ test('actual HTTP compact delivery compares retained bitmap/oracle; corrupt and 
       } finally { await proxy.close(); }
     }
   } finally { await new Promise(resolve => upstream.close(resolve)); }
+});
+
+test('hardware adapter evidence rejects missing and software identities', () => {
+  assert.equal(hardwareAdapter({ available: true, vendor: 'nvidia', architecture: 'ampere', fallback: false }), true);
+  assert.equal(hardwareAdapter({ available: true, vendor: 'intel', description: 'SwiftShader', fallback: false }), false);
+  assert.equal(hardwareAdapter({ available: false }), false);
+  assert.equal(hardwareAdapter({ available: true, vendor: 'nvidia', fallback: true }), false);
 });

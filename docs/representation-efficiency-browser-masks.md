@@ -3,7 +3,11 @@
 This protocol qualifies compact source validity using actual Chromium Workers,
 retained native sample/validity arrays and the independent source-mask oracle.
 Its imagery remains **quality-rejected-diagnostic-only**. It makes no complete
-viewer, GPU rendering, latency, timing, process RSS or scheduling claim.
+viewer, GPU rendering, latency, timing, process RSS or scheduling claim. Each
+context uses the repository's established Vulkan hardware Chromium flags and
+records an actual WebGPU adapter obtained from `navigator.gpu.requestAdapter`.
+Missing, fallback or software adapters fail the hardware-environment check.
+This identifies the environment; it does not prove mask rendering correctness.
 
 The new runner imports the inherited plan, request geometry, tile selection,
 pixel comparison, metric checks and strict pressure predicate from
@@ -73,7 +77,7 @@ fresh output name, one invocation, ten launches, zero retries and operation owne
 It records existing user authority, not a new permission gate. Validate inputs
 with `node tools/representation-efficiency-browser-masks.mjs validate --capsule PATH`.
 The browser owner starts and monitors the service and executes the runner once
-inside the verified private mount namespace with the inherited Chromium setup.
+inside the verified private mount namespace with the hardware Chromium setup.
 
 ## Evidence and later confirmation
 

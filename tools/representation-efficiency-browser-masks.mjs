@@ -14,6 +14,16 @@ import { STORE, DISPOSITION, LIMITS as LEGACY_LIMITS, ASSETS, sha256, launchErro
   checkMetrics, boundedResponse, faultResponse, maskRoute, failureProof, pressureProof
 } from './viewer-acceptance-browser-masks.mjs';
 export const LIMITS = Object.freeze({ ...LEGACY_LIMITS, contexts: 10 });
+// Same Vulkan hardware setup as the repository's bounded viewer browser probe.
+export const BROWSER_ARGS = Object.freeze(['--no-sandbox', '--enable-unsafe-webgpu',
+  '--use-angle=vulkan', '--enable-features=Vulkan,CDPScreenshotNewSurface',
+  '--disable-vulkan-surface', '--disable-dev-shm-usage', '--disable-background-networking',
+  '--disable-breakpad', '--disable-crash-reporter']);
+export function hardwareAdapter(adapter) {
+  return adapter && adapter.available === true && adapter.fallback !== true
+    && /nvidia|amd|intel|qualcomm|apple/i.test(adapter.vendor ?? '')
+    && !/swiftshader|llvmpipe|lavapipe|software/i.test([adapter.architecture, adapter.description].join(' '));
+}
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROTOCOL = ['tools/representation-efficiency-browser-masks.mjs',
@@ -462,7 +472,7 @@ async function executeContext(inputs, planned, directory, chromium, emit) {
     browser = await chromium.launchPersistentContext(join(directory, 'profile'), {
       executablePath: inputs.capsule.chromium.path, headless: true, timeout: LIMITS.jobMs,
       acceptDownloads: false, downloadsPath: join(directory, 'downloads'),
-      serviceWorkers: 'block', args: ['--no-sandbox', '--disable-background-networking', '--disable-breakpad', '--disable-crash-reporter'],
+      serviceWorkers: 'block', args: [...BROWSER_ARGS],
       env: { ...process.env, TMPDIR: temporary.path } });
     report.browser_version = browser.browser()?.version() ?? null;
     // This local proxy is the sole network destination, including Worker fetches.
@@ -471,6 +481,15 @@ async function executeContext(inputs, planned, directory, chromium, emit) {
     const page = browser.pages()[0] ?? await browser.newPage();
     page.on('worker', () => report.workers++); page.on('pageerror', () => report.page_errors++);
     await page.goto(`${proxy.url}/proof`, { timeout: LIMITS.jobMs });
+    report.webgpu_adapter = await page.evaluate(async () => {
+      const adapter = await navigator.gpu?.requestAdapter({ powerPreference: 'high-performance', forceFallbackAdapter: false });
+      if (!adapter) return { available: false };
+      const info = adapter.info;
+      return { available: true, vendor: info.vendor, architecture: info.architecture,
+        device: info.device, description: info.description,
+        fallback: adapter.isFallbackAdapter ?? info.isFallbackAdapter ?? null };
+    });
+    requireThat(hardwareAdapter(report.webgpu_adapter), 'hardware WebGPU adapter not observed');
     const compressed = planned.kind === 'pressure' ? LIMITS.pressureCompressedBytes : LIMITS.compressedBytes;
     await installPageWorker(page, compressed);
     if (planned.kind === 'agreement') {
@@ -649,7 +668,8 @@ async function run(args) {
       const context = await executeContext(inputs, planned, join(output, planned.id), chromium, emit);
       result.contexts.push({ id: context.id, status: context.status, jobs: context.jobs.length,
         missing_proof: context.missing_proof, http: context.http, coverage: context.coverage ?? null, pressure: context.pressure ?? null,
-        cancellation_proved: context.cancellation_proved ?? null, failure_proved: context.failure_proved ?? null });
+        cancellation_proved: context.cancellation_proved ?? null, failure_proved: context.failure_proved ?? null,
+        webgpu_adapter: context.webgpu_adapter ?? null });
       // Checkpoint only bounded aggregates. Every completed or failed context is retained.
       await emit({ kind: 'context-summary', ...result.contexts.at(-1) });
     }
