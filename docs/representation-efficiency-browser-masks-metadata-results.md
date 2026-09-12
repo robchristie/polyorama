@@ -1,23 +1,17 @@
-# Historical compact validity browser observations
+# Metadata-qualified compact validity browser results
 
-**Exactness observed; retained-memory qualification rejected by subsequent review.**
+**Scoped mask qualification passed with explicit oversized pressure exclusions.**
 The strict 47-window pressure criterion remains failed: **44/47 completed in each
 pass, 88/94 total**. No full viewer, imagery quality, timing, speed or process RSS
 acceptance follows from this result.
 
-Independent review found uncharged mask-cache entry/key/container overhead. The
-sample/validity, fault and pressure observations below remain attributed to their
-original runtime; their memory counters do not establish corrected resource
-qualification. The [fresh metadata-qualified report](representation-efficiency-browser-masks-metadata-results.md)
-records the repaired runtime. Original protected receipts are unchanged.
-
-The single corrected invocation used protocol/runtime attribution
-`cfb78b652f1b8338086a9d43c671eee417fd7242`, with native/service/WASM binaries compiled
-from `264c92d44546e5e08113709eb6aec79b60d01788`. The successor build receipt rehashed
-Cargo.lock and every binary/static asset unchanged and recorded the exact
-three-file browser-protocol difference. Service SHA-256 is
-`b1e2eb152045d500a1f527cda586ecbe8b815e3f8bdb36e165778a6baf18faaa`;
-WASM SHA-256 is `537b9ebe520b1fde25ab76ea420ac6d60c212a3e4b1d1ac58d0544d335959e9e`.
+The fresh invocation used the repaired protocol and freshly compiled runtime
+`a7cc4990b64bcb701a3e782f13b5a839fbf2fda8`, tree
+`8494a3f24809e617012272d4c09379d88f59db13`, after complete canonical verification.
+Service SHA-256 is `a7538a747eccde1100f77843317e79ab111b976d09170c70b67d895c8557bf79`;
+WASM SHA-256 is `b814e50d113a814b597452f064943f969317a0ce3b24f81d0bb3767e60bdf93f`.
+All five compact conversions and original native references were rehashed and
+reused unchanged; no imagery was reconverted or re-encoded.
 
 All ten contexts reported Chromium **151.0.7922.34**, pinned Playwright **1.62.1**,
 an actual non-fallback **NVIDIA/ampere** WebGPU adapter and **GeForce RTX 3090**
@@ -72,10 +66,21 @@ mask keys refetched**. Exact samples/validity and release passed for every one o
 the 88 completed pressure jobs. Strict complete-window pressure remains false.
 
 Pressure peak accounting was **1,048,532 compressed bytes**, **196,613 mask bytes**,
-**338,594 descriptor bytes**, **984,340 reserved working-set bytes**, **2,318 pin
+**350,722 descriptor bytes**, **984,340 reserved working-set bytes**, **2,318 pin
 metadata bytes**, **3,766 additional catalogue metadata bytes** and **1,953,079
-codec workspace bytes**. Peak WASM linear memory was **7,536,640 bytes**. These
-are separately reported logical/runtime counters, not process RSS. The JSON
+codec workspace bytes**. Peak WASM linear memory was **8,388,608 bytes**. These
+are separately reported logical/runtime counters, not process RSS. Every one of the 2,311 terminal rows passed exact
+slot/container equality, occupancy and current/peak bounds, including cache plus
+catalogue metadata within descriptor residency. With all five representations
+registered, cache metadata was **22,676 bytes = 1,883 slots × 12 WASM bytes + 80
+container bytes**. Normal/fault/cancellation rows retained that complete charge.
+Pressure current charge ranged **520–22,676 bytes** as whole representations
+were evicted; the peak remained 22,676. Payload eviction does not remove the
+retained representation's slot charge. The receipt includes consecutive pressure
+eviction observations with unchanged slot capacity and unchanged metadata. Missing/corrupt/stale faults and cancellation exposed zero occupied
+entries while retaining the same 22,676-byte charge. Constants have no separate
+payload heap; their logical encoded byte remains conservatively compressed-budgeted.
+Normal-context peak descriptor accounting was **351,860 bytes**. The JSON
 separates normal-context maxima and persistence fields for each representation;
 image payload, descriptors, masks, manifests and added metadata are distinct.
 
@@ -89,17 +94,24 @@ errors. The reconciliation checked every ordered journal job against its context
 and frozen plan; all immutable-input rechecks passed. The invocation exited
 **0**; its owned service exited **−15** and the recorded PID was absent.
 
-The [bounded JSON report](representation-efficiency-browser-masks-results.json)
+The [bounded JSON report](representation-efficiency-browser-masks-metadata-results.json)
 binds all input, environment, build, invocation, exit, context and journal hashes.
 Protected receipts remain in approved
-`representation-efficiency-browser-masks-candidate-02` and matching `-execution`
+`representation-efficiency-browser-masks-candidate-03` and matching `-execution`
 groups. The initial `candidate-01` hardware-discovery failure retains ten launched
 contexts, zero Workers/jobs/mask deliveries and exit 2. Three GPU-only authored
 setup diagnostics remain separate; none is a mask measurement or hidden retry.
-See the [fixed protocol](representation-efficiency-browser-masks.md).
+See the [fixed protocol](representation-efficiency-browser-masks.md). The earlier
+[candidate-02 observations](representation-efficiency-browser-masks-results.md)
+remain historical exactness evidence; independent review rejected their memory
+qualification because cache-entry overhead was uncharged. The fresh candidate-03
+run supplies the corrected metadata qualification without changing pressure
+acceptance or relabelling earlier outcomes.
 
 The execution group also retains the authored reconciliation source and bounded
 merged-confirmation probe with SHA-256 identities, so scratch cleanup cannot
-remove their sole replay source. The separate merged probe requires a fresh
-merged-revision/build-input receipt; these candidate observations do not claim
+remove their sole replay source. The separate merged probe binds both imported protocol
+source hashes, checks the corrected metadata formula, and requires retained cache
+metadata alongside zero reservation/pin fields. It requires a fresh
+merged-revision/repaired-build-input receipt; these candidate observations do not claim
 post-merge verification.
