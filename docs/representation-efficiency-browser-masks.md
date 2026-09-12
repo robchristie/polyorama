@@ -5,7 +5,9 @@ retained native sample/validity arrays and the independent source-mask oracle.
 Its imagery remains **quality-rejected-diagnostic-only**. It makes no complete
 viewer, GPU rendering, latency, timing, process RSS or scheduling claim. Each
 context uses the repository's established Vulkan hardware Chromium flags and
-records an actual WebGPU adapter obtained from `navigator.gpu.requestAdapter`.
+performs one `SystemInfo.getInfo` CDP handshake before the sole
+`navigator.gpu.requestAdapter` observation. The handshake records bounded GPU
+device/driver/renderer identity; it performs no application or Worker work.
 Missing, fallback or software adapters fail the hardware-environment check.
 This identifies the environment; it does not prove mask rendering correctness.
 
@@ -95,3 +97,22 @@ Retain every attempted context and setup failure. Do not retry a measured outcom
 After landing, verify the merged owner tree and use the same pinned static/binary
 identities for the smallest reusable confirmation; a different tree requires a
 new bounded probe and new receipt rather than relabelling candidate evidence.
+
+## Initial hardware discovery setup repair
+
+The first candidate invocation at `264c92d44546e5e08113709eb6aec79b60d01788`
+started ten Chromium contexts but obtained no adapter before any Worker or
+protected mask/native delivery. Preserve its zero-job result in the approved
+`representation-efficiency-browser-masks-candidate-01` group and matching
+`-execution` receipt. This is setup failure, not rejected mask evidence.
+
+Three bounded authored GPU-only contexts isolated discovery ordering: an initial
+CDP system query followed by one adapter query succeeded; the exact proof proxy
+returned null before the query and NVIDIA/ampere afterwards; finally the exact
+proxy with one initial CDP query and one adapter observation succeeded. Renderer
+identity was NVIDIA GeForce RTX 3090, Vulkan 1.4.341, driver 610.43.3.0. All three
+used zero protected data requests. Their code, observations and invocations stay
+in approved `representation-efficiency-browser-masks-gpu-diagnosis-01-execution`,
+`-02-execution` and `-03-execution` groups. The fixed launch sequence is one CDP
+handshake then one adapter observation per context; no adapter retry loop, delay,
+Worker change, scene change or scheduler change is introduced.

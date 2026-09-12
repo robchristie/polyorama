@@ -25,6 +25,17 @@ export function hardwareAdapter(adapter) {
     && !/swiftshader|llvmpipe|lavapipe|software/i.test([adapter.architecture, adapter.description].join(' '));
 }
 
+export function gpuIdentity(info) {
+  const gpu = info?.gpu;
+  requireThat(Array.isArray(gpu?.devices) && gpu.devices.length > 0 && gpu.devices.length <= 8,
+    'bounded GPU system identity required');
+  const fields = ['vendorId', 'deviceId', 'vendorString', 'deviceString', 'driverVendor', 'driverVersion'];
+  const bounded = value => typeof value === 'string' ? value.slice(0, 512) : Number.isSafeInteger(value) ? value : null;
+  return { handshake: 'SystemInfo.getInfo/1', devices: gpu.devices.map(device =>
+    Object.fromEntries(fields.map(key => [key, bounded(device[key])]))),
+  renderer: bounded(gpu.auxAttributes?.glRenderer),
+  vulkan: bounded(gpu.featureStatus?.vulkan), webgpu: bounded(gpu.featureStatus?.webgpu) };
+}
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROTOCOL = ['tools/representation-efficiency-browser-masks.mjs',
   'tools/tests/representation-efficiency-browser-masks.test.mjs',
@@ -475,6 +486,11 @@ async function executeContext(inputs, planned, directory, chromium, emit) {
       serviceWorkers: 'block', args: [...BROWSER_ARGS],
       env: { ...process.env, TMPDIR: temporary.path } });
     report.browser_version = browser.browser()?.version() ?? null;
+    // A single CDP handshake completes GPU discovery before the sole adapter
+    // observation. It performs no Worker job, image transfer or application pump.
+    const system = await browser.browser().newBrowserCDPSession();
+    try { report.gpu_system = gpuIdentity(await system.send('SystemInfo.getInfo')); }
+    finally { await system.detach(); }
     // This local proxy is the sole network destination, including Worker fetches.
     await browser.route('**/*', route => route.request().url().startsWith(`${proxy.url}/`)
       ? route.continue() : route.abort('blockedbyclient'));
@@ -669,7 +685,7 @@ async function run(args) {
       result.contexts.push({ id: context.id, status: context.status, jobs: context.jobs.length,
         missing_proof: context.missing_proof, http: context.http, coverage: context.coverage ?? null, pressure: context.pressure ?? null,
         cancellation_proved: context.cancellation_proved ?? null, failure_proved: context.failure_proved ?? null,
-        webgpu_adapter: context.webgpu_adapter ?? null });
+        webgpu_adapter: context.webgpu_adapter ?? null, gpu_system: context.gpu_system ?? null });
       // Checkpoint only bounded aggregates. Every completed or failed context is retained.
       await emit({ kind: 'context-summary', ...result.contexts.at(-1) });
     }
