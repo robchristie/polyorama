@@ -1207,5 +1207,6 @@
       "classification": "Diagnostic receipts, browser profiles/cache and execution evidence; separate from representation persistence."
     }
   ],
-  "review_state": "Candidate evidence complete; independent exact-head review and landing remain coordinator-owned."
+  "review_state": "Historical candidate1a6a925 rejected by independent review: per-entry mask-cache metadata uncharged. Retained exactness and delivery observations do not qualify repaired metadata accounting.",
+  "superseded_resource_qualification": "representation-efficiency-masks-metadata-results.json"
 }
