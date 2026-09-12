@@ -443,6 +443,20 @@ impl SharedClient {
         });
         checked(cache.bind_identity(&manifest.tid))?;
         let index = manifest.sparse()?;
+        let metadata = manifest
+            .identity
+            .validity
+            .as_ref()
+            .map_or(0, validity::ValidityIdentity::compact_metadata_bytes);
+        ensure!(
+            index.retained_heap_bytes() as usize + metadata <= self.limits.descriptor_bytes,
+            "manifest metadata exceeds descriptor budget"
+        );
+        while self.resident_bytes().1 + index.retained_heap_bytes() as usize + metadata
+            > self.limits.descriptor_bytes
+        {
+            self.evict_other("")?;
+        }
         self.entries.insert(
             manifest.tid.clone(),
             Resident {
@@ -488,6 +502,11 @@ impl SharedClient {
                 .map(|r| {
                     r.descriptors.values().map(Vec::len).sum::<usize>()
                         + r.index.retained_heap_bytes() as usize
+                        + r.manifest
+                            .identity
+                            .validity
+                            .as_ref()
+                            .map_or(0, validity::ValidityIdentity::compact_metadata_bytes)
                 })
                 .sum(),
         )
@@ -500,6 +519,18 @@ impl SharedClient {
         let (compressed, descriptors) = self.resident_bytes();
         self.metrics.peak_compressed_bytes = self.metrics.peak_compressed_bytes.max(compressed);
         self.metrics.peak_descriptor_bytes = self.metrics.peak_descriptor_bytes.max(descriptors);
+    }
+    pub fn compact_catalogue_metadata_bytes(&self) -> usize {
+        self.entries
+            .values()
+            .map(|r| {
+                r.manifest
+                    .identity
+                    .validity
+                    .as_ref()
+                    .map_or(0, validity::ValidityIdentity::compact_metadata_bytes)
+            })
+            .sum()
     }
     pub fn mask_bytes(&self) -> usize {
         self.entries
@@ -518,10 +549,13 @@ impl SharedClient {
         ensure!(tiles.len() <= 64, "mask regional tile limit");
         let mut bytes = 0usize;
         for &t in &tiles {
-            let (w, h) = validity::tile_size(&r.manifest.identity.profile, t, region.discard)?;
-            bytes += (w * h).div_ceil(8) as usize
-                * usize::from(r.manifest.identity.profile.components)
-                * if region.discard == 0 { 1 } else { 2 };
+            bytes += r
+                .manifest
+                .identity
+                .validity
+                .as_ref()
+                .expect("checked above")
+                .byte_len(&r.manifest.identity.profile, t, region.discard)?;
         }
         ensure!(bytes <= limit, "regional masks exceed global budget");
         Ok(tiles
@@ -615,7 +649,18 @@ impl SharedClient {
             index.precincts().iter().all(|p| p.tile == tile),
             "wrong descriptor tile"
         );
-        let minimum = index.retained_heap_bytes() as usize + bytes.len();
+        let compact_metadata: usize = self
+            .entries
+            .values()
+            .map(|r| {
+                r.manifest
+                    .identity
+                    .validity
+                    .as_ref()
+                    .map_or(0, validity::ValidityIdentity::compact_metadata_bytes)
+            })
+            .sum();
+        let minimum = index.retained_heap_bytes() as usize + bytes.len() + compact_metadata;
         ensure!(
             minimum <= self.limits.descriptor_bytes,
             "descriptor exceeds global budget"
@@ -869,10 +914,11 @@ impl SharedClient {
         let coefficients = plan.selected_block_coefficients();
         let workspace_bytes = plan.required_workspace_bytes();
         let bits = r.manifest.identity.profile.bits_per_sample;
-        let validity = if r.manifest.identity.validity.is_some() {
-            Some(validity::combine_region(
+        let validity = if let Some(identity) = &r.manifest.identity.validity {
+            Some(validity::combine_region_encoded(
                 &r.manifest.identity.profile,
                 region,
+                identity.policy == validity::COMPACT_POLICY,
                 |tile, discard| {
                     r.masks
                         .get(&(discard, tile))
