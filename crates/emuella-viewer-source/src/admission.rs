@@ -137,7 +137,7 @@ impl SharedClient {
             .masks
             .iter()
             .filter_map(|k| r.masks.get(k))
-            .map(Vec::len)
+            .map(<[u8]>::len)
             .sum::<usize>();
         let missing = bytes - retained;
         self.next_request = scope.0;
@@ -212,7 +212,7 @@ impl SharedClient {
                 r.masks
                     .keys()
                     .filter(move |k| tid != &active.tid || !active.masks.contains(k))
-                    .map(move |k| (r.used, tid.clone(), *k))
+                    .map(move |k| (r.used, tid.clone(), k))
             })
             .min();
         if let Some((_, tid, mask)) = mask {

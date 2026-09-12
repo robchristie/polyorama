@@ -15,7 +15,9 @@ use std::ops::Range;
 mod admission;
 use admission::ActiveRequest;
 pub use admission::RequestScope;
+mod mask_cache;
 pub mod validity;
+use mask_cache::MaskCache;
 
 pub fn checked<T, E: std::fmt::Debug>(result: std::result::Result<T, E>) -> Result<T> {
     result.map_err(|e| anyhow!("{e:?}"))
@@ -355,7 +357,7 @@ struct Resident {
     manifest: Manifest,
     cache: jpip::Cache,
     descriptors: BTreeMap<u16, Vec<u8>>,
-    masks: BTreeMap<(u8, u16), Vec<u8>>,
+    masks: MaskCache,
     index: IndexedLossyHt,
     used: u64,
 }
@@ -390,6 +392,7 @@ pub struct SharedClient {
     pub metrics: ClientMetrics,
     active_request: Option<ActiveRequest>,
     next_request: u64,
+    peak_mask_cache_metadata_bytes: usize,
 }
 pub struct ResponseReader {
     tid: String,
@@ -414,6 +417,7 @@ impl SharedClient {
             metrics: ClientMetrics::default(),
             active_request: None,
             next_request: 0,
+            peak_mask_cache_metadata_bytes: 0,
         }
     }
     pub fn register(&mut self, manifest: Manifest) -> Result<()> {
@@ -432,9 +436,6 @@ impl SharedClient {
             );
             return Ok(());
         }
-        while self.entries.len() >= self.limits.representations {
-            self.evict_other("")?;
-        }
         let mut cache = jpip::Cache::new(jpip::CacheLimits {
             bytes: self.limits.compressed_bytes,
             bins: admission::BIN_LIMIT,
@@ -448,12 +449,26 @@ impl SharedClient {
             .validity
             .as_ref()
             .map_or(0, validity::ValidityIdentity::compact_metadata_bytes);
+        let tiles = manifest.identity.profile.tiles() as usize;
+        let slots = if manifest.identity.validity.is_some() {
+            tiles
+                .checked_mul(usize::from(manifest.identity.profile.decomposition_levels) + 1)
+                .ok_or_else(|| anyhow!("mask catalogue slot count overflow"))?
+        } else {
+            0
+        };
+        let metadata = metadata
+            .checked_add(MaskCache::planned_metadata(slots)?)
+            .ok_or_else(|| anyhow!("mask catalogue metadata overflow"))?;
+        let admission = (index.retained_heap_bytes() as usize)
+            .checked_add(metadata)
+            .ok_or_else(|| anyhow!("manifest metadata overflow"))?;
         ensure!(
-            index.retained_heap_bytes() as usize + metadata <= self.limits.descriptor_bytes,
+            admission <= self.limits.descriptor_bytes,
             "manifest metadata exceeds descriptor budget"
         );
-        while self.resident_bytes().1 + index.retained_heap_bytes() as usize + metadata
-            > self.limits.descriptor_bytes
+        while self.entries.len() >= self.limits.representations
+            || self.resident_bytes().1 > self.limits.descriptor_bytes - admission
         {
             self.evict_other("")?;
         }
@@ -463,11 +478,12 @@ impl SharedClient {
                 manifest,
                 cache,
                 descriptors: BTreeMap::new(),
-                masks: BTreeMap::new(),
+                masks: MaskCache::new(tiles, slots),
                 index,
                 used: self.clock,
             },
         );
+        self.observe_resident();
         Ok(())
     }
     fn evict_other(&mut self, keep: &str) -> Result<()> {
@@ -495,13 +511,14 @@ impl SharedClient {
         (
             self.entries
                 .values()
-                .map(|r| r.cache.bytes() + r.masks.values().map(Vec::len).sum::<usize>())
+                .map(|r| r.cache.bytes() + r.masks.values().map(<[u8]>::len).sum::<usize>())
                 .sum(),
             self.entries
                 .values()
                 .map(|r| {
                     r.descriptors.values().map(Vec::len).sum::<usize>()
                         + r.index.retained_heap_bytes() as usize
+                        + r.masks.metadata_bytes()
                         + r.manifest
                             .identity
                             .validity
@@ -514,11 +531,35 @@ impl SharedClient {
     // Admitted cache high-water marks; codec admission scratch and transport
     // buffers have separate limits and remain part of process memory evidence.
     fn observe_resident(&mut self) {
+        self.peak_mask_cache_metadata_bytes = self
+            .peak_mask_cache_metadata_bytes
+            .max(self.mask_cache_metadata_bytes());
         let mask_bytes = self.mask_bytes();
         self.metrics.peak_mask_bytes = self.metrics.peak_mask_bytes.max(mask_bytes);
         let (compressed, descriptors) = self.resident_bytes();
         self.metrics.peak_compressed_bytes = self.metrics.peak_compressed_bytes.max(compressed);
         self.metrics.peak_descriptor_bytes = self.metrics.peak_descriptor_bytes.max(descriptors);
+    }
+    pub fn peak_mask_cache_metadata_bytes(&self) -> usize {
+        self.peak_mask_cache_metadata_bytes
+    }
+    pub fn mask_cache_metadata_bytes(&self) -> usize {
+        self.entries
+            .values()
+            .map(|r| r.masks.metadata_bytes())
+            .sum()
+    }
+    pub fn mask_cache_entries(&self) -> usize {
+        self.entries.values().map(|r| r.masks.len()).sum()
+    }
+    pub fn mask_cache_slots(&self) -> usize {
+        self.entries.values().map(|r| r.masks.slots()).sum()
+    }
+    pub fn mask_cache_container_bytes(&self) -> usize {
+        self.entries.len() * MaskCache::CONTAINER_BYTES
+    }
+    pub fn mask_cache_slot_bytes(&self) -> usize {
+        MaskCache::SLOT_BYTES
     }
     pub fn compact_catalogue_metadata_bytes(&self) -> usize {
         self.entries
@@ -536,7 +577,7 @@ impl SharedClient {
         self.entries
             .values()
             .flat_map(|r| r.masks.values())
-            .map(Vec::len)
+            .map(<[u8]>::len)
             .sum()
     }
     pub fn missing_masks(&mut self, tid: &str, region: &Region) -> Result<Vec<u16>> {
@@ -578,6 +619,12 @@ impl SharedClient {
             .as_ref()
             .ok_or_else(|| anyhow!("mask not declared"))?
             .check(&r.manifest.identity.profile, tile, discard, bytes)?;
+        let compact = r
+            .manifest
+            .identity
+            .validity
+            .as_ref()
+            .is_some_and(|v| v.policy == validity::COMPACT_POLICY);
         ensure!(
             bytes.len() <= self.limits.compressed_bytes,
             "mask exceeds global budget"
@@ -600,7 +647,7 @@ impl SharedClient {
                 .iter()
                 .filter(|(_, r)| !r.masks.is_empty())
                 .min_by_key(|(_, r)| r.used)
-                .map(|(k, r)| (k.clone(), *r.masks.keys().next().unwrap()));
+                .map(|(k, r)| (k.clone(), r.masks.keys().next().unwrap()));
             if let Some((key, mask)) = victim {
                 self.entries.get_mut(&key).unwrap().masks.remove(&mask);
                 self.metrics.mask_evictions += 1;
@@ -616,7 +663,7 @@ impl SharedClient {
         }
         self.touch(tid)?
             .masks
-            .insert((discard, tile), bytes.to_vec());
+            .insert((discard, tile), bytes, compact)?;
         self.observe_resident();
         Ok(())
     }
@@ -660,7 +707,23 @@ impl SharedClient {
                     .map_or(0, validity::ValidityIdentity::compact_metadata_bytes)
             })
             .sum();
-        let minimum = index.retained_heap_bytes() as usize + bytes.len() + compact_metadata;
+        let mask_metadata = self.mask_cache_metadata_bytes();
+        let minimum = self
+            .entries
+            .iter()
+            .filter(|(key, _)| key.as_str() != tid)
+            .try_fold(
+                (index.retained_heap_bytes() as usize)
+                    .checked_add(bytes.len())
+                    .and_then(|n| n.checked_add(compact_metadata))
+                    .and_then(|n| n.checked_add(mask_metadata))
+                    .ok_or_else(|| anyhow!("descriptor metadata overflow"))?,
+                |total, (_, r)| -> Result<usize> {
+                    total
+                        .checked_add(r.manifest.sparse()?.retained_heap_bytes() as usize)
+                        .ok_or_else(|| anyhow!("descriptor metadata overflow"))
+                },
+            )?;
         ensure!(
             minimum <= self.limits.descriptor_bytes,
             "descriptor exceeds global budget"
@@ -922,7 +985,6 @@ impl SharedClient {
                 |tile, discard| {
                     r.masks
                         .get(&(discard, tile))
-                        .map(Vec::as_slice)
                         .ok_or_else(|| anyhow!("required mask absent"))
                 },
             )?)

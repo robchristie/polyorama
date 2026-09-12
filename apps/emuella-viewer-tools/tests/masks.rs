@@ -437,3 +437,95 @@ fn compact_constant_cache_is_one_byte_and_metadata_has_a_budget() {
             .contains("metadata")
     );
 }
+
+#[test]
+fn compact_catalogue_slots_are_precharged_before_allocation_and_released_with_representation() {
+    let temp = tempfile::tempdir().unwrap();
+    let mut manifest = prepare_policy(&temp.path().join("slots"), validity::COMPACT_POLICY);
+    let validity = manifest.identity.validity.as_mut().unwrap();
+    for level in &mut validity.tile_sha256 {
+        for entry in level {
+            *entry = validity::catalogue_entry(validity::COMPACT_POLICY, &[1]).unwrap();
+        }
+    }
+    manifest.seal().unwrap();
+    let mut probe = SharedClient::new(ClientLimits::default());
+    probe.register(manifest.clone()).unwrap();
+    let required = probe.resident_bytes().1;
+    let expected_slots = manifest.identity.profile.tiles() as usize
+        * (usize::from(manifest.identity.profile.decomposition_levels) + 1);
+    assert_eq!(probe.mask_cache_slots(), expected_slots);
+    let metadata = probe.mask_cache_metadata_bytes();
+    assert_eq!(
+        metadata,
+        expected_slots * probe.mask_cache_slot_bytes() + probe.mask_cache_container_bytes()
+    );
+    assert_eq!(probe.mask_cache_entries(), 0);
+    assert_eq!(probe.mask_bytes(), 0);
+    let mut too_small = SharedClient::new(ClientLimits {
+        descriptor_bytes: required - 1,
+        ..Default::default()
+    });
+    assert!(
+        too_small
+            .register(manifest.clone())
+            .unwrap_err()
+            .to_string()
+            .contains("metadata")
+    );
+    assert_eq!(too_small.resident_bytes(), (0, 0));
+    assert_eq!(too_small.mask_cache_metadata_bytes(), 0);
+    assert_eq!(too_small.peak_mask_cache_metadata_bytes(), 0);
+    let mut client = SharedClient::new(ClientLimits {
+        compressed_bytes: 1,
+        descriptor_bytes: required,
+        representations: 1,
+        ..Default::default()
+    });
+    client.register(manifest.clone()).unwrap();
+    for tile in [0, 1, 0] {
+        client.install_mask(&manifest.tid, tile, 0, &[1]).unwrap();
+        assert_eq!(client.mask_bytes(), 1);
+        assert_eq!(client.mask_cache_entries(), 1);
+        assert_eq!(client.mask_cache_metadata_bytes(), metadata);
+        assert_eq!(client.resident_bytes().1, required);
+        assert_eq!(client.request_reservation(), (0, 0));
+    }
+    assert_eq!(client.metrics.mask_evictions, 2);
+    let before = client.resident_bytes();
+    assert!(client.install_mask(&manifest.tid, 1, 0, &[0]).is_err());
+    assert_eq!(client.resident_bytes(), before);
+    assert_eq!(client.mask_cache_entries(), 1);
+    // An impossible replacement is rejected before evicting an existing identity.
+    let mut larger = manifest.clone();
+    larger.identity.source_sha256 = sha256(b"different authenticated source");
+    for entry in larger
+        .identity
+        .validity
+        .as_mut()
+        .unwrap()
+        .tile_sha256
+        .iter_mut()
+        .flatten()
+    {
+        entry.reserve_exact(1024);
+    }
+    larger.seal().unwrap();
+    assert!(client.register(larger).is_err());
+    assert_eq!(client.metrics.representation_evictions, 0);
+    assert_eq!(client.resident_bytes(), before);
+    // Removing the optional contract retains only the fixed container, no catalogue slots.
+    let mut unmasked = manifest;
+    unmasked.identity.validity = None;
+    unmasked.seal().unwrap();
+    client.register(unmasked).unwrap();
+    assert_eq!(client.metrics.representation_evictions, 1);
+    assert_eq!(client.mask_cache_slots(), 0);
+    assert_eq!(client.mask_cache_entries(), 0);
+    assert_eq!(client.mask_bytes(), 0);
+    assert_eq!(
+        client.mask_cache_metadata_bytes(),
+        client.mask_cache_container_bytes()
+    );
+    assert_eq!(client.peak_mask_cache_metadata_bytes(), metadata);
+}

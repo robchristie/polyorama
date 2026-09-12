@@ -1,5 +1,10 @@
 # Compact validity qualification results
 
+> Historical observation: independent review rejected this candidate’s resource
+> qualification because mask-cache entry metadata was uncharged. Exactness and
+> delivery observations below are retained unchanged; they do not qualify the
+> repaired metadata accounting runtime.
+
 **Exact validity and compact payload qualification passed, with three oversized
 pressure windows excluded on each pass.** The strict pressure predicate remains
 failed at **44/47 per pass**. Historical quality, normal-latency, scheduling, RSS

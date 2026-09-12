@@ -52,7 +52,27 @@ hashes count against the existing descriptor budget and are exposed as
 `compact_catalogue_metadata_bytes`. Manifest bytes and serialised two-byte tags
 are reported separately. No limit is increased. A request rejection reports
 image-bin bytes, mask bytes, their sum and the unchanged compressed limit.
-Existing request/pin metadata metrics expose active, peak and terminal release.
+The mask cache precharges one dense boxed slot array per authenticated tile/level
+catalogue before allocating or publishing the representation. Its exact logical
+metadata charge is `slots × size_of::<MaskSlot>() + size_of::<MaskCache>()`,
+including the container header, occupancy counter, implicit key position, enum
+state and bitmap pointer/length. Slot count and byte arithmetic are checked and
+admitted against the existing descriptor limit. Unmasked legacy representations
+allocate no slots. Constants occupy inline enum variants and return static
+encoded bytes; mixed and legacy bitmaps use exact-length boxed slices. The
+one-byte compressed charge for a constant conservatively overlaps its inline
+state storage. No per-mask map node, key or growable payload capacity remains.
+
+`mask_cache_metadata_bytes`, `peak_mask_cache_metadata_bytes`,
+`mask_cache_entries`, `mask_cache_slots`, `mask_cache_slot_bytes` and
+`mask_cache_container_bytes` expose the current/peak charge and its exact
+composition on each native/WASM target. Payload eviction releases bitmap bytes
+and occupancy but retains the precharged empty slot. Refetch does not grow
+metadata; representation eviction releases the entire slot array and container
+charge. Descriptor admission includes these fixed floors even when reclaiming
+other descriptor caches. An impossible registration fails before eviction or
+slot allocation. Existing request/pin metadata metrics expose active, peak and
+terminal release.
 These logical allocations do not claim process RSS or allocator overhead proof.
 
 `emuella-viewer-tools compact-validity --input LEGACY --output FRESH` writes a

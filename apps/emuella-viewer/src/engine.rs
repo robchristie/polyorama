@@ -93,6 +93,18 @@ pub struct WorkerMetrics {
     pub mask_bytes: usize,
     #[serde(default)]
     pub compact_catalogue_metadata_bytes: usize,
+    #[serde(default)]
+    pub mask_cache_metadata_bytes: usize,
+    #[serde(default)]
+    pub peak_mask_cache_metadata_bytes: usize,
+    #[serde(default)]
+    pub mask_cache_entries: usize,
+    #[serde(default)]
+    pub mask_cache_slots: usize,
+    #[serde(default)]
+    pub mask_cache_slot_bytes: usize,
+    #[serde(default)]
+    pub mask_cache_container_bytes: usize,
     pub peak_mask_bytes: usize,
     pub mask_evictions: u64,
     pub decode_count: u64,
@@ -207,6 +219,12 @@ impl Engine {
         m.received_mask_bytes = c.received_mask_bytes;
         m.mask_bytes = self.client.mask_bytes();
         m.compact_catalogue_metadata_bytes = self.client.compact_catalogue_metadata_bytes();
+        m.mask_cache_metadata_bytes = self.client.mask_cache_metadata_bytes();
+        m.peak_mask_cache_metadata_bytes = self.client.peak_mask_cache_metadata_bytes();
+        m.mask_cache_entries = self.client.mask_cache_entries();
+        m.mask_cache_slots = self.client.mask_cache_slots();
+        m.mask_cache_slot_bytes = self.client.mask_cache_slot_bytes();
+        m.mask_cache_container_bytes = self.client.mask_cache_container_bytes();
         m.peak_mask_bytes = c.peak_mask_bytes;
         m.mask_evictions = c.mask_evictions;
         m.decode_count = c.decode_count;

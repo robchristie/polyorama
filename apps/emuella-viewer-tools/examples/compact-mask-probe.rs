@@ -91,7 +91,11 @@ fn main() -> Result<()> {
                     serde_json::json!({"target":manifest.target,"tid":manifest.tid,"index":index,"region":region,
                     "pixels":expected_validity.len(),"samples":samples.len()/2,"validity_sha256":sha256(&expected_validity),"samples_sha256":sha256(&samples),
                     "reservation_bytes":reservation.0,"pin_metadata_bytes":reservation.1,"resident_bytes":client.resident_bytes(),
-                    "compact_catalogue_metadata_bytes":client.compact_catalogue_metadata_bytes(),"metrics":client.metrics}),
+                    "compact_catalogue_metadata_bytes":client.compact_catalogue_metadata_bytes(),
+                    "mask_cache_metadata_bytes":client.mask_cache_metadata_bytes(),
+                    "peak_mask_cache_metadata_bytes":client.peak_mask_cache_metadata_bytes(),
+                    "mask_cache_entries":client.mask_cache_entries(),"mask_cache_slots":client.mask_cache_slots(),
+                    "mask_cache_slot_bytes":client.mask_cache_slot_bytes(),"mask_cache_container_bytes":client.mask_cache_container_bytes(),"metrics":client.metrics}),
                 )
             })();
             client.end_request(scope);
