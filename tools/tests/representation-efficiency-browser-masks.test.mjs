@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { sha256, STORE, ASSETS, makePlan as legacyPlan, pressureProof } from '../viewer-acceptance-browser-masks.mjs';
 import { LIMITS, compactIdentity, inspectCompactMask, released, oversizedRequirement,
-  makePlan, validateTemporaryAlias, parseArgs, createProofServer, hardwareAdapter, gpuIdentity } from '../representation-efficiency-browser-masks.mjs';
+  makePlan, validateTemporaryAlias, parseArgs, createProofServer, hardwareAdapter, gpuIdentity, checkCompactMetrics } from '../representation-efficiency-browser-masks.mjs';
 
 const profile = { width: 3, height: 1, tile_edge: 512, decomposition_levels: 6, components: 1, bits_per_sample: 16 };
 function fixture(state, discard = 0) {
@@ -120,4 +120,21 @@ test('GPU handshake retains bounded identity without raw extension or command-li
   assert.equal(result.handshake, 'SystemInfo.getInfo/1'); assert.equal(result.devices[0].vendorId, 4318);
   assert.equal(JSON.stringify(result).includes('omit'), false);
   assert.throws(() => gpuIdentity({ gpu: { devices: Array(9).fill({}) } }), /bounded/);
+});
+
+test('cache slot and container metadata remain charged when no payload entries remain', () => {
+  const metrics = Object.fromEntries(['compressed_bytes', 'peak_compressed_bytes', 'mask_bytes', 'peak_mask_bytes',
+    'mask_evictions', 'received_mask_bytes', 'decode_count', 'retries', 'peak_codec_workspace_bytes',
+    'request_working_set_bytes', 'request_pin_metadata_bytes', 'peak_request_working_set_bytes',
+    'peak_request_pin_metadata_bytes'].map(k => [k, 0]));
+  Object.assign(metrics, { descriptor_bytes: 80, peak_descriptor_bytes: 80, compact_catalogue_metadata_bytes: 4,
+    mask_cache_metadata_bytes: 64, peak_mask_cache_metadata_bytes: 64, mask_cache_entries: 0,
+    mask_cache_slots: 3, mask_cache_slot_bytes: 16, mask_cache_container_bytes: 16 });
+  assert.equal(checkCompactMetrics(metrics, LIMITS.pressureCompressedBytes), true);
+  assert.equal(checkCompactMetrics({ ...metrics, mask_cache_metadata_bytes: 0 }, LIMITS.pressureCompressedBytes), false);
+  assert.equal(checkCompactMetrics({ ...metrics, descriptor_bytes: 64 }, LIMITS.pressureCompressedBytes), false);
+  assert.equal(checkCompactMetrics({ ...metrics, mask_cache_entries: 4 }, LIMITS.pressureCompressedBytes), false);
+  assert.throws(() => checkCompactMetrics({ ...metrics, mask_cache_container_bytes: undefined }, LIMITS.pressureCompressedBytes), /missing compact metric/);
+  const wasm = { ...metrics, mask_cache_slot_bytes: 8, mask_cache_container_bytes: 8, mask_cache_metadata_bytes: 32 };
+  assert.equal(checkCompactMetrics(wasm, LIMITS.pressureCompressedBytes), true);
 });

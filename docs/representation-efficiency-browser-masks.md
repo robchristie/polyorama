@@ -88,7 +88,13 @@ and hashes, never pixel dumps outside their authorised store. Persistence fields
 separate image payload, descriptors, old/new masks, old/new manifests, total bytes
 and new state metadata. Worker delivery, current/peak compressed and mask bytes,
 metadata, codec workspace, WASM linear memory, reservations and pin metadata are
-reported separately. Runtime timing fields are omitted; no speed claim follows.
+reported separately. Mask-cache slots, target slot size, aggregate container
+bytes, current/peak charged cache metadata and occupied-entry counts are required.
+The runner checks exact `slots × slot size + container bytes` accounting,
+occupancy bounds and that cache plus catalogue metadata fits descriptor residency.
+Empty slots remain charged after payload eviction. Constants have no separate
+payload heap; their logical encoded byte remains conservatively compressed-budgeted.
+Runtime timing fields are omitted; no speed claim follows.
 
 A complete scoped result with oversized pressure exclusions exits zero and names
 them in `pressure.exclusions`; strict pressure completion remains explicitly
@@ -116,3 +122,20 @@ in approved `representation-efficiency-browser-masks-gpu-diagnosis-01-execution`
 `-02-execution` and `-03-execution` groups. The fixed launch sequence is one CDP
 handshake then one adapter observation per context; no adapter retry loop, delay,
 Worker change, scene change or scheduler change is introduced.
+
+## Retained-entry metadata repair qualification
+
+Independent review found that the original bitmap-map entry/key/container overhead
+was not charged. Preserve `candidate-02` as earlier exactness and observed-counter
+evidence; its counters do not establish corrected retained-memory qualification.
+The repaired runtime replaces that cache with precharged dense slots and inline
+constant states, using the same descriptor and compressed budgets. The new required
+metrics above reject omitted metadata rather than interpreting its absence as zero.
+
+Use the same immutable compact representations, original native references and
+complete 2,311-job/47-window protocol in fresh `candidate-03` and `-execution`
+groups on the repaired committed runtime. Rehash the applicable input identities;
+do not reconvert or re-encode unchanged imagery. Retain all earlier setup and
+measurement outcomes with their original revisions. This repair changes cache
+accounting, not source validity, requested geometry, Worker scheduling or pressure
+acceptance.

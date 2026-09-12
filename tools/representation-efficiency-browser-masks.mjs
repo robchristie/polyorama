@@ -143,17 +143,27 @@ export function oversizedRequirement(error) {
 }
 export function checkCompactMetrics(metrics, compressed) {
   for (const key of ['request_working_set_bytes', 'request_pin_metadata_bytes',
-    'peak_request_working_set_bytes', 'peak_request_pin_metadata_bytes', 'compact_catalogue_metadata_bytes'])
+    'peak_request_working_set_bytes', 'peak_request_pin_metadata_bytes', 'compact_catalogue_metadata_bytes',
+    'mask_cache_metadata_bytes', 'peak_mask_cache_metadata_bytes', 'mask_cache_entries',
+    'mask_cache_slots', 'mask_cache_slot_bytes', 'mask_cache_container_bytes'])
     uint(metrics?.[key], Number.MAX_SAFE_INTEGER, `missing compact metric ${key}`);
+  const cacheMetadata = metrics.mask_cache_slots * metrics.mask_cache_slot_bytes + metrics.mask_cache_container_bytes;
   return checkMetrics(metrics, compressed) && metrics.peak_request_working_set_bytes <= compressed
-    && metrics.compact_catalogue_metadata_bytes <= metrics.descriptor_bytes;
+    && metrics.mask_cache_slot_bytes > 0 && Number.isSafeInteger(cacheMetadata)
+    && metrics.mask_cache_metadata_bytes === cacheMetadata
+    && metrics.mask_cache_entries <= metrics.mask_cache_slots
+    && metrics.mask_cache_metadata_bytes <= metrics.peak_mask_cache_metadata_bytes
+    && metrics.peak_mask_cache_metadata_bytes <= metrics.peak_descriptor_bytes
+    && metrics.mask_cache_metadata_bytes + metrics.compact_catalogue_metadata_bytes <= metrics.descriptor_bytes;
 }
 function summariseMetrics(metrics) {
   const fields = ['compressed_bytes', 'peak_compressed_bytes', 'descriptor_bytes', 'peak_descriptor_bytes',
     'mask_bytes', 'peak_mask_bytes', 'mask_evictions', 'received_mask_bytes', 'decode_count', 'retries',
     'received_jpp_bytes', 'received_descriptor_bytes', 'peak_codec_workspace_bytes', 'wasm_linear_bytes',
     'request_working_set_bytes', 'request_pin_metadata_bytes', 'peak_request_working_set_bytes',
-    'peak_request_pin_metadata_bytes', 'compact_catalogue_metadata_bytes'];
+    'peak_request_pin_metadata_bytes', 'compact_catalogue_metadata_bytes',
+    'mask_cache_metadata_bytes', 'peak_mask_cache_metadata_bytes', 'mask_cache_entries',
+    'mask_cache_slots', 'mask_cache_slot_bytes', 'mask_cache_container_bytes'];
   return Object.fromEntries(fields.map(k => [k, metrics[k] ?? null]));
 }
 
