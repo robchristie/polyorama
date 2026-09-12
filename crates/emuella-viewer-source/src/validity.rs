@@ -167,6 +167,15 @@ fn set(bytes: &mut [u8], i: usize, value: bool) {
 }
 /// Generate all levels from one native tile of GDAL nonzero validity bytes.
 pub fn encode_tile(width: u32, height: u32, levels: u8, bands: &[Vec<u8>]) -> Result<Vec<Vec<u8>>> {
+    encode_bitmap_tile(width, height, levels, bands, false)
+}
+fn encode_bitmap_tile(
+    width: u32,
+    height: u32,
+    levels: u8,
+    bands: &[Vec<u8>],
+    compact: bool,
+) -> Result<Vec<Vec<u8>>> {
     ensure!(
         width > 0
             && width <= 1024
@@ -184,7 +193,11 @@ pub fn encode_tile(width: u32, height: u32, levels: u8, bands: &[Vec<u8>]) -> Re
         let h = height.div_ceil(scale);
         let plane = (w * h).div_ceil(8) as usize;
         let planes = if d == 0 { 1 } else { 2 };
-        let mut bytes = vec![0; plane * planes * bands.len()];
+        let prefix = usize::from(compact);
+        let mut bytes = vec![0; prefix + plane * planes * bands.len()];
+        if compact {
+            bytes[0] = 2;
+        }
         for (c, band) in bands.iter().enumerate() {
             for y in 0..h {
                 for x in 0..w {
@@ -198,9 +211,9 @@ pub fn encode_tile(width: u32, height: u32, levels: u8, bands: &[Vec<u8>]) -> Re
                         }
                     }
                     let i = (y * w + x) as usize;
-                    set(&mut bytes[c * plane * planes..], i, all);
+                    set(&mut bytes[prefix + c * plane * planes..], i, all);
                     if d > 0 {
-                        set(&mut bytes[c * plane * planes + plane..], i, any);
+                        set(&mut bytes[prefix + c * plane * planes + plane..], i, any);
                     }
                 }
             }
@@ -232,13 +245,7 @@ pub fn encode_compact_tile(
     if bands.iter().flatten().all(|&v| v != 0) {
         return Ok(vec![vec![1]; usize::from(levels) + 1]);
     }
-    Ok(encode_tile(width, height, levels, bands)?
-        .into_iter()
-        .map(|mut bytes| {
-            bytes.insert(0, 2);
-            bytes
-        })
-        .collect())
+    encode_bitmap_tile(width, height, levels, bands, true)
 }
 /// Authenticate the state as well as its exact encoded bytes in the existing catalogue.
 pub fn catalogue_entry(policy: &str, bytes: &[u8]) -> Result<String> {
@@ -366,6 +373,11 @@ mod tests {
                     let bytes = &compact[tile as usize][d as usize];
                     identity.check(&p, tile, d, bytes).unwrap();
                     assert_eq!(identity.byte_len(&p, tile, d).unwrap(), bytes.len());
+                    assert_eq!(
+                        bytes.capacity(),
+                        bytes.len(),
+                        "encoded mask allocation is exact"
+                    );
                     if uniform.is_some() {
                         assert_eq!(bytes.len(), 1);
                     } else {
