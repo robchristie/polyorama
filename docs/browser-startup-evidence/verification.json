@@ -1,0 +1,29 @@
+{
+  "recordedAt": "2026-09-18T04:41:55.461282+00:00",
+  "canonical": {
+    "command": "cargo xtask verify",
+    "result": "passed",
+    "environment": {
+      "DISPLAY": ":94",
+      "POLYORAMA_BROWSER_HEADFUL": "1",
+      "POLYORAMA_USE_SYSTEM_UI_LIBS": "1",
+      "LD_LIBRARY_PATH": "repository .tools/sysroot/usr/lib",
+      "PATH": "repository Xvfb/bwrap wrapper and UI sysroot tools before normal PATH"
+    },
+    "logSha256": "8db1e85a88392d9eefb99166bd5ae6066c5a6c8ec80b6aa9ecb660b9b104e8fa",
+    "logPath": ".tools/runtime/browser-startup/canonical.log"
+  },
+  "artifactReuse": "Canonical production build apps/settings/tool versions exactly match five-pair final manifest and raw samples; provenance-only revision/dirty fields do not enter asset identity. No changed artifact is qualified by previous codec results.",
+  "focusedTests": {
+    "passed": 33,
+    "failed": 0,
+    "skipped": 0
+  },
+  "finalContentIds": {
+    "gallery": "3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd",
+    "lab": "603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11",
+    "viewer": "eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7"
+  },
+  "remainingLandingEvidence": "Independent review, committed-candidate journey, live CI and post-merge CI recorded on PR #40",
+  "optionalFixtureSmoke": "Normal and cancellation/bounds checks pass; eviction thresholds not exercised by existing small fixtures in baseline or final; unchanged full-smoke assertions fail explicitly (fixture-smoke.json)."
+}

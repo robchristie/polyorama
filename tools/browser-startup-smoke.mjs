@@ -7,7 +7,7 @@ const directory = process.argv[2] || 'target/browser-production';
 const browser = await chromium.launch(hostedLinuxWebGpuLaunchOptions());
 try {
   if (process.argv[3]) {
-    const previous = createProductionServer({ directory: process.argv[3] });
+    const previous = createProductionServer({ directory: process.argv[3], recordRequests: true });
     await new Promise(resolve => previous.listen(0, '127.0.0.1', resolve));
     const port = previous.address().port;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
@@ -18,7 +18,7 @@ try {
     const oldEtag = previous.requests.find(r => r.url === '/lab/').headers.etag;
     await page.goto('about:blank');
     previous.closeAllConnections(); await new Promise(resolve => previous.close(resolve));
-    const current = createProductionServer({ directory, retainedDirectories: [process.argv[3]] });
+    const current = createProductionServer({ directory, recordRequests: true, retainedDirectories: [process.argv[3]] });
     await new Promise(resolve => current.listen(port, '127.0.0.1', resolve));
     try {
       const newId = current.manifest.apps.find(app => app.name === 'lab').contentId;

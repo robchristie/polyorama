@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { cpus, totalmem, platform, release, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { hostedLinuxWebGpuLaunchOptions } from './browser-launch.mjs';
 import { createProductionServer } from './browser-serve.mjs';
@@ -36,7 +37,7 @@ await mkdir(output, { recursive: true });
 const manifestBytes = await readFile(join(directory, 'manifest.json'));
 const manifest = JSON.parse(manifestBytes);
 const report = {
-  schema: 1, recordedAt: new Date().toISOString(), sourceRevision: command('git', ['rev-parse', 'HEAD']),
+  schema: 1, runnerSha256: hash(await readFile(fileURLToPath(import.meta.url))), serverSha256: hash(await readFile(new URL('./browser-serve.mjs', import.meta.url))), recordedAt: new Date().toISOString(), sourceRevision: command('git', ['rev-parse', 'HEAD']),
   sourceDiffSha256: hash(command('git', ['diff', 'HEAD']) ?? ''), manifestSha256: hash(manifestBytes), manifest,
   host: { platform: platform(), release: release(), cpu: cpus()[0]?.model, logicalCpus: cpus().length, memoryBytes: totalmem() },
   tools: { rustc: command('rustc', ['--version']), wasmBindgen: command('wasm-bindgen', ['--version']), node: process.version, playwright: JSON.parse(await readFile('node_modules/playwright/package.json')).version },
@@ -109,7 +110,7 @@ async function visibleInput(page, app, prefix) {
 try {
   for (const profile of profiles) {
     const network = profile === 'network' ? { bytesPerSecond: 1_250_000, latencyMs: 40 } : null;
-    const server = createProductionServer({ directory, basePath, encoding, network: network ?? undefined, fallback: report.viewerUpstream ? (req, res) => {
+    const server = createProductionServer({ directory, basePath, encoding, recordRequests: true, network: network ?? undefined, fallback: report.viewerUpstream ? (req, res) => {
       if (!/^\/(catalogue|manifest\/|descriptor\/|mask\/|jpip(?:\?|$)|metrics)/.test(req.url)) { res.writeHead(404); res.end(); return; }
       const upstream = httpRequest(new URL(req.url, report.viewerUpstream), { headers: { ...req.headers, host: new URL(report.viewerUpstream).host } }, response => { res.removeHeader('Cache-Control'); res.writeHead(response.statusCode, response.headers); server.pipeNetwork(response, res).catch(() => {}); });
       upstream.on('error', error => { res.writeHead(502); res.end(String(error)); });
@@ -159,6 +160,12 @@ try {
             sample.startup = await page.evaluate(() => window.__POLYORAMA_STARTUP);
             assert(!sample.startup.failure, JSON.stringify(sample.startup.failure));
             assert(sample.startup.milestones.workspace_frame_submitted, 'actual queue submission observation required');
+            assert.equal(sample.startup.instantiateStreaming.completed, 1, 'generated page loader must complete streaming WASM init');
+            assert.equal(sample.startup.instantiateStreaming.failures, 0, 'page loader must not fall back after a streaming error');
+            if (app !== 'gallery') {
+              assert.equal(sample.startup.worker?.instantiateStreaming.completed, 1, 'worker loader must complete streaming WASM init');
+              assert.equal(sample.startup.worker?.instantiateStreaming.failures, 0);
+            }
             sample.resources = await page.evaluate(() => performance.getEntriesByType('resource').map(entry => entry.toJSON()));
             sample.navigation = await page.evaluate(() => performance.getEntriesByType('navigation').map(entry => entry.toJSON()));
             sample.adapters = await page.evaluate(() => window.__startupAdapters);
@@ -173,6 +180,7 @@ try {
               assert.equal(d.errors.length, 0);
               assert(d.decoded_peak_bytes <= 16 << 20 && d.gpu_peak_bytes <= 64 << 20 && d.worker.peak_compressed_bytes <= 64 << 20 && d.worker.peak_descriptor_bytes <= 16 << 20);
             }
+            assert.equal(server.requestsDropped, 0, 'HTTP evidence exceeded its bounded recording capacity');
             sample.responses = responses; sample.http = server.requests?.slice(requestStart) ?? null; sample.errors = errors;
             assert.equal(errors.length, 0, errors.join('\n'));
             page.off('pageerror', onError); context.off('response', onResponse);

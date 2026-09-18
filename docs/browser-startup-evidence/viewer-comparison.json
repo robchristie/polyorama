@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "baselineManifestSha256": "52687e7488a1882416aafca1499f657ddd54410ee25b193ae576be22f1b6e4cb",
+  "finalManifestSha256": "27796a445f0c3f8de261402b47d3bb22e86343a8de2f3ea169ed898a2fa7bae7",
+  "timingMeaning": "CPU/frame opportunity and application content proxies, independently corroborated by real input/readback; not GPU presentation",
+  "comparisons": [
+    {
+      "group": "viewer/local/cold",
+      "metric": "rendering_opportunity_proxy",
+      "before": {
+        "count": 5,
+        "median": 156.5999994277954,
+        "min": 151.69999980926514,
+        "max": 165.10000038146973
+      },
+      "after": {
+        "count": 5,
+        "median": 149.29999923706055,
+        "min": 143.4000005722046,
+        "max": 161.9000005722046
+      },
+      "reductionMs": 7.300000190734863,
+      "reductionPercent": 4.6615582486644405,
+      "allowedRegressionMs": 25,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/local/cold",
+      "metric": "first_useful_content",
+      "before": {
+        "count": 5,
+        "median": 219.0999994277954,
+        "min": 209.69999980926514,
+        "max": 254.30000019073486
+      },
+      "after": {
+        "count": 5,
+        "median": 253.5,
+        "min": 235.60000038146973,
+        "max": 289.4000005722046
+      },
+      "reductionMs": -34.40000057220459,
+      "reductionPercent": -15.700593638541354,
+      "allowedRegressionMs": 44.60000038146973,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/local/repeat",
+      "metric": "rendering_opportunity_proxy",
+      "before": {
+        "count": 5,
+        "median": 63.19999980926514,
+        "min": 49.30000019073486,
+        "max": 66.69999980926514
+      },
+      "after": {
+        "count": 5,
+        "median": 79.39999961853027,
+        "min": 73.5,
+        "max": 87
+      },
+      "reductionMs": -16.199999809265137,
+      "reductionPercent": -25.63291116796841,
+      "allowedRegressionMs": 25,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/local/repeat",
+      "metric": "first_useful_content",
+      "before": {
+        "count": 5,
+        "median": 131.10000038146973,
+        "min": 117.19999980926514,
+        "max": 150.30000019073486
+      },
+      "after": {
+        "count": 5,
+        "median": 146.89999961853027,
+        "min": 140.5999994277954,
+        "max": 171.60000038146973
+      },
+      "reductionMs": -15.799999237060547,
+      "reductionPercent": -12.051868185420533,
+      "allowedRegressionMs": 33.10000038146973,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/network/cold",
+      "metric": "rendering_opportunity_proxy",
+      "before": {
+        "count": 2,
+        "median": 9567.250000476837,
+        "min": 9562.60000038147,
+        "max": 9571.900000572205
+      },
+      "after": {
+        "count": 5,
+        "median": 2653.199999809265,
+        "min": 2621.199999809265,
+        "max": 2657.5
+      },
+      "reductionMs": 6914.050000667572,
+      "reductionPercent": 72.26789307609785,
+      "allowedRegressionMs": 1435.0875000715255,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/network/cold",
+      "metric": "first_useful_content",
+      "before": {
+        "count": 2,
+        "median": 10466.300000190735,
+        "min": 10456.300000190735,
+        "max": 10476.300000190735
+      },
+      "after": {
+        "count": 5,
+        "median": 3586.5,
+        "min": 3539.199999809265,
+        "max": 3589.699999809265
+      },
+      "reductionMs": 6879.800000190735,
+      "reductionPercent": 65.73287599309555,
+      "allowedRegressionMs": 1569.9450000286101,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/network/repeat",
+      "metric": "rendering_opportunity_proxy",
+      "before": {
+        "count": 2,
+        "median": 97.90000009536743,
+        "min": 97.89999961853027,
+        "max": 97.90000057220459
+      },
+      "after": {
+        "count": 5,
+        "median": 113.79999923706055,
+        "min": 110.19999980926514,
+        "max": 118.09999942779541
+      },
+      "reductionMs": -15.899999141693115,
+      "reductionPercent": -16.241061415939154,
+      "allowedRegressionMs": 25,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    },
+    {
+      "group": "viewer/network/repeat",
+      "metric": "first_useful_content",
+      "before": {
+        "count": 2,
+        "median": 923.4000000953674,
+        "min": 915.1999998092651,
+        "max": 931.6000003814697
+      },
+      "after": {
+        "count": 5,
+        "median": 960.5,
+        "min": 948.0999994277954,
+        "max": 967.8999996185303
+      },
+      "reductionMs": -37.09999990463257,
+      "reductionPercent": -4.017760439766183,
+      "allowedRegressionMs": 138.51000001430512,
+      "regressionGatePassed": true,
+      "meaningfulNetworkGain": null
+    }
+  ],
+  "regressionGatesPassed": true,
+  "primaryGainPassed": null
+}

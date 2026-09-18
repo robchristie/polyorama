@@ -2,7 +2,10 @@
 
 Polyorama's browser packaging is a small post-`wasm-bindgen` step, usable without
 a frontend bundler. The Lab, Gallery and viewer use the same host startup helper.
-Native release settings and the viewer's image/JPIP contracts are unchanged.
+The production default retains unprocessed bindgen WASM and adds compressed,
+versioned delivery. Pinned `wasm-opt` variants remain explicit measurement options;
+neither passed every finalist gate. Native release settings and the viewer's
+image/JPIP contracts are unchanged.
 
 ## Build and serve
 
@@ -38,7 +41,7 @@ exports therefore remain, as do Gallery's useful catalogue/configuration/snapsho
 APIs. Runtime diagnostics, persistence, keyboard handling and accessibility are
 unchanged.
 
-Production starts with clean bindgen staging, then optimises WASM, compresses
+Production starts with clean bindgen staging, optionally post-processes WASM, compresses
 assets and validates the **final** viewer WASM response adapter. Output contains:
 
 ```text
@@ -129,6 +132,7 @@ node tools/browser-startup-benchmark.mjs \
   --directory target/browser-production --output .tools/runtime/startup-final \
   --apps lab,gallery --pairs 5 --profiles local,network
 node tools/browser-startup-smoke.mjs target/browser-production
+node tools/browser-startup-compare.mjs BASELINE/results.json FINAL/results.json
 cargo xtask verify
 ```
 

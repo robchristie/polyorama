@@ -23,7 +23,7 @@ export function negotiateEncoding(header = '', available = ['br', 'gzip', 'ident
 }
 
 /** Return an unbound HTTP server. Only manifest-declared package resources are served. */
-export function createProductionServer({ directory = 'target/browser-production', retainedDirectories = [], basePath = '/', encoding = 'negotiated', network = null, fallback = null } = {}) {
+export function createProductionServer({ directory = 'target/browser-production', retainedDirectories = [], basePath = '/', encoding = 'negotiated', network = null, fallback = null, recordRequests = false, maxRequestRecords = 4096 } = {}) {
   directory = realpathSync(directory);
   if (!/^\/(?:[a-zA-Z0-9_-]+\/)*$/.test(basePath)) throw new Error('basePath must be / or a slash-terminated path such as /preview/');
   if (!['negotiated', 'identity'].includes(encoding)) throw new Error(`Unknown encoding mode ${encoding}`);
@@ -62,6 +62,7 @@ export function createProductionServer({ directory = 'target/browser-production'
     const packageDirectory = realpathSync(retainedDirectory);
     addAssets(readManifest(packageDirectory), packageDirectory, true);
   }
+  if (!Number.isSafeInteger(maxRequestRecords) || maxRequestRecords < 1) throw new Error('maxRequestRecords must be a positive integer');
   const requests = [];
   let nextSend = 0;
   // One shared egress budget covers static assets and streamed proxy responses.
@@ -133,7 +134,7 @@ export function createProductionServer({ directory = 'target/browser-production'
   }
   const server = createServer((request, response) => {
     let sentBytes = 0;
-    for (const method of ['write', 'end']) {
+    if (recordRequests) for (const method of ['write', 'end']) {
       const original = response[method];
       response[method] = function (chunk, encoding, ...rest) {
         if (typeof chunk === 'string') sentBytes += Buffer.byteLength(chunk, typeof encoding === 'string' ? encoding : undefined);
@@ -142,7 +143,10 @@ export function createProductionServer({ directory = 'target/browser-production'
       };
     }
     response.setHeader('Cache-Control', 'no-store');
-    response.on('finish', () => requests.push({ url: request.url, method: request.method, acceptEncoding: request.headers['accept-encoding'] ?? '', ifNoneMatch: request.headers['if-none-match'] ?? null, status: response.statusCode, headers: response.getHeaders(), sentBytes }));
+    if (recordRequests) response.on('finish', () => {
+      if (requests.length >= maxRequestRecords) { server.requestsDropped++; return; }
+      requests.push({ url: request.url, method: request.method, acceptEncoding: request.headers['accept-encoding'] ?? '', ifNoneMatch: request.headers['if-none-match'] ?? null, status: response.statusCode, headers: response.getHeaders(), sentBytes });
+    });
     const fail = status => { response.statusCode = status; response.end(); };
     const handle = () => {
       let pathname;
@@ -195,6 +199,7 @@ export function createProductionServer({ directory = 'target/browser-production'
   });
   server.pipeNetwork = pipeNetwork;
   server.requests = requests;
+  server.requestsDropped = 0;
   server.manifest = manifest;
   return server;
 }

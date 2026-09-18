@@ -4,7 +4,7 @@ use std::{env, fs, path::Path, process::Command};
 use anyhow::{Context, Result, bail};
 
 pub fn build(arguments: Vec<String>) -> Result<()> {
-    let mut variant = "Oz".to_owned();
+    let mut variant = "none".to_owned();
     let mut output = "target/browser-production".to_owned();
     let mut index = 0;
     while index < arguments.len() {

@@ -40,7 +40,7 @@ function get(server, resource, headers = {}, method = 'GET') {
   });
 }
 async function serve(t, options, port = 0) {
-  const server = createProductionServer(options);
+  const server = createProductionServer({recordRequests: true, ...options});
   server.listen(port, '127.0.0.1');
   await once(server, 'listening');
   t.after(() => new Promise(resolve => server.close(resolve)));
@@ -320,4 +320,31 @@ test('build configuration changes asset identity while provenance-only changes d
   assert.notEqual(first.sourceIdentity.revision, recorded.sourceIdentity.revision);
   const configured = packageBrowser({ ...options, sourceIdentity: { revision: 'second', dirty: false, profile: 'different' } });
   assert.notEqual(recorded.apps[0].contentId, configured.apps[0].contentId);
+});
+
+
+test('request evidence is disabled by default and enabled recording caps retained records and counts drops', async t => {
+  const { options, output } = fixture(t);
+  packageBrowser(options);
+  const defaultServer = createProductionServer({ directory: output });
+  defaultServer.listen(0, '127.0.0.1');
+  await once(defaultServer, 'listening');
+  t.after(() => new Promise(resolve => defaultServer.close(resolve)));
+  assert.equal((await get(defaultServer, '/lab/')).status, 200);
+  assert.equal((await get(defaultServer, '/missing')).status, 404);
+  assert.deepEqual(defaultServer.requests, []);
+  assert.equal(defaultServer.requestsDropped, 0);
+
+  const recordedServer = await serve(t, { directory: output, maxRequestRecords: 2 });
+  const html = await get(recordedServer, '/lab/');
+  assert.equal((await get(recordedServer, '/missing')).status, 404);
+  assert.equal((await get(recordedServer, '/lab/', { 'If-None-Match': html.headers.etag })).status, 304);
+  assert.equal((await get(recordedServer, '/lab/index.html')).status, 200);
+  assert.deepEqual(recordedServer.requests.map(record => [record.url, record.status]), [['/lab/', 200], ['/missing', 404]]);
+  assert.equal(recordedServer.requests[0].sentBytes, html.bytes.length);
+  assert.equal(recordedServer.requestsDropped, 2);
+
+  for (const invalid of [NaN, Infinity, 0, -1, 1.5, '2']) {
+    assert.throws(() => createProductionServer({ directory: output, recordRequests: true, maxRequestRecords: invalid }), /positive integer/);
+  }
 });

@@ -1,0 +1,662 @@
+{
+  "schemaVersion": 1,
+  "settings": {
+    "variant": "none",
+    "wasmOptArgs": [],
+    "compression": {
+      "brotliQuality": 11,
+      "gzipLevel": 9
+    }
+  },
+  "toolVersions": {
+    "node": "25.8.2",
+    "zlib": "1.3.2",
+    "brotli": "1.2.0",
+    "wasmOpt": null
+  },
+  "sourceIdentity": {
+    "browserTestApi": true,
+    "cargoEncodedRustflags": null,
+    "dirty": true,
+    "profile": "release",
+    "profileEnvironment": {},
+    "revision": "5523166d90fada73b82e7ad76738a016a7c78eec",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "rustflags": null,
+    "target": "wasm32-unknown-unknown",
+    "wasmBindgen": "0.2.127",
+    "workspaceManifest": "[workspace]\nmembers = [\n    \"crates/polyorama-core\",\n    \"crates/polyorama-runtime\",\n    \"crates/polyorama-render-wgpu\",\n    \"crates/polyorama-ui-egui\",\n    \"apps/analytical-workspace-lab\",\n    \"apps/polyorama-gallery\",\n    \"apps/tile-worker\",\n    \"apps/emuella-viewer\",\n    \"crates/emuella-viewer-source\",\n    \"apps/emuella-viewer-tools\",\n    \"xtask\",\n]\nresolver = \"2\"\n\n[workspace.package]\nversion = \"0.1.6\"\nedition = \"2024\"\nrust-version = \"1.97.1\"\nlicense = \"Apache-2.0\"\nrepository = \"https://github.com/robchristie/polyorama\"\n\n[workspace.dependencies]\nanyhow = \"1.0.100\"\nbytemuck = { version = \"1.24.0\", features = [\"derive\"] }\ncrossbeam-channel = \"0.5.15\"\neframe = { version = \"0.36.1\", default-features = false, features = [\"accesskit\", \"default_fonts\", \"persistence\", \"wgpu\", \"x11\", \"wayland\"] }\negui = { version = \"0.36.1\", features = [\"serde\"] }\negui-wgpu = \"0.36.1\"\negui_kittest = \"=0.36.1\"\nlz4_flex = \"0.12.0\"\nlog = \"0.4.34\"\nparking_lot = \"0.12.5\"\nserde = { version = \"1.0.229\", features = [\"derive\"] }\nserde_json = \"1.0.149\"\ntracing = { version = \"0.1.44\", features = [\"log\"] }\ntracing-subscriber = { version = \"0.3.22\", features = [\"env-filter\", \"fmt\"] }\nwasm-bindgen = \"0.2.127\"\nwasm-bindgen-futures = \"0.4.57\"\nweb-sys = \"0.3.82\"\nweb-time = \"1.1.0\"\nwgpu = \"30.0.1\"\n\n\n[profile.release]\nlto = \"thin\"\ncodegen-units = 1\n"
+  },
+  "apps": [
+    {
+      "name": "gallery",
+      "inputIdentity": "2662edcd47c834e20c6e8eaea7a7acc3fa3aff8a5e2c5bd1320d78d49714a53a",
+      "inputs": [
+        {
+          "path": "bootstrap.js",
+          "bytes": 302,
+          "sha256": "55d061d640ec026bd5772c26062a59a7615ccbc1053a1aea7f013838ae5a6ac8"
+        },
+        {
+          "path": "browser-startup.js",
+          "bytes": 8959,
+          "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+        },
+        {
+          "path": "index.html",
+          "bytes": 593,
+          "sha256": "4fd864a319c097a4ae33dbe2a6148bc77db067d1b6baeafe166ef0e48b26c784"
+        },
+        {
+          "path": "pkg/polyorama_gallery_bg.wasm",
+          "bytes": 10453069,
+          "sha256": "a72bdbe9df4c387cfbc6d31d159a860ed4a8c59a0093f3a01d6d621135f622b4"
+        },
+        {
+          "path": "pkg/polyorama_gallery_bg.wasm.d.ts",
+          "bytes": 3506,
+          "sha256": "0ffcc4eb5e0f0b064460728fde00c810cb013ed117e39dc696bbac23d7793d19"
+        },
+        {
+          "path": "pkg/polyorama_gallery.d.ts",
+          "bytes": 4816,
+          "sha256": "136a9f548f8f4f377667c330a0bef677779628c12cd52e36e900280ca8879a3a"
+        },
+        {
+          "path": "pkg/polyorama_gallery.js",
+          "bytes": 158466,
+          "sha256": "fe1848770a3b1403a27ba088f748376595c3554d1c7de0f87c458e95985e8f62"
+        },
+        {
+          "path": "styles.css",
+          "bytes": 407,
+          "sha256": "981e6de70fa81093bc6124ae042e0a623279e74a3721fec7f9ab723d80a6224f"
+        }
+      ],
+      "contentId": "3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd",
+      "assetDirectory": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd",
+      "entry": {
+        "path": "gallery/index.html",
+        "raw": {
+          "bytes": 682,
+          "sha256": "2a1a74bedee18d5ca42c6e384b951e2f5361e296a2de266b13510ab2986209e0"
+        },
+        "br": {
+          "bytes": 285,
+          "sha256": "72614b7764cbd51be8b3ce78581353343e06d3cf50b09f61da06aec2138a641c"
+        },
+        "gzip": {
+          "bytes": 415,
+          "sha256": "b25f36d21ae19bd17063a1bbb0428cc2374728a64444b0178624df80bcfb2a11"
+        }
+      },
+      "assets": [
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/bootstrap.js",
+          "raw": {
+            "bytes": 302,
+            "sha256": "55d061d640ec026bd5772c26062a59a7615ccbc1053a1aea7f013838ae5a6ac8"
+          },
+          "br": {
+            "bytes": 173,
+            "sha256": "40b74297bf03df1268c053a018c0aa97faebb76419c1498b69c0d0379d0cfa04"
+          },
+          "gzip": {
+            "bytes": 212,
+            "sha256": "6c10d0c259354d638392d7510cfcd7b4f258dec0e60258926ed3f74db171a419"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/browser-startup.js",
+          "raw": {
+            "bytes": 8959,
+            "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+          },
+          "br": {
+            "bytes": 2378,
+            "sha256": "0e2e74dfed335381c95b6ecdb8beacb25bee65bdd8045fe036b4694899c8d7f0"
+          },
+          "gzip": {
+            "bytes": 2775,
+            "sha256": "a909169068cbe918715ab647442226646228caf30feb819a18609f27c00dfc22"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/pkg/polyorama_gallery_bg.wasm",
+          "raw": {
+            "bytes": 10453069,
+            "sha256": "a72bdbe9df4c387cfbc6d31d159a860ed4a8c59a0093f3a01d6d621135f622b4"
+          },
+          "br": {
+            "bytes": 2691352,
+            "sha256": "bda169bc9e9c46ea0c0b00da5bf12164c89b264f14fd631bd45e7b399cc91916"
+          },
+          "gzip": {
+            "bytes": 3745082,
+            "sha256": "b06ebdf2ad61e236a0095e341fe33c42542b09d0aa2610bdd92540dda3f0595b"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/pkg/polyorama_gallery_bg.wasm.d.ts",
+          "raw": {
+            "bytes": 3506,
+            "sha256": "0ffcc4eb5e0f0b064460728fde00c810cb013ed117e39dc696bbac23d7793d19"
+          },
+          "br": {
+            "bytes": 505,
+            "sha256": "7a28e10f7c17e09636fc8438701d866e4b878cdb36145c61be9e72aa51f37ff0"
+          },
+          "gzip": {
+            "bytes": 576,
+            "sha256": "f93599cb516220fc01946051279d48f5076ab8abf5f43b094f3a2887bed3ee5c"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/pkg/polyorama_gallery.d.ts",
+          "raw": {
+            "bytes": 4816,
+            "sha256": "136a9f548f8f4f377667c330a0bef677779628c12cd52e36e900280ca8879a3a"
+          },
+          "br": {
+            "bytes": 920,
+            "sha256": "f23d08d3086bc651cffc0dc27b22e01dc77f14be3f85e3993f203145f69b1896"
+          },
+          "gzip": {
+            "bytes": 1064,
+            "sha256": "40bb6d0c78e10abab355039cb9ea8ba5d69a01bcf19ee7d82204a4c48e67d142"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/pkg/polyorama_gallery.js",
+          "raw": {
+            "bytes": 158466,
+            "sha256": "fe1848770a3b1403a27ba088f748376595c3554d1c7de0f87c458e95985e8f62"
+          },
+          "br": {
+            "bytes": 19783,
+            "sha256": "7f32fc3a2cf33f8ccbff8a81db5021ce8e5457dbc5dc1607035c4b49cfa000da"
+          },
+          "gzip": {
+            "bytes": 23543,
+            "sha256": "39294e12b28a9dd4f757c01dbd3ea2f26ad107e67d836500b838fadf8a473103"
+          }
+        },
+        {
+          "path": "gallery/assets/3b3486e4f417feb96b3d31e5a4f39948b0726f932dc9d7f000dfb5a0ef1f61bd/styles.css",
+          "raw": {
+            "bytes": 407,
+            "sha256": "981e6de70fa81093bc6124ae042e0a623279e74a3721fec7f9ab723d80a6224f"
+          },
+          "br": {
+            "bytes": 179,
+            "sha256": "76a817e89277d26501041de28644779df9abc07b1e4b2c62e97a338f8f021db1"
+          },
+          "gzip": {
+            "bytes": 263,
+            "sha256": "2b4218418e9d360f243510d784ca05dc9f6baec7b05abac63ade862f114cdfc9"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lab",
+      "inputIdentity": "81e29bd54bc67a13c1689ab9eb129f0858051437466438d4b2c529db67aab61a",
+      "inputs": [
+        {
+          "path": "bootstrap.js",
+          "bytes": 359,
+          "sha256": "ac6a6a8cc753476660a6edeebbbbfe5d7c8908175a92b217dcb3da41993e2101"
+        },
+        {
+          "path": "browser-startup.js",
+          "bytes": 8959,
+          "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+        },
+        {
+          "path": "index.html",
+          "bytes": 578,
+          "sha256": "6d5d30721e44e3fa6833a43b3df09c120cf4f3bb8fe17485d1b0bb60894be030"
+        },
+        {
+          "path": "pkg/analytical_workspace_lab_bg.wasm",
+          "bytes": 11328038,
+          "sha256": "2fbc0045b601c6b0623e00a363b74875bbd336eb176efac191c03d9a892d40b9"
+        },
+        {
+          "path": "pkg/analytical_workspace_lab_bg.wasm.d.ts",
+          "bytes": 3655,
+          "sha256": "a451664b74d2897ce6e8e0311e2ce0056f786f9dd2071fdd9afb3e1a6bc8f065"
+        },
+        {
+          "path": "pkg/analytical_workspace_lab.d.ts",
+          "bytes": 4869,
+          "sha256": "48ce55d78172fe2f0c8241c869ccb24da5a42083c3f6b32c5b05d77829fbb80a"
+        },
+        {
+          "path": "pkg/analytical_workspace_lab.js",
+          "bytes": 165013,
+          "sha256": "ba8f92febf0389373921ebd6b66629abde636c2e583be35be2e718cc66aef5d7"
+        },
+        {
+          "path": "styles.css",
+          "bytes": 399,
+          "sha256": "14cfe16e346800c37f2f54c8f16a4aad4fa59adc518fcb9076718c520f6934e0"
+        },
+        {
+          "path": "worker-pkg/polyorama_tile_worker_bg.wasm",
+          "bytes": 145682,
+          "sha256": "b3fb77a88ce903e575b3fa91ed30de53e3a8351c8376f5b027705e0195878f28"
+        },
+        {
+          "path": "worker-pkg/polyorama_tile_worker_bg.wasm.d.ts",
+          "bytes": 516,
+          "sha256": "05d4b10c5955bd139555de9296230498410c03afb273e17bc491dead40ae19f8"
+        },
+        {
+          "path": "worker-pkg/polyorama_tile_worker.d.ts",
+          "bytes": 1551,
+          "sha256": "9628e862483d325557878ad303c4d0de8c2c6a7787968d72d4fb5d6304cc3662"
+        },
+        {
+          "path": "worker-pkg/polyorama_tile_worker.js",
+          "bytes": 16075,
+          "sha256": "ddfca6e51ceb4159056fcafcdf2b8f6c7b8a758a0f4d857995cf17f0033d78a0"
+        },
+        {
+          "path": "worker.js",
+          "bytes": 1141,
+          "sha256": "2005a49a5648c81e636dd70957f4759dea7641a209d3f19e9256c96a8de354fa"
+        }
+      ],
+      "contentId": "603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11",
+      "assetDirectory": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11",
+      "entry": {
+        "path": "lab/index.html",
+        "raw": {
+          "bytes": 667,
+          "sha256": "2d276996f01ba6343b13eeeb8fbfc750394a0207e76dada06dd56725e8623453"
+        },
+        "br": {
+          "bytes": 304,
+          "sha256": "bf8a648665d7f7d8a365cea89d1c486818809596bbff85b22873d9d3b534f16a"
+        },
+        "gzip": {
+          "bytes": 417,
+          "sha256": "566ef2ad8df6bc6b6ea9e788b177f6acc53558916319b15d368f22ca5db36351"
+        }
+      },
+      "assets": [
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/bootstrap.js",
+          "raw": {
+            "bytes": 359,
+            "sha256": "ac6a6a8cc753476660a6edeebbbbfe5d7c8908175a92b217dcb3da41993e2101"
+          },
+          "br": {
+            "bytes": 220,
+            "sha256": "3af4069e9b444c752f55ec51cba9fb24da4dc8083d6893bd8bec0d9a7e3a4dc7"
+          },
+          "gzip": {
+            "bytes": 252,
+            "sha256": "3de8aada7fa6880a344e009c9a9a15e5faac3c227a3d8557432c5e3bfab74238"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/browser-startup.js",
+          "raw": {
+            "bytes": 8959,
+            "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+          },
+          "br": {
+            "bytes": 2378,
+            "sha256": "0e2e74dfed335381c95b6ecdb8beacb25bee65bdd8045fe036b4694899c8d7f0"
+          },
+          "gzip": {
+            "bytes": 2775,
+            "sha256": "a909169068cbe918715ab647442226646228caf30feb819a18609f27c00dfc22"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/pkg/analytical_workspace_lab_bg.wasm",
+          "raw": {
+            "bytes": 11328038,
+            "sha256": "2fbc0045b601c6b0623e00a363b74875bbd336eb176efac191c03d9a892d40b9"
+          },
+          "br": {
+            "bytes": 2842015,
+            "sha256": "a6fb1d200188173d0b4a9ed7f259832703f3122f20c6b8e0572da89abd9db2e6"
+          },
+          "gzip": {
+            "bytes": 3991951,
+            "sha256": "e13173d3b95feebf27c53a5e13754b1e92adc86dee0a1850ee46700482afd134"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/pkg/analytical_workspace_lab_bg.wasm.d.ts",
+          "raw": {
+            "bytes": 3655,
+            "sha256": "a451664b74d2897ce6e8e0311e2ce0056f786f9dd2071fdd9afb3e1a6bc8f065"
+          },
+          "br": {
+            "bytes": 513,
+            "sha256": "e979a09f520d9ede29b018db80281e2189b0b5bc0245bcb74127b954cddac75e"
+          },
+          "gzip": {
+            "bytes": 580,
+            "sha256": "b7ac7ddde7caaf5594168f37df6b882437a73ace15d74d1954e8c5494472282a"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/pkg/analytical_workspace_lab.d.ts",
+          "raw": {
+            "bytes": 4869,
+            "sha256": "48ce55d78172fe2f0c8241c869ccb24da5a42083c3f6b32c5b05d77829fbb80a"
+          },
+          "br": {
+            "bytes": 903,
+            "sha256": "f957fe54c6fa7bb477c4194ff3702172bfcbdddb64de73f9a14e0af067a5b135"
+          },
+          "gzip": {
+            "bytes": 1054,
+            "sha256": "03d3a2fe940b4ab166916a586cfed4389d6dce86de010f9a47a5d812d9b74b40"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/pkg/analytical_workspace_lab.js",
+          "raw": {
+            "bytes": 165013,
+            "sha256": "ba8f92febf0389373921ebd6b66629abde636c2e583be35be2e718cc66aef5d7"
+          },
+          "br": {
+            "bytes": 20414,
+            "sha256": "d4f8d2aa47d3a41964503849bcf25a03d1506e835918d27af4b9295112552472"
+          },
+          "gzip": {
+            "bytes": 24257,
+            "sha256": "b0f6bc170e593415b7f2e5ca22411cc2a6a64d64dbf3602157fe806370828156"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/styles.css",
+          "raw": {
+            "bytes": 399,
+            "sha256": "14cfe16e346800c37f2f54c8f16a4aad4fa59adc518fcb9076718c520f6934e0"
+          },
+          "br": {
+            "bytes": 185,
+            "sha256": "ea2b101043d8d56bf94dd75cee1609bc6286b66a31da69d39d8fe5244735f0b6"
+          },
+          "gzip": {
+            "bytes": 258,
+            "sha256": "9a5b45dbf9c9fb5184fbb58f67d469f85a709090e0fce17bb5d816ecdf439e01"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/worker-pkg/polyorama_tile_worker_bg.wasm",
+          "raw": {
+            "bytes": 145682,
+            "sha256": "b3fb77a88ce903e575b3fa91ed30de53e3a8351c8376f5b027705e0195878f28"
+          },
+          "br": {
+            "bytes": 43189,
+            "sha256": "b9a9f33e5d2b924e9e0252654e8b7a4b709d95919911525684b4290d62010236"
+          },
+          "gzip": {
+            "bytes": 51034,
+            "sha256": "d2dfe0a788245d29e66a6696a97029b2c8e9d775e40b515c09d050f2b4dfc553"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/worker-pkg/polyorama_tile_worker_bg.wasm.d.ts",
+          "raw": {
+            "bytes": 516,
+            "sha256": "05d4b10c5955bd139555de9296230498410c03afb273e17bc491dead40ae19f8"
+          },
+          "br": {
+            "bytes": 172,
+            "sha256": "bae05d379d99e67e5f6113d34a77e162a498806947432c75a09991649e5046fd"
+          },
+          "gzip": {
+            "bytes": 208,
+            "sha256": "8b6423e0318cc08a0222b214f0f674289e84a44eb142db653c4d729c844de36f"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/worker-pkg/polyorama_tile_worker.d.ts",
+          "raw": {
+            "bytes": 1551,
+            "sha256": "9628e862483d325557878ad303c4d0de8c2c6a7787968d72d4fb5d6304cc3662"
+          },
+          "br": {
+            "bytes": 476,
+            "sha256": "13ad74c99275cd4ab019e64880241475da004adc7cb486357fcc6db781e82310"
+          },
+          "gzip": {
+            "bytes": 577,
+            "sha256": "c107b990def6f82e37be66cc35c094a03560d697ca320c0c43de7acf60adc463"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/worker-pkg/polyorama_tile_worker.js",
+          "raw": {
+            "bytes": 16075,
+            "sha256": "ddfca6e51ceb4159056fcafcdf2b8f6c7b8a758a0f4d857995cf17f0033d78a0"
+          },
+          "br": {
+            "bytes": 3538,
+            "sha256": "908f5959ac9aa3b164c3aace40ec779985abe87adc0fc1849d8815bfa5174d70"
+          },
+          "gzip": {
+            "bytes": 4002,
+            "sha256": "a93cc526ccfabec0fd541c6c83846a0808657826d94143fc757712d0492feae6"
+          }
+        },
+        {
+          "path": "lab/assets/603f9b94f085f09efbd0cfe9766687527ab800f88a9718c8e20c9025afc35d11/worker.js",
+          "raw": {
+            "bytes": 1141,
+            "sha256": "2005a49a5648c81e636dd70957f4759dea7641a209d3f19e9256c96a8de354fa"
+          },
+          "br": {
+            "bytes": 435,
+            "sha256": "f96c41d03e3ff15075222da1d9a74de1c26b851e84f66e0b65917f993d1999aa"
+          },
+          "gzip": {
+            "bytes": 515,
+            "sha256": "19480f8b34db822aceeca289c68ba6f9e58335f20cee3746b0a56a6add776465"
+          }
+        }
+      ]
+    },
+    {
+      "name": "viewer",
+      "inputIdentity": "35439bdf76d7b7a8d58e4488755d86a486f34e6fb092aec25e3c0746a1abfb42",
+      "inputs": [
+        {
+          "path": "bootstrap.js",
+          "bytes": 727,
+          "sha256": "24399b1085d14602261082f0707497a379e03e86426428c95e179b1780a1beb4"
+        },
+        {
+          "path": "browser-startup.js",
+          "bytes": 8959,
+          "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+        },
+        {
+          "path": "index.html",
+          "bytes": 655,
+          "sha256": "81502d8577f08ce1ad450635f261c83a97a9d2f54e817560abb181eca4300e1c"
+        },
+        {
+          "path": "pkg/emuella_viewer_bg.wasm",
+          "bytes": 11377181,
+          "sha256": "1a0588e28ff8e06a1728d52849ad1ff0ad40efb46a735aac89824bb093c6b460"
+        },
+        {
+          "path": "pkg/emuella_viewer_bg.wasm.d.ts",
+          "bytes": 5297,
+          "sha256": "53bbb40ff55ea0e19f0ca4d301bcc7d00dc1a79e4a7d8688482b0626708fe0d2"
+        },
+        {
+          "path": "pkg/emuella_viewer.d.ts",
+          "bytes": 7406,
+          "sha256": "11f8a9948f0c0f05ae47e68d9b30323a907e3e5a2f0df980d76ece6669af0a2d"
+        },
+        {
+          "path": "pkg/emuella_viewer.js",
+          "bytes": 172099,
+          "sha256": "190ca29e665555c0c406f0a2b447351743b53e684d21cfe01c3ad9123cf5872d"
+        },
+        {
+          "path": "response.js",
+          "bytes": 183,
+          "sha256": "166cdf7228437c660033dc7a75fbc3d8ac07be75518f25431da75bfae5c229aa"
+        },
+        {
+          "path": "worker.js",
+          "bytes": 6565,
+          "sha256": "b2856dae45acf645cf81d1cc5e932bf0b060190a4c9db15c57a582a75ef6d605"
+        }
+      ],
+      "contentId": "eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7",
+      "assetDirectory": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7",
+      "entry": {
+        "path": "viewer/index.html",
+        "raw": {
+          "bytes": 744,
+          "sha256": "ba44b105ad2889b167408b5471c7d9e679aad09c17cf8cb09f2c37f8656c4057"
+        },
+        "br": {
+          "bytes": 325,
+          "sha256": "1bf4d80ce084fbe6b97065a97a532f60bbc5c2d76ccfe225eac26aa0cd905abd"
+        },
+        "gzip": {
+          "bytes": 485,
+          "sha256": "11926b5fce498f053874f4ad603ac160e7861a6684b940f0be824e49b9123f4b"
+        }
+      },
+      "assets": [
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/bootstrap.js",
+          "raw": {
+            "bytes": 727,
+            "sha256": "24399b1085d14602261082f0707497a379e03e86426428c95e179b1780a1beb4"
+          },
+          "br": {
+            "bytes": 336,
+            "sha256": "29138c5ec060abe3dfe4d108806a25c56083ab8d5677e74f80fabfb0a569efca"
+          },
+          "gzip": {
+            "bytes": 395,
+            "sha256": "fd0305ca0272afe1b371e3c3fb5b5f2ccfa711884578ef928ad1565e5ae273f1"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/browser-startup.js",
+          "raw": {
+            "bytes": 8959,
+            "sha256": "ebb2ade2d5298a61ccdcdc0030be6973389a8113aa80fe2f2230220de74e8893"
+          },
+          "br": {
+            "bytes": 2378,
+            "sha256": "0e2e74dfed335381c95b6ecdb8beacb25bee65bdd8045fe036b4694899c8d7f0"
+          },
+          "gzip": {
+            "bytes": 2775,
+            "sha256": "a909169068cbe918715ab647442226646228caf30feb819a18609f27c00dfc22"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/pkg/emuella_viewer_bg.wasm",
+          "raw": {
+            "bytes": 11377181,
+            "sha256": "1a0588e28ff8e06a1728d52849ad1ff0ad40efb46a735aac89824bb093c6b460"
+          },
+          "br": {
+            "bytes": 2895289,
+            "sha256": "40aa18efd3edf979e8ce709655bd1b642e736e1bbfd4b7183a83a4cc14ba3442"
+          },
+          "gzip": {
+            "bytes": 4050753,
+            "sha256": "e6bd389085932461afcc5e479a8cac3e20b3398419793f416baf986b27a2b3ae"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/pkg/emuella_viewer_bg.wasm.d.ts",
+          "raw": {
+            "bytes": 5297,
+            "sha256": "53bbb40ff55ea0e19f0ca4d301bcc7d00dc1a79e4a7d8688482b0626708fe0d2"
+          },
+          "br": {
+            "bytes": 683,
+            "sha256": "402742fd5c3bbfee3e0fcb68ae21fe9c53b372d66ff955f9faf207de5078e5f2"
+          },
+          "gzip": {
+            "bytes": 776,
+            "sha256": "d044c2682cb6ebec15b206ce200971dcd6abb588b629f16aa0c55bf129b26c70"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/pkg/emuella_viewer.d.ts",
+          "raw": {
+            "bytes": 7406,
+            "sha256": "11f8a9948f0c0f05ae47e68d9b30323a907e3e5a2f0df980d76ece6669af0a2d"
+          },
+          "br": {
+            "bytes": 1274,
+            "sha256": "de3368a619a5c455279c2d3c4cb4cabab30c9fd1d93b3c77c43d2517e0b1cb2a"
+          },
+          "gzip": {
+            "bytes": 1473,
+            "sha256": "bfb17590d857132c199e9661751068923dcee2ca91feace2c1706fc63b102b2e"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/pkg/emuella_viewer.js",
+          "raw": {
+            "bytes": 172099,
+            "sha256": "190ca29e665555c0c406f0a2b447351743b53e684d21cfe01c3ad9123cf5872d"
+          },
+          "br": {
+            "bytes": 21070,
+            "sha256": "2c1dbf7d85ebf1ba8bc1105ed04feb4cec51bf5d80f85cb77cb97a53823451b6"
+          },
+          "gzip": {
+            "bytes": 25114,
+            "sha256": "3b6b4400158b1006648be7e23b638995754c06e6f3c8868fd015d6debb9998d7"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/response.js",
+          "raw": {
+            "bytes": 183,
+            "sha256": "166cdf7228437c660033dc7a75fbc3d8ac07be75518f25431da75bfae5c229aa"
+          },
+          "br": {
+            "bytes": 113,
+            "sha256": "1310250a4921753277c9bce037face4f94e6d4ecc1d9475f7a98a8fde01db917"
+          },
+          "gzip": {
+            "bytes": 157,
+            "sha256": "05fb97dd0ba2ee737b6a63eaa512776343b578a97ad39e67befcaa23e0edaf3c"
+          }
+        },
+        {
+          "path": "viewer/assets/eae854765ccdf539cd10477b2bc87d72fbbccbff6f3d1b2998d7dad010ad73d7/worker.js",
+          "raw": {
+            "bytes": 6565,
+            "sha256": "b2856dae45acf645cf81d1cc5e932bf0b060190a4c9db15c57a582a75ef6d605"
+          },
+          "br": {
+            "bytes": 2021,
+            "sha256": "0b62736cc4b333e2a3991c1df7b2db81c0156f390beae307c734264054549722"
+          },
+          "gzip": {
+            "bytes": 2323,
+            "sha256": "60c26c6827c001ee61e248a5f3dbafeae87dbaac6b0412b4fb3d60fc73764a58"
+          }
+        }
+      ]
+    }
+  ]
+}
