@@ -22,23 +22,23 @@ input and expected visible response were checked after the timed path.
 
 | Scenario | Baseline W | Final W | Baseline C | Final C |
 | --- | ---: | ---: | ---: | ---: |
-| lab/local/cold | 175.6 [171.2–188.7] | 168.6 [160.7–176.0] | 245.4 [223.5–255.3] | 241.4 [221.9–246.7] |
-| lab/local/repeat | 68.1 [58.9–91.3] | 75.6 [66.3–98.7] | 122.6 [111.8–123.9] | 134.1 [132.1–163.4] |
-| lab/network/cold | 9552.5 [9548.4–9566.3] | 2624.2 [2601.4–2651.5] | 9806.5 [9804.3–9822.2] | 2790.0 [2769.7–2812.9] |
-| lab/network/repeat | 110.7 [101.4–118.3] | 119.7 [114.0–124.6] | 165.9 [153.1–173.4] | 169.2 [164.9–170.9] |
-| gallery/local/cold | 165.2 [157.8–188.7] | 156.0 [152.1–166.0] | 158.2 [151.3–181.0] | 149.5 [145.5–159.2] |
-| gallery/local/repeat | 66.6 [53.3–69.7] | 72.6 [70.0–75.4] | 57.2 [44.9–60.7] | 63.0 [60.3–65.9] |
-| gallery/network/cold | 8829.1 [8824.0–8845.0] | 2488.9 [2472.3–2494.5] | 8822.5 [8817.2–8837.1] | 2480.3 [2465.7–2486.7] |
-| gallery/network/repeat | 110.4 [100.0–112.5] | 106.0 [103.0–110.3] | 102.8 [90.5–103.9] | 97.1 [94.7–100.7] |
-| viewer/local/cold | 156.6 [151.7–165.1] | 149.3 [143.4–161.9] | 219.1 [209.7–254.3] | 253.5 [235.6–289.4] |
-| viewer/local/repeat | 63.2 [49.3–66.7] | 79.4 [73.5–87.0] | 131.1 [117.2–150.3] | 146.9 [140.6–171.6] |
-| viewer/network/cold | 9567.3 [9562.6–9571.9] | 2653.2 [2621.2–2657.5] | 10466.3 [10456.3–10476.3] | 3586.5 [3539.2–3589.7] |
-| viewer/network/repeat | 97.9 [97.9–97.9] | 113.8 [110.2–118.1] | 923.4 [915.2–931.6] | 960.5 [948.1–967.9] |
+| lab/local/cold | 175.6 [171.2–188.7] | 171.6 [158.1–184.5] | 245.4 [223.5–255.3] | 237.1 [221.3–250.6] |
+| lab/local/repeat | 68.1 [58.9–91.3] | 71.8 [67.8–101.8] | 122.6 [111.8–123.9] | 133.6 [130.0–139.6] |
+| lab/network/cold | 9552.5 [9548.4–9566.3] | 2621.4 [2614.6–2655.6] | 9806.5 [9804.3–9822.2] | 2787.5 [2776.1–2819.7] |
+| lab/network/repeat | 110.7 [101.4–118.3] | 115.8 [112.4–120.0] | 165.9 [153.1–173.4] | 168.5 [162.8–171.3] |
+| gallery/local/cold | 165.2 [157.8–188.7] | 156.7 [150.7–161.2] | 158.2 [151.3–181.0] | 150.2 [144.2–154.8] |
+| gallery/local/repeat | 66.6 [53.3–69.7] | 72.2 [56.9–72.7] | 57.2 [44.9–60.7] | 62.7 [48.9–63.2] |
+| gallery/network/cold | 8829.1 [8824.0–8845.0] | 2486.7 [2479.3–2508.8] | 8822.5 [8817.2–8837.1] | 2478.5 [2472.8–2498.6] |
+| gallery/network/repeat | 110.4 [100.0–112.5] | 105.2 [103.3–107.0] | 102.8 [90.5–103.9] | 95.8 [94.9–99.4] |
+| viewer/local/cold | 156.6 [151.7–165.1] | 160.0 [156.6–168.6] | 219.1 [209.7–254.3] | 234.8 [230.6–283.9] |
+| viewer/local/repeat | 63.2 [49.3–66.7] | 72.3 [61.8–75.9] | 131.1 [117.2–150.3] | 142.6 [138.0–145.3] |
+| viewer/network/cold | 9567.3 [9562.6–9571.9] | 2641.8 [2633.2–2652.6] | 10466.3 [10456.3–10476.3] | 3575.5 [3565.9–3585.4] |
+| viewer/network/repeat | 97.9 [97.9–97.9] | 114.8 [111.7–121.1] | 923.4 [915.2–931.6] | 965.0 [951.1–983.9] |
 
-Lab’s constrained cold workspace and useful-content medians improve by **72.5%**
-and **71.5%** respectively. Gallery corroborates the gain; viewer first content
-improves by **65.7%**. All original regression tolerances pass. Local/repeat results
-are mixed: viewer local cold content increases by 34.4 ms, within its predeclared
+Lab’s constrained cold workspace and useful-content medians improve by **72.6%**
+and **71.6%** respectively. Gallery corroborates the gain; viewer first content
+improves by **65.8%**. All original regression tolerances pass. Local/repeat results
+are mixed: viewer local cold content increases by 15.7 ms, within its predeclared
 44.6 ms allowance. This is a delivery win, not evidence of universally faster
 local startup, isolated compilation or GPU execution.
 
@@ -105,6 +105,14 @@ Median available WASM capacities, final local cold samples (bytes):
 | gallery | 5636096 | No worker |
 | viewer | 6619136 | 4784128 |
 
+Independent review found that a restored Results-only layout could be destroyed
+while waiting for an image milestone. The repair completes usable readiness
+without requiring imagery, records later content once, and pauses the watchdog
+in hidden tabs. A real saved-layout browser regression reproduces the old failure
+and passes after repair, including advancing past the watchdog and physically
+selecting an image tab. Final timing cohorts were refreshed for the changed host
+assets; `pre-review-*.json.gz` preserves the earlier successful cohorts.
+
 ## Verification and reproduction
 
 `cargo xtask verify` passed locally; [verification identity](browser-startup-evidence/verification.json)
@@ -114,7 +122,7 @@ browser/native smoke. It additionally checks final production packaging, startup
 completion/failure and real input without CI timing thresholds. The PR records
 its exact candidate, CI and post-merge outcomes.
 
-Focused startup/package/worker suite: 33 tests passed. Final production root and
+Focused startup/package/worker suite: 39 tests passed. Final production root and
 nested subpath, WebGPU-unavailable and worker-failure checks passed, including
 resource cleanup and a normal cached revisit across two builds. The final viewer
 response adapter rejected 44 invalid cases and admitted its valid case. Final

@@ -3,6 +3,44 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { hostedLinuxWebGpuLaunchOptions } from './browser-launch.mjs';
 import { createProductionServer } from './browser-serve.mjs';
+
+async function restoredNonImageLayout(browser, url) {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  try {
+    const page = await context.newPage();
+    await page.clock.install();
+    await page.goto(url);
+    await page.waitForFunction(() => window.__POLYORAMA_STARTUP?.status === 'ready' && window.__POLYORAMA_HANDLE);
+    // Existing test action seeds a valid all-tabs Results layout. Save and reopen
+    // through ordinary persistence; no application/storage reset runs on reload.
+    await page.evaluate(() => window.__POLYORAMA_HANDLE.test_action({ kind: 'queue_zero_viewport_upload' }));
+    await page.waitForFunction(() => {
+      const panes = window.__POLYORAMA_HANDLE.test_snapshot().visible_panes;
+      return panes.length === 1 && panes[0] === 5;
+    });
+    const clickRect = async rect => {
+      await page.mouse.move((rect.min_x + rect.max_x) / 2, (rect.min_y + rect.max_y) / 2);
+      await page.mouse.down(); await page.waitForTimeout(80); await page.mouse.up();
+    };
+    await clickRect(await page.evaluate(() => window.__POLYORAMA_HANDLE.test_snapshot().ui_snapshot.nodes.find(n => n.actions.includes('save_layout')).rect));
+    await page.waitForFunction(() => localStorage.getItem('polyorama.vertical-slice.v2') !== null);
+    await page.reload();
+    await page.waitForFunction(() => window.__POLYORAMA_HANDLE && window.__POLYORAMA_STARTUP?.milestones.rendering_opportunity_proxy && window.__POLYORAMA_STARTUP?.milestones.worker_ready);
+    let state = await page.evaluate(() => ({ startup: window.__POLYORAMA_STARTUP, snapshot: window.__POLYORAMA_HANDLE.test_snapshot() }));
+    assert.deepEqual(state.snapshot.visible_panes, [5], 'Results layout must actually restore');
+    assert.equal(state.snapshot.render.draw_calls, 0);
+    assert.equal(state.startup.milestones.first_useful_content, undefined, 'image timing stays unavailable');
+    assert.equal(state.startup.status, 'ready', 'usable non-image workspace must finish startup');
+    await page.clock.fastForward(61_000);
+    state = await page.evaluate(() => ({ startup: window.__POLYORAMA_STARTUP, snapshot: window.__POLYORAMA_HANDLE.test_snapshot() }));
+    assert.equal(state.startup.status, 'ready', 'watchdog must not destroy a valid restored layout');
+    assert.deepEqual(state.snapshot.visible_panes, [5]);
+    await clickRect(state.snapshot.ui_geometry.tabs.find(tab => tab.pane === 1).rect);
+    await page.waitForFunction(() => window.__POLYORAMA_STARTUP.milestones.first_useful_content && window.__POLYORAMA_HANDLE.test_snapshot().render.draw_calls > 0);
+    console.log('Restored Results-only layout stays usable past watchdog; physical image-tab selection records later content');
+  } finally { await context.close(); }
+}
+
 const directory = process.argv[2] || 'target/browser-production';
 const browser = await chromium.launch(hostedLinuxWebGpuLaunchOptions());
 try {
@@ -40,7 +78,7 @@ try {
         const page = await context.newPage();
         const errors = []; page.on('pageerror', e => errors.push(String(e)));
         await page.goto(`http://127.0.0.1:${server.address().port}${basePath}${app}/`);
-        await page.waitForFunction(() => window.__POLYORAMA_STARTUP?.status !== 'starting' && window.__POLYORAMA_STARTUP, null, { timeout: 60000 });
+        await page.waitForFunction(() => { const s = window.__POLYORAMA_STARTUP; return s?.failure || (s?.status === 'ready' && s.milestones.first_useful_content); }, null, { timeout: 60000 });
         const report = await page.evaluate(() => window.__POLYORAMA_STARTUP);
         assert.equal(report.status, 'ready', JSON.stringify(report));
         for (const milestone of ['wasm_init_begin', 'wasm_init_end', 'application_construct_begin', 'application_construct_end', 'framework_start_begin', 'framework_start_end', 'workspace_frame_submitted', 'rendering_opportunity_proxy', 'first_useful_content']) assert(report.milestones[milestone], milestone);
@@ -48,6 +86,7 @@ try {
         await context.close();
         console.log(`Startup complete: ${basePath}${app}/`);
       }
+      if (basePath === '/') await restoredNonImageLayout(browser, `http://127.0.0.1:${server.address().port}/lab/`);
       for (const app of ['lab', 'gallery', 'viewer']) for (const failure of app === 'gallery' ? ['webgpu'] : ['webgpu', 'worker']) {
         const context = await browser.newContext();
         if (failure === 'worker') await context.route('**/worker.js', route => route.abort());

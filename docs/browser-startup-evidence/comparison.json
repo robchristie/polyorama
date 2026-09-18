@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "baselineManifestSha256": "52687e7488a1882416aafca1499f657ddd54410ee25b193ae576be22f1b6e4cb",
-  "finalManifestSha256": "27796a445f0c3f8de261402b47d3bb22e86343a8de2f3ea169ed898a2fa7bae7",
+  "finalManifestSha256": "0a3a149f3d92f520a0338c3fdd64f97829d7841affb4287c8c8ca618cb0e6e86",
   "timingMeaning": "CPU/frame opportunity and application content proxies, independently corroborated by real input/readback; not GPU presentation",
   "comparisons": [
     {
@@ -15,12 +15,12 @@
       },
       "after": {
         "count": 5,
-        "median": 168.5999994277954,
-        "min": 160.69999980926514,
-        "max": 176
+        "median": 171.5999994277954,
+        "min": 158.0999994277954,
+        "max": 184.5
       },
-      "reductionMs": 7,
-      "reductionPercent": 3.9863325870216277,
+      "reductionMs": 4,
+      "reductionPercent": 2.27790433544093,
       "allowedRegressionMs": 26.33999991416931,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -36,12 +36,12 @@
       },
       "after": {
         "count": 5,
-        "median": 241.4000005722046,
-        "min": 221.89999961853027,
-        "max": 246.69999980926514
+        "median": 237.0999994277954,
+        "min": 221.30000019073486,
+        "max": 250.5999994277954
       },
-      "reductionMs": 3.9999990463256836,
-      "reductionPercent": 1.6299914639542004,
+      "reductionMs": 8.300000190734863,
+      "reductionPercent": 3.3822331718162424,
       "allowedRegressionMs": 36.80999994277954,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -57,12 +57,12 @@
       },
       "after": {
         "count": 5,
-        "median": 75.59999942779541,
-        "min": 66.30000019073486,
-        "max": 98.69999980926514
+        "median": 71.80000019073486,
+        "min": 67.80000019073486,
+        "max": 101.80000019073486
       },
-      "reductionMs": -7.5,
-      "reductionPercent": -11.013215951568469,
+      "reductionMs": -3.700000762939453,
+      "reductionPercent": -5.4331876564293715,
       "allowedRegressionMs": 32.40000057220459,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -78,12 +78,12 @@
       },
       "after": {
         "count": 5,
-        "median": 134.10000038146973,
-        "min": 132.10000038146973,
-        "max": 163.39999961853027
+        "median": 133.60000038146973,
+        "min": 130,
+        "max": 139.60000038146973
       },
-      "reductionMs": -11.5,
-      "reductionPercent": -9.380097850096057,
+      "reductionMs": -11,
+      "reductionPercent": -8.972267508787533,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -99,12 +99,12 @@
       },
       "after": {
         "count": 5,
-        "median": 2624.2000007629395,
-        "min": 2601.3999996185303,
-        "max": 2651.5
+        "median": 2621.4000005722046,
+        "min": 2614.6000003814697,
+        "max": 2655.6000003814697
       },
-      "reductionMs": 6928.299999237061,
-      "reductionPercent": 72.52865741153688,
+      "reductionMs": 6931.099999427795,
+      "reductionPercent": 72.55796911204183,
       "allowedRegressionMs": 1432.875,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": true
@@ -120,12 +120,12 @@
       },
       "after": {
         "count": 5,
-        "median": 2790,
-        "min": 2769.699999809265,
-        "max": 2812.8999996185303
+        "median": 2787.5,
+        "min": 2776.1000003814697,
+        "max": 2819.699999809265
       },
-      "reductionMs": 7016.5,
-      "reductionPercent": 71.54948248610616,
+      "reductionMs": 7019,
+      "reductionPercent": 71.5749757813695,
       "allowedRegressionMs": 1470.975,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": true
@@ -141,12 +141,12 @@
       },
       "after": {
         "count": 5,
-        "median": 119.70000076293945,
-        "min": 114,
-        "max": 124.59999942779541
+        "median": 115.80000019073486,
+        "min": 112.39999961853027,
+        "max": 120
       },
-      "reductionMs": -9.000000953674316,
-      "reductionPercent": -8.130082176315463,
+      "reductionMs": -5.100000381469727,
+      "reductionPercent": -4.60704642299636,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -162,12 +162,12 @@
       },
       "after": {
         "count": 5,
-        "median": 169.20000076293945,
-        "min": 164.89999961853027,
-        "max": 170.89999961853027
+        "median": 168.5,
+        "min": 162.79999923706055,
+        "max": 171.30000019073486
       },
-      "reductionMs": -3.3000001907348633,
-      "reductionPercent": -1.9891501985249274,
+      "reductionMs": -2.59999942779541,
+      "reductionPercent": -1.5672088118310847,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -183,12 +183,12 @@
       },
       "after": {
         "count": 5,
-        "median": 156,
-        "min": 152.10000038146973,
-        "max": 166
+        "median": 156.69999980926514,
+        "min": 150.69999980926514,
+        "max": 161.19999980926514
       },
-      "reductionMs": 9.199999809265137,
-      "reductionPercent": 5.569007154895385,
+      "reductionMs": 8.5,
+      "reductionPercent": 5.145278456303777,
       "allowedRegressionMs": 30.899999618530273,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -204,12 +204,12 @@
       },
       "after": {
         "count": 5,
-        "median": 149.5,
-        "min": 145.5,
-        "max": 159.19999980926514
+        "median": 150.19999980926514,
+        "min": 144.19999980926514,
+        "max": 154.80000019073486
       },
-      "reductionMs": 8.699999809265137,
-      "reductionPercent": 5.499367774813115,
+      "reductionMs": 8,
+      "reductionPercent": 5.0568900187390975,
       "allowedRegressionMs": 29.699999809265137,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -225,12 +225,12 @@
       },
       "after": {
         "count": 5,
-        "median": 72.59999942779541,
-        "min": 70,
-        "max": 75.39999961853027
+        "median": 72.20000076293945,
+        "min": 56.90000057220459,
+        "max": 72.69999980926514
       },
-      "reductionMs": -5.999999046325684,
-      "reductionPercent": -9.009007525464035,
+      "reductionMs": -5.600000381469727,
+      "reductionPercent": -8.408408933024312,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -246,12 +246,12 @@
       },
       "after": {
         "count": 5,
-        "median": 63,
-        "min": 60.30000019073486,
-        "max": 65.89999961853027
+        "median": 62.70000076293945,
+        "min": 48.90000057220459,
+        "max": 63.19999980926514
       },
-      "reductionMs": -5.799999237060547,
-      "reductionPercent": -10.139858670803434,
+      "reductionMs": -5.5,
+      "reductionPercent": -9.615384487133634,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -267,12 +267,12 @@
       },
       "after": {
         "count": 5,
-        "median": 2488.9000005722046,
-        "min": 2472.300000190735,
-        "max": 2494.5
+        "median": 2486.699999809265,
+        "min": 2479.300000190735,
+        "max": 2508.800000190735
       },
-      "reductionMs": 6340.199999809265,
-      "reductionPercent": 71.81026378153301,
+      "reductionMs": 6342.400000572205,
+      "reductionPercent": 71.83518139219372,
       "allowedRegressionMs": 1324.3650000572204,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -288,12 +288,12 @@
       },
       "after": {
         "count": 5,
-        "median": 2480.300000190735,
-        "min": 2465.699999809265,
-        "max": 2486.7000007629395
+        "median": 2478.5,
+        "min": 2472.800000190735,
+        "max": 2498.6000003814697
       },
-      "reductionMs": 6342.199999809265,
-      "reductionPercent": 71.88665344073976,
+      "reductionMs": 6344,
+      "reductionPercent": 71.90705582317938,
       "allowedRegressionMs": 1323.375,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -309,12 +309,12 @@
       },
       "after": {
         "count": 5,
-        "median": 106,
-        "min": 103,
-        "max": 110.30000019073486
+        "median": 105.19999980926514,
+        "min": 103.29999923706055,
+        "max": 107
       },
-      "reductionMs": 4.399999618530273,
-      "reductionPercent": 3.9855069146139273,
+      "reductionMs": 5.199999809265137,
+      "reductionPercent": 4.710144771044305,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -330,12 +330,12 @@
       },
       "after": {
         "count": 5,
-        "median": 97.09999942779541,
-        "min": 94.69999980926514,
-        "max": 100.69999980926514
+        "median": 95.79999923706055,
+        "min": 94.89999961853027,
+        "max": 99.40000057220459
       },
-      "reductionMs": 5.700000762939453,
-      "reductionPercent": 5.544747813583352,
+      "reductionMs": 7.000000953674316,
+      "reductionPercent": 6.809339436465498,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null

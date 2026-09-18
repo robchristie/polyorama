@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "baselineManifestSha256": "52687e7488a1882416aafca1499f657ddd54410ee25b193ae576be22f1b6e4cb",
-  "finalManifestSha256": "27796a445f0c3f8de261402b47d3bb22e86343a8de2f3ea169ed898a2fa7bae7",
+  "finalManifestSha256": "0a3a149f3d92f520a0338c3fdd64f97829d7841affb4287c8c8ca618cb0e6e86",
   "timingMeaning": "CPU/frame opportunity and application content proxies, independently corroborated by real input/readback; not GPU presentation",
   "comparisons": [
     {
@@ -15,12 +15,12 @@
       },
       "after": {
         "count": 5,
-        "median": 149.29999923706055,
-        "min": 143.4000005722046,
-        "max": 161.9000005722046
+        "median": 160,
+        "min": 156.5999994277954,
+        "max": 168.60000038146973
       },
-      "reductionMs": 7.300000190734863,
-      "reductionPercent": 4.6615582486644405,
+      "reductionMs": -3.40000057220459,
+      "reductionPercent": -2.171137027220904,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -36,12 +36,12 @@
       },
       "after": {
         "count": 5,
-        "median": 253.5,
-        "min": 235.60000038146973,
-        "max": 289.4000005722046
+        "median": 234.79999923706055,
+        "min": 230.60000038146973,
+        "max": 283.9000005722046
       },
-      "reductionMs": -34.40000057220459,
-      "reductionPercent": -15.700593638541354,
+      "reductionMs": -15.699999809265137,
+      "reductionPercent": -7.165677704366716,
       "allowedRegressionMs": 44.60000038146973,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -57,12 +57,12 @@
       },
       "after": {
         "count": 5,
-        "median": 79.39999961853027,
-        "min": 73.5,
-        "max": 87
+        "median": 72.30000019073486,
+        "min": 61.79999923706055,
+        "max": 75.90000057220459
       },
-      "reductionMs": -16.199999809265137,
-      "reductionPercent": -25.63291116796841,
+      "reductionMs": -9.100000381469727,
+      "reductionPercent": -14.398734824261288,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -78,12 +78,12 @@
       },
       "after": {
         "count": 5,
-        "median": 146.89999961853027,
-        "min": 140.5999994277954,
-        "max": 171.60000038146973
+        "median": 142.60000038146973,
+        "min": 138,
+        "max": 145.29999923706055
       },
-      "reductionMs": -15.799999237060547,
-      "reductionPercent": -12.051868185420533,
+      "reductionMs": -11.5,
+      "reductionPercent": -8.77192979903718,
       "allowedRegressionMs": 33.10000038146973,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -99,12 +99,12 @@
       },
       "after": {
         "count": 5,
-        "median": 2653.199999809265,
-        "min": 2621.199999809265,
-        "max": 2657.5
+        "median": 2641.800000190735,
+        "min": 2633.199999809265,
+        "max": 2652.6000003814697
       },
-      "reductionMs": 6914.050000667572,
-      "reductionPercent": 72.26789307609785,
+      "reductionMs": 6925.450000286102,
+      "reductionPercent": 72.38704956953079,
       "allowedRegressionMs": 1435.0875000715255,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -120,12 +120,12 @@
       },
       "after": {
         "count": 5,
-        "median": 3586.5,
-        "min": 3539.199999809265,
-        "max": 3589.699999809265
+        "median": 3575.5,
+        "min": 3565.8999996185303,
+        "max": 3585.4000005722046
       },
-      "reductionMs": 6879.800000190735,
-      "reductionPercent": 65.73287599309555,
+      "reductionMs": 6890.800000190735,
+      "reductionPercent": 65.83797521631483,
       "allowedRegressionMs": 1569.9450000286101,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -141,12 +141,12 @@
       },
       "after": {
         "count": 5,
-        "median": 113.79999923706055,
-        "min": 110.19999980926514,
-        "max": 118.09999942779541
+        "median": 114.80000019073486,
+        "min": 111.70000076293945,
+        "max": 121.10000038146973
       },
-      "reductionMs": -15.899999141693115,
-      "reductionPercent": -16.241061415939154,
+      "reductionMs": -16.90000009536743,
+      "reductionPercent": -17.2625128487279,
       "allowedRegressionMs": 25,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null
@@ -162,12 +162,12 @@
       },
       "after": {
         "count": 5,
-        "median": 960.5,
-        "min": 948.0999994277954,
-        "max": 967.8999996185303
+        "median": 965,
+        "min": 951.1000003814697,
+        "max": 983.8999996185303
       },
-      "reductionMs": -37.09999990463257,
-      "reductionPercent": -4.017760439766183,
+      "reductionMs": -41.59999990463257,
+      "reductionPercent": -4.5050898744137085,
       "allowedRegressionMs": 138.51000001430512,
       "regressionGatePassed": true,
       "meaningfulNetworkGain": null

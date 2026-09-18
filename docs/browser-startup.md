@@ -121,7 +121,12 @@ subtract transfer duration from streaming init and call the remainder compile
 time. It samples each WASM instance's linear-memory capacity at finite boundaries;
 this is **not total browser memory**. Missing observation is unavailable, not a
 zero-memory assertion. Loading messages name real phases without percentages;
-workspace access does not wait for all imagery.
+workspace access does not wait for imagery. Usable `ready` status requires the
+workspace opportunity and required worker readiness; optional first image/content
+may arrive later or remain unavailable in a saved Results-only layout. The
+startup watchdog counts foreground time and pauses while a tab is hidden.
+Genuine initialisation failures still clean up the failed handle; later worker
+failures use the existing runtime error path.
 
 ## Benchmark and verification
 

@@ -4,19 +4,19 @@ import { installStartup, installWorkerStartup, startApplication } from '../brows
 
 function environment() {
   let now = 10, next = 0;
-  const callbacks = new Map(), timers = new Map(), listeners = new Map(), marks = [];
+  const callbacks = new Map(), timers = new Map(), timerDelays = new Map(), listeners = new Map(), documentListeners = new Map(), marks = [];
   const classes = new Set();
   const loading = { textContent: '' };
   class GPUQueue { submit() { now += 1; } }
   const scope = {
     performance: { timeOrigin: 1000, now: () => now++, mark: name => marks.push(name), getEntriesByType: () => [] },
     navigator: { gpu: {} }, GPUQueue,
-    document: { getElementById: () => loading, body: { classList: { add: name => classes.add(name), remove: name => classes.delete(name) } } },
-    setTimeout: fn => { timers.set(++next, fn); return next; }, clearTimeout: id => timers.delete(id),
+    document: { hidden: false, addEventListener: (name, fn) => documentListeners.set(name, fn), removeEventListener: name => documentListeners.delete(name), getElementById: () => loading, body: { classList: { add: name => classes.add(name), remove: name => classes.delete(name) } } },
+    setTimeout: (fn, delay) => { timers.set(++next, fn); timerDelays.set(next, delay); return next; }, clearTimeout: id => { timers.delete(id); timerDelays.delete(id); },
     requestAnimationFrame: fn => { callbacks.set(++next, fn); return next; }, cancelAnimationFrame: id => callbacks.delete(id),
     addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: name => listeners.delete(name),
   };
-  return { scope, marks, classes, loading, timers, listeners, callbacks, frame() { const work = [...callbacks.values()]; callbacks.clear(); work.forEach(fn => fn()); } };
+  return { scope, marks, classes, loading, timers, timerDelays, listeners, documentListeners, callbacks, advance(ms) { now += ms; }, visibility(hidden) { scope.document.hidden = hidden; documentListeners.get('visibilitychange')?.(); }, frame() { const work = [...callbacks.values()]; callbacks.clear(); work.forEach(fn => fn()); } };
 }
 
 test('records only the first workspace submission, restores the queue and schedules one proxy', () => {
@@ -182,4 +182,132 @@ test('failure after framework construction releases the handle outside the Rust 
   pending[0]();
   assert.equal(destroyed, 1);
   assert.equal(startup.report.status, 'failed');
+});
+
+function workspaceFrame(env, startup) {
+  startup.mark('workspace_ui_complete');
+  new env.scope.GPUQueue().submit();
+  env.frame();
+}
+
+function workerEnvelope(milestones, memory = {}) {
+  return { __polyoramaStartup: { timeOrigin: 2000, milestones, memory, resources: [] } };
+}
+
+test('a usable saved layout without imagery clears the watchdog and never destroys its handle', async () => {
+  const env = environment(), deferred = [];
+  env.scope.queueMicrotask = fn => deferred.push(fn);
+  let destroyed = 0;
+  const originalSubmit = env.scope.GPUQueue.prototype.submit;
+  const startup = await startApplication({ app: 'lab', workerUrl: '/worker.js', scope: env.scope,
+    load: async () => ({ default: async () => ({ memory: { buffer: { byteLength: 65536 } } }), WebHandle: class { destroy() { destroyed++; } } }),
+    start: async () => {},
+  });
+  const staleTimer = [...env.timers.values()][0];
+  workspaceFrame(env, startup);
+  assert.equal(startup.report.status, 'starting', 'worker readiness is still required');
+  env.scope.__polyoramaStartupWorkerMessage(workerEnvelope({ worker_ready: { atMs: 1, epochMs: 2001 } }));
+  assert.equal(startup.report.status, 'ready');
+  assert.equal(startup.report.milestones.first_useful_content, undefined);
+  assert.equal(startup.report.memory.main.first_useful_content, undefined);
+  assert.equal(env.timers.size, 0);
+  assert.equal(env.listeners.size, 0);
+  assert.equal(env.documentListeners.size, 0);
+  assert.equal(env.scope.GPUQueue.prototype.submit, originalSubmit);
+  env.advance(120000); staleTimer();
+  assert.equal(deferred.length, 0);
+  assert.equal(destroyed, 0);
+  assert.equal(startup.report.status, 'ready');
+  assert.equal(startup.report.failure, null);
+});
+
+test('first content can arrive once after readiness and captures memory at that later boundary', () => {
+  const env = environment();
+  const startup = installStartup({ app: 'test', scope: env.scope });
+  const memory = { buffer: { byteLength: 65536 } };
+  startup.setMemory(memory);
+  workspaceFrame(env, startup);
+  assert.equal(startup.report.status, 'ready');
+  memory.buffer = { byteLength: 262144 };
+  env.advance(1000);
+  assert.equal(startup.mark('first_useful_content'), true);
+  const first = structuredClone(startup.report.milestones.first_useful_content);
+  const sample = structuredClone(startup.report.memory.main.first_useful_content);
+  assert.equal(sample.wasmLinearBytes, 262144);
+  assert.ok(first.atMs > startup.report.milestones.rendering_opportunity_proxy.atMs);
+  memory.buffer = { byteLength: 524288 };
+  assert.equal(startup.mark('first_useful_content'), false);
+  assert.deepEqual(startup.report.milestones.first_useful_content, first);
+  assert.deepEqual(startup.report.memory.main.first_useful_content, sample);
+  assert.equal(startup.mark('unexpected_late_milestone'), false);
+  assert.equal(env.timers.size, 0);
+});
+
+test('the worker first-decode report survives readiness without turning runtime errors into startup failure', () => {
+  const env = environment(); let failures = 0;
+  const startup = installStartup({ app: 'lab', workerUrl: '/worker.js', scope: env.scope, onFailure: () => failures++ });
+  const ready = { worker_ready: { atMs: 1, epochMs: 2001 } };
+  env.scope.__polyoramaStartupWorkerMessage(workerEnvelope(ready));
+  workspaceFrame(env, startup);
+  assert.equal(startup.report.status, 'ready');
+  env.scope.__polyoramaStartupWorkerMessage({ __polyoramaStartup: { failure: { phase: 'decode', message: 'runtime error' } } });
+  assert.equal(startup.report.worker.failure, undefined);
+  const decoded = { ...ready, first_decode_complete: { atMs: 10, epochMs: 2010 } };
+  const memory = { first_decode_complete: { wasmLinearBytes: 131072 } };
+  env.scope.__polyoramaStartupWorkerMessage(workerEnvelope(decoded, memory));
+  assert.deepEqual(startup.report.worker.milestones, decoded);
+  assert.deepEqual(startup.report.memory.worker, memory);
+  env.scope.__polyoramaStartupWorkerMessage(workerEnvelope(decoded, { changed: true }));
+  assert.deepEqual(startup.report.memory.worker, memory, 'first decode sample remains one-shot');
+  assert.equal(startup.fail('worker_transport', 'runtime transport error'), false);
+  assert.equal(failures, 0);
+  assert.equal(startup.report.failure, null);
+});
+
+test('a hidden page starts with no watchdog and resumes its foreground budget on visibility', () => {
+  const env = environment(); env.scope.document.hidden = true;
+  const startup = installStartup({ app: 'test', scope: env.scope, timeoutMs: 1000 });
+  assert.equal(env.timers.size, 0);
+  assert.equal(env.documentListeners.size, 1);
+  env.advance(120000);
+  env.visibility(false);
+  assert.equal(env.timers.size, 1);
+  assert.equal([...env.timerDelays.values()][0], 1000);
+  env.advance(200);
+  env.visibility(true);
+  assert.equal(env.timers.size, 0);
+  env.advance(120000);
+  env.visibility(false);
+  const remaining = [...env.timerDelays.values()][0];
+  assert.ok(remaining >= 790 && remaining <= 800);
+  workspaceFrame(env, startup);
+  assert.equal(startup.report.status, 'ready');
+  assert.equal(env.timers.size, 0);
+  assert.equal(env.documentListeners.size, 0);
+});
+
+test('an expired foreground watchdog still fails startup and removes visibility observation', () => {
+  const env = environment(); let failures = 0;
+  const startup = installStartup({ app: 'test', scope: env.scope, onFailure: () => failures++ });
+  [...env.timers.values()][0]();
+  assert.equal(startup.report.status, 'failed');
+  assert.match(startup.report.failure.message, /foreground time/);
+  assert.equal(failures, 1);
+  assert.equal(env.documentListeners.size, 0);
+  assert.equal(env.timers.size, 0);
+});
+
+test('a delayed watchdog callback seeing a hidden page cannot destroy or spend its unknown background time', () => {
+  const env = environment();
+  const startup = installStartup({ app: 'test', scope: env.scope, timeoutMs: 1000 });
+  const callback = [...env.timers.values()][0];
+  env.scope.document.hidden = true;
+  env.advance(120000);
+  callback();
+  assert.equal(startup.report.status, 'starting');
+  assert.equal(env.timers.size, 0);
+  env.visibility(false);
+  assert.equal([...env.timerDelays.values()][0], 1000);
+  workspaceFrame(env, startup);
+  assert.equal(startup.report.status, 'ready');
 });

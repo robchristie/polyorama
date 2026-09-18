@@ -40,7 +40,7 @@ Delivery: [Polyorama PR #40](https://github.com/robchristie/polyorama/pull/40).
 The selected final configuration retains unprocessed bindgen WASM with
 compressed/versioned delivery. All declared baseline regression gates and the
 primary network improvement gate passed; Lab cold workspace/content medians
-improved by 72.5%/71.5% in the fixed response profile. Local/repeat outcomes are
+improved by 72.6%/71.6% in the fixed response profile. Local/repeat outcomes are
 mixed within the declared tolerances; no universal local speedup is claimed.
 
 Oz/O3, Lab test-export gating and the single worker-preparation overlap candidate
@@ -49,3 +49,8 @@ root/subpath, failure cleanup, normal revisit, real-input and viewer output/boun
 checks are recorded in [the compact report](browser-startup-results.md) and
 `browser-startup-evidence/`. Exact-head review, canonical/CI qualification and
 merge/cleanup evidence remain on the delivery PR under the existing workflow.
+
+Independent review identified and repaired the restored non-image-layout watchdog
+regression. Usable readiness and optional first content are now separate; hidden
+time does not consume the startup watchdog. New artifacts passed refreshed
+five-pair timing gates and the saved-layout/late-content regression.
