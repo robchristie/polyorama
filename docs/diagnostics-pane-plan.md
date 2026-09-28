@@ -1,6 +1,8 @@
 # Diagnostics pane visibility
 
-Status: active
+Status: complete
+
+Delivery: [Polyorama PR #41](https://github.com/robchristie/polyorama/pull/41).
 
 Starting revision: `83ae311b1fe14df04f57b3738defcddb5dca417f`.
 Owner: Polyorama product repository.
@@ -30,5 +32,10 @@ exact former split restoration is in scope.
   `cargo xtask verify` path exercises native and browser interactions, builds,
   architecture and UI snapshots.
 
-Next action: finish the native/browser journey and canonical verification, then
-complete review and delivery on the product pull request.
+## Closeout
+
+Core and Lab regressions cover unique open/closed transitions and persisted
+analytical state. Physical native and browser journeys cover closing, saved
+restoration and reopening; the browser journey also covers a narrow viewport.
+Full CI, independent review and landing evidence belong to the delivery pull
+request.
