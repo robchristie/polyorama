@@ -103,7 +103,11 @@ impl DockNode {
                     return false;
                 };
                 tabs.remove(index);
-                *active = (*active).min(tabs.len().saturating_sub(1));
+                if index < *active {
+                    *active -= 1;
+                } else {
+                    *active = (*active).min(tabs.len().saturating_sub(1));
+                }
                 true
             }
         }
@@ -572,6 +576,26 @@ mod tests {
         assert_eq!(restored, workspace);
         assert!(workspace.reopen_pane(PaneId(8), PaneId(7)));
         workspace.validate().unwrap();
+    }
+
+    #[test]
+    fn closing_an_inactive_earlier_tab_keeps_the_selected_pane_visible() {
+        let mut arranged = Workspace::analytical_default();
+        assert!(arranged.move_pane(PaneId(7), PaneId(8), DockDrop::Tab));
+        assert!(arranged.move_pane(PaneId(1), PaneId(7), DockDrop::Tab));
+        arranged.activate(PaneId(7));
+
+        for globally_active in [PaneId(7), PaneId(5)] {
+            let mut workspace = arranged.clone();
+            workspace.activate(globally_active);
+            assert!(workspace.close_pane(PaneId(8)));
+            workspace.validate().unwrap();
+            assert_eq!(workspace.active_pane, globally_active);
+            let mut visible = Vec::new();
+            workspace.root.active_panes(&mut visible);
+            assert!(visible.contains(&PaneId(7)));
+            assert!(!visible.contains(&PaneId(1)));
+        }
     }
 
     #[test]
