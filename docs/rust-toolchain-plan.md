@@ -1,7 +1,7 @@
 # Rust 1.98.1 maintenance
 
-Status: active
-Next action: qualify the pinned compiler, retained minimum and viewer integration.
+Status: complete
+Delivery: [Polyorama PR #43](https://github.com/robchristie/polyorama/pull/43)
 
 ## Outcome and scope
 
@@ -51,9 +51,55 @@ Dependency order is E1 terminal evidence → P1 compiler/compatibility qualifica
 → viewer consumer proof → reviewed product landing → portfolio reconciliation.
 Polyorama owns every product write and long-running check/CI watcher.
 
-## Evidence
+## Delivery and closeout
 
-Verification results and input identities will be retained under
-`docs/rust-toolchain-evidence/`; the owning PR supplies review and landing facts.
-The package closes only when all acceptance above is attributable to its final
-candidate and required post-merge checks pass.
+| Increment | Status | Result |
+| --- | --- | --- |
+| Exact compiler selectors and maintained setup | Complete | Development, normal CI and production browser contract select 1.98.1; Cargo/README minimum remains 1.97.1 |
+| Necessary compiler repairs | Complete | Fixed-array chunk iteration satisfies new Clippy lint without changing remainder behaviour |
+| Full owner acceptance and retained minimum | Complete | Clean committed source `50a14dc5650b15cea569da8caa7e92947e5314ee` passes complete `cargo xtask verify`; locked 1.97.1 native/WASM checks and all 13 viewer-source tests pass |
+| Shared viewer adapter and consumer journeys | Complete | Ceiling request offsets match the codec's reduced sample grid; strict admission retained; native nine-input/30-stage and ordinary browser nine-input/16-state journeys pass; complete unchanged six-input browser pressure gate passes |
+| Durable P1 disposition | Complete | Full positive/negative observations, input/compiler/build identities and bounded qualification are retained in [owner evidence](rust-toolchain-evidence/README.md); PR #43 owns independent review, CI, merge and cleanup |
+
+P1 has achieved its bounded product outcome. Normal selection is exact 1.98.1;
+the previous minimum, optional declaration omissions, API/dependency/lint policy
+and codec lock remain. Historical 1.97.1 reports keep their original attribution.
+E1's terminal owner evidence is accepted without rerunning upstream components.
+No workspace PR, other-project write, machine/default-toolchain change, release,
+deployment or package/data publication is part of this delivery.
+
+The viewer runtime probe exposed a pre-existing edge-window mismatch: old
+1.97.1 browser/service builds reproduced it with byte-identical fixture payloads
+and descriptors. The minimal adapter repair changes the request start from floor
+to ceiling projection, matching the codec's existing authenticated half-open
+demand. Regression proof exercises the emitted request and service effective
+region, checks original-demand pixels/masks and preserves empty-output rejection.
+A data favicon avoids an incidental request outside the service's closed routes.
+No admission guard, pressure cap, cancellation or eviction assertion is weakened.
+
+The original nine-input pressure probe correctly failed GPU eviction because it
+reached only 9,170,944 bytes under a 16 MiB cap. The service sorts catalogue
+targets, so an attempted argument reorder was rejected by the input identity
+guard before running the browser. The final frozen subset uses original indices
+`0,1,3,5,7,8`, retaining all bytes/identities and placing RGB images at the
+pressure-visited positions. The complete unchanged harness passes: 62 GPU
+evictions, four representation evictions, two worker abort acknowledgements, one
+interrupted real JPP transfer, no errors and all caps respected. This proves
+bounded six-input browser pressure coverage; native nine-input and ordinary
+browser nine-input observations remain separately attributed.
+
+[Retained receipts and complete observations](rust-toolchain-evidence/README.md)
+identify actual source `50a14dc5650b15cea569da8caa7e92947e5314ee`, tree
+`9f56909a825554a28e3dc3b6669627956e918240`, compiler dispatch, dependencies,
+commands, environment and input hashes. Later plan/evidence-only commits reuse
+that unchanged executable surface; production build manifests keep their actual
+source revision. The owning PR supplies exact reviewed head, required CI and
+post-merge CI on their actual revisions. Plan completion records a verified
+product state, not a claim that this PR has already merged.
+
+Remaining qualification limits belong to the existing protected-image and
+representative system/performance plans. These public functional journeys and
+observed software adapters establish no unrestricted browser/input or target
+GPU performance claim. The initial host headless-startup failure is retained;
+final full acceptance uses the existing headful route used by normal CI. There
+is no unresolved compiler-package implementation finding.
