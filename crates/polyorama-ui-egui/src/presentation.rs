@@ -58,9 +58,13 @@ impl PresentationId {
 
 #[derive(Clone, Copy, Debug)]
 pub struct ContentTextSpec {
+    /// Measured typography role.
     pub role: TextRole,
+    /// Explicit wrapping or elision policy.
     pub overflow: TextOverflow,
+    /// Bounded line count accepted by the selected recipe (1–8).
     pub max_lines: u8,
+    /// Selectable text or inert text for controls with an owning gesture.
     pub interaction: TextInteraction,
 }
 
@@ -104,6 +108,9 @@ pub struct PresentationContext {
 }
 
 impl PresentationContext {
+    /// Begin a context inside the current egui viewport/pass with resolved
+    /// appearance and stable logical identity. This owns observations only;
+    /// application data, layout, intents and repaint scheduling stay with the caller.
     pub fn new(
         ui: &mut Ui,
         tokens: DesignTokens,
@@ -192,6 +199,9 @@ impl PresentationContext {
         );
     }
 
+    /// Present one typed capability instance and record its semantics/layout.
+    /// Handle the response through the application's intent route; this method
+    /// never applies model changes. Use a stable logical key independent of label.
     pub fn action<A: ActionKey>(
         &mut self,
         ui: &mut Ui,
@@ -386,6 +396,9 @@ impl PresentationContext {
             .retain(|item| item.layout_error.is_some() || visible(item));
     }
 
+    /// Publish and consume this context in its original pass. Panics if used
+    /// with another context, viewport or pass. Keep only the latest publication
+    /// after layout retries; see [`PresentationObservations`] for coverage merging.
     pub fn finish(self, ui: &mut Ui) -> PresentationObservations {
         self.check_pass(ui);
         let coverage = text_audit_coverage(ui.ctx(), &self.text_layouts);
