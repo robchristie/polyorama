@@ -48,7 +48,14 @@ wait_snapshot() {
   exit 1
 }
 wait_snapshot 0
-WINDOW_ID="$(xdo search --onlyvisible --name 'Polyorama Minimal Workspace' | head -n 1)"
+WINDOW_ID=""
+for _ in {1..100}; do
+  WINDOW_ID="$(xdo search --onlyvisible --name 'Polyorama Minimal Workspace' | head -n 1 || true)"
+  [[ -n "$WINDOW_ID" ]] && break
+  kill -0 "$APP_PID"
+  sleep 0.1
+done
+[[ -n "$WINDOW_ID" ]] || { echo "minimal native window did not become visible" >&2; exit 1; }
 xdo windowfocus --sync "$WINDOW_ID"
 read -r CLICK_X CLICK_Y < <(jq -r '
   .nodes[] | select(.actions | index("minimal.add-triangle")) |
@@ -57,7 +64,7 @@ read -r CLICK_X CLICK_Y < <(jq -r '
 cp "$SNAPSHOT" "$EVIDENCE_DIR/minimal-native-before.json"
 for count in 1 2; do
   xdo mousemove --window "$WINDOW_ID" "$CLICK_X" "$CLICK_Y"
-  xdo click --window "$WINDOW_ID" 1
+  xdo click 1
   wait_snapshot "$count"
   cp "$SNAPSHOT" "$EVIDENCE_DIR/minimal-native-after-$count.json"
 done

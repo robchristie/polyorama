@@ -125,6 +125,15 @@ struct MinimalApp {
 
 impl MinimalApp {
     fn new(creation: &eframe::CreationContext<'_>) -> Self {
+        #[cfg(not(target_arch = "wasm32"))]
+        if std::env::var_os("POLYORAMA_MINIMAL_SNAPSHOT").is_some()
+            && let Some(render_state) = &creation.wgpu_render_state
+        {
+            eprintln!(
+                "Minimal consumer adapter: {:?}",
+                render_state.adapter.get_info()
+            );
+        }
         let preferences = UiPreferences::default();
         apply_design_system(&creation.egui_ctx, preferences);
         let workspace = Workspace {
