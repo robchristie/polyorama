@@ -10,6 +10,7 @@ use polyorama_ui_egui::{
     ActionButtonSpec, ActionButtonState, ActionEmphasis, ActionKey, ActionScope, ActionSpec,
     ActionTarget, Availability, DockBehaviour, DockTextContext, PanePresenter, PresentationContext,
     PresentationObservations, PresentationScope, SemanticUiId, UiPreferences, apply_design_system,
+    dock_workspace,
 };
 use serde::Serialize;
 
@@ -149,7 +150,7 @@ impl MinimalApp {
             workspace,
             history: CommandHistory::default(),
             dock: DockBehaviour::default(),
-            tokens: preferences.tokens(),
+            tokens: preferences.tokens(true),
         }
     }
 }
@@ -166,7 +167,7 @@ impl eframe::App for MinimalApp {
             tokens: self.tokens,
         };
         let dock_command = egui::CentralPanel::default()
-            .show_inside(root, |ui| {
+            .show(root, |ui| {
                 dock_workspace(
                     ui,
                     &mut self.workspace,
