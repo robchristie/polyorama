@@ -87,6 +87,8 @@ pub struct DockTextContext {
 }
 
 #[derive(Default)]
+/// UI-only dock interaction state retained across frames for drag/split previews.
+/// The authoritative layout remains in core [`Workspace`].
 pub struct DockBehaviour {
     pub dragging: Option<PaneId>,
     pending: Option<DockAction>,
@@ -828,6 +830,8 @@ impl egui_wgpu::CallbackTrait for ScalarPaintCallback {
 }
 
 #[derive(Clone)]
+/// Opaque staged callback target. Collect one per image request, in identical
+/// pane order, and publish with [`submit_render_plan`] before callback preparation.
 pub struct ImagePlanTarget {
     pane: PaneId,
     request: Arc<RwLock<Option<ImageRenderRequest>>>,
@@ -853,16 +857,18 @@ pub fn stage_render_callback(
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+/// Structural publication failure. Every staged image target is disabled on
+/// failure; repair the complete plan/target pairing before rendering again.
 pub enum RenderPlanSubmissionError {
-    CountMismatch {
-        requests: usize,
-        targets: usize,
-    },
+    /// The complete plan and staged-target lists have different lengths.
+    CountMismatch { requests: usize, targets: usize },
+    /// The request and target at this position name different panes.
     PaneMismatch {
         index: usize,
         request: PaneId,
         target: PaneId,
     },
+    /// A pane occurs more than once in the complete plan/target pairing.
     DuplicatePane(PaneId),
 }
 

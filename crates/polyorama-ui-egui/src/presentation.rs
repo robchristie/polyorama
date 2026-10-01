@@ -81,11 +81,17 @@ pub struct RawPresentation {
 /// failed and native counts use the shared viewport-pass inventory. Recompute
 /// once over merged layouts at the viewport boundary; never sum partial coverage.
 pub struct PresentationObservations {
+    /// Viewport whose latest publication this replaces.
     pub viewport: egui::ViewportId,
+    /// Originating egui layout pass; repeated passes produce replacements.
     pub pass: u64,
+    /// This context's retained measured text, not text from earlier passes.
     pub text_layouts: Vec<TextLayoutObservation>,
+    /// Current application/control semantics recorded by this context.
     pub semantic_nodes: Vec<UiNode>,
+    /// Local measured count plus shared viewport-pass inventory counts; do not sum.
     pub coverage: TextAuditCoverage,
+    /// Explicitly recorded presentations outside the measured recipes.
     pub raw_presentations: Vec<RawPresentation>,
 }
 
