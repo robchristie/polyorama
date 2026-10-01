@@ -1,7 +1,7 @@
 # Application composition documentation
 
 Status: active
-Next action: Author the frozen public journeys and minimal consumer, then qualify them through the documentation and full verification routes.
+Next action: Complete the independent public fresh-reader exercise, then reconcile the plan for final exact-head review and landing.
 
 ## Outcome and scope
 
@@ -36,9 +36,9 @@ outside this bounded envelope. Existing regional contracts remain authoritative.
 | Increment | State | Evidence/next proof |
 |---|---|---|
 | Source discovery and scope freeze | Complete | Frozen map above; source baseline |
-| Public entrances, item contracts and example | Planned | Four crate entries, composition guide, minimal consumer |
-| Documentation check integration | Planned | Selected examples and links; deliberately broken probes; full gate retains existing obligations |
-| Consumer qualification and delivery | Planned | Rendered pages, native journey, WASM compile, fresh-reader extension, independent review, CI and landing |
+| Public entrances, item contracts and example | Complete | Four crate entries, local supporting contracts, composition guide and maintained minimal consumer |
+| Documentation check integration | Complete | Four executed doctests, selected native/WASM compilation and local links; intended broken probes rejected; complete canonical route passed |
+| Consumer qualification and delivery | Active | Native baseline and presenter variation, WASM compile and nine rendered pages pass; independent fresh-reader exercise then final review/CI/landing remain |
 
 Detailed qualification belongs in `docs/api-documentation-evidence.md`; generated
-HTML, command logs and runtime artefacts stay in ignored output directories.
+HTML stays in ignored output directories; bounded actual logs and observations are retained in the product evidence archive.
