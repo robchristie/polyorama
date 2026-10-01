@@ -1,7 +1,7 @@
 # Application composition documentation
 
-Status: active
-Next action: Complete the independent public fresh-reader exercise, then reconcile the plan for final exact-head review and landing.
+Status: complete
+Delivery: [Polyorama PR #45](https://github.com/robchristie/polyorama/pull/45)
 
 ## Outcome and scope
 
@@ -38,7 +38,18 @@ outside this bounded envelope. Existing regional contracts remain authoritative.
 | Source discovery and scope freeze | Complete | Frozen map above; source baseline |
 | Public entrances, item contracts and example | Complete | Four crate entries, local supporting contracts, composition guide and maintained minimal consumer |
 | Documentation check integration | Complete | Four executed doctests, selected native/WASM compilation and local links; intended broken probes rejected; complete canonical route passed |
-| Consumer qualification and delivery | Active | Native baseline and presenter variation, WASM compile and nine rendered pages pass; independent fresh-reader exercise then final review/CI/landing remain |
+| Consumer qualification and delivery | Complete | Native baseline/variation, WASM compile, nine rendered pages and independent public fresh-reader extension pass; exact-head review/CI/landing observations belong to PR #45 |
 
 Detailed qualification belongs in `docs/api-documentation-evidence.md`; generated
 HTML stays in ignored output directories; bounded actual logs and observations are retained in the product evidence archive.
+
+## Closeout
+
+All P1–P3 journeys in the frozen map are complete. The independent reader built
+and physically exercised the original consumer and exact documented variation
+from public material without a consumer-code repair. The evidence report and
+checksummed archive retain the actual identities, commands, environment,
+negative probes and bounded target limits. No API/runtime/dependency change or
+broader browser-support claim is introduced. The owning PR retains final review,
+required CI, eventual squash identity, post-merge CI and cleanup; this completed
+product state does not assert that the PR has already merged.

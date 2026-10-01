@@ -8,8 +8,9 @@ Extract `observations.tar.gz` into a scratch inspection directory. Verify the
 archive SHA-256 and each uncompressed file against `archive-index.json`.
 The archive contains complete command output, negative-probe receipts, native
 baseline/variation snapshots and opened screenshots, rendered API text/navigation
-observations and this host's temporary execution/inspection recipes. Those
-recipes describe the observed environment; use the public composition guide's
+observations and this host's temporary execution/inspection recipes. The
+independent reader report and original/variation observations are in `fresh-reader/`.
+The recipes describe the observed environment; use the public composition guide's
 maintained commands for ordinary development.
 
 The owning PR retains final exact-head review, independent reader acceptance,
