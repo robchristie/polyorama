@@ -115,8 +115,10 @@ asset hashes matched the build receipt, with the expected MIME types and
   and inspected panel screenshots.
 - A matching `up` reused the active run. Generation-guarded `down` reported
   `observed-inactive`; browser readiness returned HTTP 404 afterwards. The
-  exact pilot tab was closed, its temporary connection was absent, and all
-  task previews were stopped while the retained manual profile was preserved.
+  exact pilot tab was closed, the temporary observation SSH forward was absent,
+  and all task previews were stopped. The existing browser profile was preserved
+  without reading or copying it; the separately retained manual synthetic
+  application was untouched.
 
 The first supplemental navigation received HTTP 404 while the published route
 was becoming observable. That failed observation is retained; a bounded reload
