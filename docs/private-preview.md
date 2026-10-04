@@ -1,7 +1,9 @@
 # Analytical Workspace Lab private development preview
 
-The root `.dev-preview.toml` launches the Lab through an installed gateway's
-version 1 inherited-socket contract. Python 3.11 or later is sufficient for the
+The root `.dev-preview.toml` identifies this application as `polyorama-lab` and
+launches it through an installed gateway's version 1 inherited-socket contract.
+The identifier follows that contract's lower-case, maximum-31-character grammar.
+Python 3.11 or later is sufficient for the
 adapter and its verification tests. The gateway owns the listening allocation,
 HTTPS origin and preview lifecycle; `tools/dev-preview.py` adopts the supplied
 `DEV_PREVIEW_LISTEN_FD` directly, without closing it and binding another server.

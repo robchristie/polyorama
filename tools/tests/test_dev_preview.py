@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import socket
 import subprocess
@@ -214,6 +215,18 @@ class PreviewTests(unittest.TestCase):
     def test_manifest_and_existing_relative_worker_urls(self):
         root = SOURCE.parent.parent
         manifest = tomllib.loads((root / ".dev-preview.toml").read_text())
+        # Gateway v1 accepts at most 31 lower-case project-identifier characters.
+        # Comparing only the adapter's constant would miss a shared invalid ID.
+        self.assertRegex(manifest["project"], r"\A[a-z][a-z0-9-]{0,30}\Z")
+        self.assertEqual(manifest["schema_version"], 1)
+        self.assertEqual(set(manifest), {"schema_version", "project", "command", "cwd", "readiness"})
+        readiness = manifest["readiness"]
+        self.assertIsNotNone(re.fullmatch(r"/[A-Za-z0-9_/-]{1,120}", readiness["path"]))
+        self.assertNotIn("..", readiness["path"])
+        self.assertEqual(set(readiness), {"path", "timeout_seconds"})
+        self.assertIs(type(readiness["timeout_seconds"]), int)
+        self.assertGreaterEqual(readiness["timeout_seconds"], 1)
+        self.assertLessEqual(readiness["timeout_seconds"], 60)
         self.assertEqual(manifest["project"], ADAPTER.PROJECT)
         self.assertEqual(manifest["command"], ["python3", "tools/dev-preview.py"])
         self.assertEqual(manifest["readiness"]["path"], ADAPTER.READINESS_PATH)

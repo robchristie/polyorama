@@ -13,7 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import unquote, urlsplit
 
 
-PROJECT = "polyorama-analytical-workspace-lab"
+PROJECT = "polyorama-lab"
 READINESS_PATH = "/_dev_preview/ready"
 ASSETS = {
     "index.html": "text/html; charset=utf-8",
