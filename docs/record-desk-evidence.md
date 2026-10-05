@@ -4,6 +4,9 @@ The [execution plan](record-desk-plan.md) owns acceptance and the short design
 contract. The [consumer README](../consumers/record-desk/README.md) owns executable
 commands, lifecycle, extension and persistence. Detailed generated logs,
 metadata, step snapshots and captures stay in ignored runtime evidence.
+The [qualification manifest](record-desk-evidence/qualification.json) records
+source/build/capture hashes. [PR #47](https://github.com/robchristie/polyorama/pull/47)
+owns exact-head review, candidate and post-merge CI, and terminal landing evidence.
 
 ## What the consumer establishes
 

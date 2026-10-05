@@ -1,7 +1,7 @@
 # Independent Record Desk consumer
 
-Status: active
-Next action: Complete canonical verification, reconcile final evidence and obtain independent review and CI before landing.
+Status: complete
+Delivery: [Polyorama PR #47](https://github.com/robchristie/polyorama/pull/47)
 
 ## Outcome and scope
 
@@ -34,7 +34,7 @@ framework, accessibility adapter or agent benchmark programme.
 | Physical keyboard/pointer; stable semantics and measured text | consumer smokes and UI tests | Complete |
 | Ordinary/narrow/empty/error/selected/disabled/focus presentation | opened captures and report | Complete |
 | Fresh-context extension with public source/docs | bounded probe report | Complete |
-| Canonical verification, independent exact-head review, CI, landing | owning PR and landing comment | Pending |
+| Canonical verification, independent exact-head review, CI, landing | owning PR and landing comment | Complete for canonical product qualification; PR retains review and landing gates |
 
 Representative task: find a synthetic record, review its detail, edit and Apply,
 undo/redo, save, then resume after restart/reload. List/navigation comes first;
@@ -75,5 +75,8 @@ persisted layout/records after restart/reload and visible storage failures.
 Ordinary and 390-point narrow images have been opened and judged. The fresh
 authoring probe added Reset filters with four passing UI tests using public
 source/documentation. [Evidence and decisions](record-desk-evidence.md) own the
-details. Canonical verification and reviewed delivery are the current phase.
-Public GitHub-hosted CI is retained.
+details. Full local `cargo xtask verify` passes, including preserved existing
+applications, production startup, UI snapshots and both consumer journeys.
+The product state is complete; the owning PR retains the exact reviewed head,
+required CI, squash revision and cleanup evidence under the reviewed delivery
+procedure. Public GitHub-hosted CI is retained.
