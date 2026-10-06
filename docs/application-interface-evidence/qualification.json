@@ -1,0 +1,3450 @@
+{
+  "schema_version": 1,
+  "protocol_version": 1,
+  "command": "bash tools/application-interface-smoke.sh",
+  "environment": {
+    "native": "Linux X11 / wgpu GL / Mesa llvmpipe",
+    "browser": "headed Chromium / WebGPU SwiftShader",
+    "native_viewports": "Record Desk 1080x760; Lab 1440x900"
+  },
+  "source_checkpoint": "b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5",
+  "reports": [
+    {
+      "application": "record-desk",
+      "host": "native",
+      "source_revision": "b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5",
+      "dirty": false,
+      "instance": "33765c-18dbe5b70c360b08-1",
+      "build": {
+        "binary_sha256": "b6f4091431bd2265f3597a1f731dd000406f4662caf7b97a69a1c567159f5086"
+      },
+      "identity": {
+        "name": "Record Desk",
+        "build": {
+          "version": "0.1.0",
+          "source_revision": null
+        }
+      },
+      "operations": [
+        "hello",
+        "observe",
+        "query",
+        "discover",
+        "invoke",
+        "receipt",
+        "cancel"
+      ],
+      "steps": [
+        {
+          "name": "initial",
+          "observation": 7,
+          "frame": 7,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Compare field notes",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1001",
+            "status": "No saved state yet. Synthetic records are ready to review.",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "slice-arranged",
+          "observation": 31,
+          "frame": 31,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Compare field notes",
+            "error": false,
+            "layout_axis": "Vertical",
+            "redo_entries": 0,
+            "selected_record": "1001",
+            "status": "Pane arrangement changed. Save retains the layout.",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 3,
+                "offset": null,
+                "virtualised": false,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 24,
+          "text": 25,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 25,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "semantic-apply",
+          "observation": 484,
+          "frame": 484,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Shared interface edited again",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Applied one record change. Save to keep it after restart.",
+            "undo_entries": 1
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "semantic-redo",
+          "observation": 498,
+          "frame": 498,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Shared interface edited again",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Redid one record change.",
+            "undo_entries": 1
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "physical-redo",
+          "observation": 720,
+          "frame": 720,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Physical shared interface edit",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Redid one record change.",
+            "undo_entries": 2
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        }
+      ],
+      "receipts": [
+        {
+          "request_id": "slice-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "presentation.98a30ca7c452c1ee",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "slice-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "presentation.98a30ca7c452c1ee",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "10c814c1-c43f-4e54-867b-89151a07df56",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 63,
+          "target": {
+            "id": "presentation.98a30ca7c452c1ee",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 7
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "faa56389-df17-476f-b541-f1fdcbc7ab04",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 63,
+          "target": {
+            "id": "presentation.98a30ca7c452c1ee",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Vertical",
+            "observation": 63
+          }
+        },
+        {
+          "request_id": "fbb6aadc-b46e-4635-a2c1-6c15bcefef63",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 129,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "3",
+            "observation": 129
+          },
+          "error": {
+            "code": "unavailable",
+            "message": "There are no draft changes"
+          }
+        },
+        {
+          "request_id": "a2c4ee70-c23e-4b7f-8291-14a5e834ed8d",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 149,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "4",
+            "observation": 149
+          },
+          "error": {
+            "code": "validation_failed",
+            "message": "A title must contain 1\u2013120 characters after trimming."
+          }
+        },
+        {
+          "request_id": "dd90c9e8-db6a-46af-93dd-8500ce341007",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 481,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "26",
+            "observation": 292
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "5cad1103-c759-40f4-b00f-be60e302a4d9",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 481,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "56",
+            "observation": 481
+          },
+          "error": {
+            "code": "invalid_arguments",
+            "message": "this capability accepts no arguments"
+          }
+        },
+        {
+          "request_id": "apply-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 481,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "56",
+            "observation": 481
+          }
+        },
+        {
+          "request_id": "apply-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 481,
+          "target": {
+            "id": "presentation.3b7c1499434a5dc5",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "56",
+            "observation": 481
+          }
+        },
+        {
+          "request_id": "7416500d-653f-4e42-87b8-046339332363",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 484,
+          "target": {
+            "id": "presentation.0ff6d771c463cda1",
+            "capability": "record-desk.undo",
+            "pane": null,
+            "domain": null,
+            "meaning": "57",
+            "observation": 484
+          }
+        },
+        {
+          "request_id": "a5034993-f6c0-4e2d-a582-86a11760179d",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 495,
+          "target": {
+            "id": "presentation.39dee33c086645da",
+            "capability": "record-desk.redo",
+            "pane": null,
+            "domain": null,
+            "meaning": "58",
+            "observation": 494
+          }
+        }
+      ],
+      "physical_inputs": [
+        {
+          "request_id": "723f838a-b2ed-4bfa-8bf3-7bbe5923c14f",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 124,
+          "node": "record-desk.record.1013",
+          "point": {
+            "x": 198.27,
+            "y": 303.25
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 144.71507399999973,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "40f5d59e-ff0b-4ef6-96a1-16358d9b00c6",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 129,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 144.00379299999986,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "938d40dd-0d7b-4f9d-8e41-a8448bc89781",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 132,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "f995c43c-7f6b-4297-9d77-9f49ab922fe7",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 143,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "5e4e2799-99ce-4900-b7f4-85d4a7dce193",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 151,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 143.51852299999882,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "b41c7572-bdf5-445a-9500-e1f5d6822f0d",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 154,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "1f6b943b-6c79-4010-846e-94cc1debba87",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 165,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "f66bb0ac-7f85-4795-9897-1d5c3e0e342a",
+          "route": "physical",
+          "input": "text",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 171,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "1c8493fe-2b3f-41ca-9b84-d35eaa5e0992",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 289,
+          "node": "presentation.1e57a7ff52acf0e6",
+          "point": {
+            "x": 429.03125,
+            "y": 318.84375
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 143.54751499999838,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "1385a537-cd42-4ec2-8bab-855e7cdc4812",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 292,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 144.14580000000024,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "ff72c405-edcc-4f0b-95f3-2d3e938664e7",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 295,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "7675d59b-73aa-4e2f-80cd-a32bafae5d51",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 306,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "b703b1f6-a16b-40f5-b1b7-1b970ddcbb55",
+          "route": "physical",
+          "input": "text",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 312,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "2c423aed-57f9-4c37-8585-ffde16a7e540",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 498,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 145.52394900000036,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "76c19877-a34f-48b1-b374-e4826c7a4878",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 501,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "38488ebf-29fb-439b-bf50-8f38158a5869",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 512,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "4ce26685-8997-4a62-a92d-5b46026b1af8",
+          "route": "physical",
+          "input": "text",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 518,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "75d3f4e4-4d33-4f97-8bf5-c3b4dbaaa02c",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 691,
+          "node": "presentation.3b7c1499434a5dc5",
+          "point": {
+            "x": 418.328125,
+            "y": 477.84375
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 142.9036079999987,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "14226e36-a152-4cf7-a4ef-f6bf3cf757b9",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 694,
+          "node": null,
+          "focus": [],
+          "key": "Control+z",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "62e898ae-1eeb-46fa-98d8-82202f3d7f5d",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "33765c-18dbe5b70c360b08-1",
+          "observation": 705,
+          "node": null,
+          "focus": [],
+          "key": "Control+Shift+z",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        }
+      ],
+      "failures": [
+        {
+          "name": "unsupported_version",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_version",
+            "instance": "33765c-18dbe5b70c360b08-1",
+            "error": {
+              "code": "unsupported_version",
+              "message": "protocol version is not supported"
+            }
+          }
+        },
+        {
+          "name": "unsupported_operation",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_operation",
+            "instance": "33765c-18dbe5b70c360b08-1",
+            "error": {
+              "code": "unsupported_operation",
+              "message": "operation is not supported by this protocol"
+            }
+          }
+        },
+        {
+          "name": "stale arrangement",
+          "receipt": {
+            "request_id": "10c814c1-c43f-4e54-867b-89151a07df56",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 63,
+            "target": {
+              "id": "presentation.98a30ca7c452c1ee",
+              "capability": "record-desk.arrange",
+              "pane": null,
+              "domain": null,
+              "meaning": "Horizontal",
+              "observation": 7
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 63,
+          "after": 63
+        },
+        {
+          "name": "unavailable Apply",
+          "receipt": {
+            "request_id": "fbb6aadc-b46e-4635-a2c1-6c15bcefef63",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 129,
+            "target": {
+              "id": "presentation.3b7c1499434a5dc5",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "3",
+              "observation": 129
+            },
+            "error": {
+              "code": "unavailable",
+              "message": "There are no draft changes"
+            }
+          },
+          "before": 129,
+          "after": 129
+        },
+        {
+          "name": "invalid draft",
+          "receipt": {
+            "request_id": "a2c4ee70-c23e-4b7f-8291-14a5e834ed8d",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 149,
+            "target": {
+              "id": "presentation.3b7c1499434a5dc5",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "4",
+              "observation": 149
+            },
+            "error": {
+              "code": "validation_failed",
+              "message": "A title must contain 1\u2013120 characters after trimming."
+            }
+          },
+          "before": 149,
+          "after": 151
+        },
+        {
+          "name": "stale draft",
+          "receipt": {
+            "request_id": "dd90c9e8-db6a-46af-93dd-8500ce341007",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 481,
+            "target": {
+              "id": "presentation.3b7c1499434a5dc5",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "26",
+              "observation": 292
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 481,
+          "after": 481
+        },
+        {
+          "name": "invalid arguments",
+          "receipt": {
+            "request_id": "5cad1103-c759-40f4-b00f-be60e302a4d9",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 481,
+            "target": {
+              "id": "presentation.3b7c1499434a5dc5",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "56",
+              "observation": 481
+            },
+            "error": {
+              "code": "invalid_arguments",
+              "message": "this capability accepts no arguments"
+            }
+          },
+          "before": 481,
+          "after": 481
+        }
+      ],
+      "idle": {
+        "frame_before": 720,
+        "frame_after": 720,
+        "settle_initial_frame": 720,
+        "settle_final_frame": 720,
+        "settle_observed_ms": 700,
+        "idle_observed_ms": 700,
+        "deliberate_continuous_repaint": false
+      },
+      "capture": {
+        "file": "record-desk-native.png",
+        "sha256": "64893a15e75bab16b0d8bb80328cda965de3f0a13f8f3e75ebdd2ffaf1d6af60",
+        "status": "complete",
+        "input_route": "semantic_and_physical",
+        "viewport": {
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "pixels_per_point": 1,
+          "root": {
+            "min_x": 0,
+            "min_y": 0,
+            "max_x": 1080,
+            "max_y": 760
+          }
+        },
+        "timing": {
+          "started": {
+            "monotonic_ms": 14618.572751,
+            "wall_time": "2026-10-06T09:10:57.690Z"
+          },
+          "finished": {
+            "monotonic_ms": 14687.178325,
+            "wall_time": "2026-10-06T09:10:57.759Z"
+          }
+        },
+        "geometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1080,
+          "height": 760,
+          "device_scale": 1
+        },
+        "relationship": {
+          "semantic_boundary": "completed_ui_pass",
+          "before_observation": 720,
+          "after_observation": 720,
+          "claim": "host capture bracketed by completed observations; GPU/OS frame identity is unavailable"
+        },
+        "exact_observation_frame": false,
+        "diagnostics": []
+      },
+      "full_report_sha256": "b4cd89aaf91ff9dcd9b1c4ad946fcff7375ae1a7724996e06fa47a40dec89599"
+    },
+    {
+      "application": "record-desk",
+      "host": "browser",
+      "source_revision": "b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5",
+      "dirty": false,
+      "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+      "build": {
+        "wasm_sha256": "ed74c851ea032f35de4efffb1bbdd3341e08ebf34c91b66f61e1d8c13d8a41b9"
+      },
+      "identity": {
+        "name": "Record Desk",
+        "build": {
+          "version": "0.1.0",
+          "source_revision": null
+        }
+      },
+      "operations": [
+        "hello",
+        "observe",
+        "query",
+        "discover",
+        "invoke",
+        "receipt",
+        "cancel"
+      ],
+      "steps": [
+        {
+          "name": "initial",
+          "observation": 3,
+          "frame": 3,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Compare field notes",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1001",
+            "status": "No saved state yet. Synthetic records are ready to review.",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "slice-arranged",
+          "observation": 6,
+          "frame": 6,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Compare field notes",
+            "error": false,
+            "layout_axis": "Vertical",
+            "redo_entries": 0,
+            "selected_record": "1001",
+            "status": "Pane arrangement changed. Save retains the layout.",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 3,
+                "offset": null,
+                "virtualised": false,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 24,
+          "text": 25,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 25,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "semantic-apply",
+          "observation": 37,
+          "frame": 37,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Shared interface edited again",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Applied one record change. Save to keep it after restart.",
+            "undo_entries": 1
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "semantic-redo",
+          "observation": 41,
+          "frame": 41,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Shared interface edited again",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Redid one record change.",
+            "undo_entries": 1
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        },
+        {
+          "name": "physical-redo",
+          "observation": 57,
+          "frame": 57,
+          "facts": {
+            "draft_dirty": false,
+            "draft_title": "Physical shared interface edit",
+            "error": false,
+            "layout_axis": "Horizontal",
+            "redo_entries": 0,
+            "selected_record": "1013",
+            "status": "Redid one record change.",
+            "undo_entries": 2
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "nodes": 33,
+          "text": 36,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 36,
+            "attempted_components": 36,
+            "successful_components": 36,
+            "failed_components": 0,
+            "native_text_controls": 6,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels",
+              "native_combo_box_text",
+              "native_text_edit_text"
+            ]
+          }
+        }
+      ],
+      "receipts": [
+        {
+          "request_id": "slice-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 3,
+          "target": {
+            "id": "presentation.204692eabe72277d",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 3
+          }
+        },
+        {
+          "request_id": "slice-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 3,
+          "target": {
+            "id": "presentation.204692eabe72277d",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 3
+          }
+        },
+        {
+          "request_id": "0ee450b3-c7fe-4309-90e8-bb8abd2f2fd4",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 6,
+          "target": {
+            "id": "presentation.204692eabe72277d",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Horizontal",
+            "observation": 3
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "16a23bf4-a97a-473e-8ff8-719ac6fa4ce6",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 6,
+          "target": {
+            "id": "presentation.204692eabe72277d",
+            "capability": "record-desk.arrange",
+            "pane": null,
+            "domain": null,
+            "meaning": "Vertical",
+            "observation": 6
+          }
+        },
+        {
+          "request_id": "1d61a148-be63-4448-85c4-b596210acf37",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 15,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "3",
+            "observation": 15
+          },
+          "error": {
+            "code": "unavailable",
+            "message": "There are no draft changes"
+          }
+        },
+        {
+          "request_id": "a0b0cc93-f135-4496-8c19-874a5ee73868",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 20,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "4",
+            "observation": 20
+          },
+          "error": {
+            "code": "validation_failed",
+            "message": "A title must contain 1\u2013120 characters after trimming."
+          }
+        },
+        {
+          "request_id": "2a8e4e92-0744-498a-bd4d-75bdf0d78751",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 35,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "6",
+            "observation": 29
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "2d48e6cf-e9c4-4ab2-8223-2b9a5c60c3e3",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 35,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "8",
+            "observation": 35
+          },
+          "error": {
+            "code": "invalid_arguments",
+            "message": "this capability accepts no arguments"
+          }
+        },
+        {
+          "request_id": "apply-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 35,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "8",
+            "observation": 35
+          }
+        },
+        {
+          "request_id": "apply-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 35,
+          "target": {
+            "id": "presentation.8908386a03597fcf",
+            "capability": "record-desk.apply",
+            "pane": null,
+            "domain": {
+              "kind": "external",
+              "value": {
+                "namespace": "record-desk.record",
+                "id": "1013"
+              }
+            },
+            "meaning": "8",
+            "observation": 35
+          }
+        },
+        {
+          "request_id": "a7211022-fd86-4af9-b706-23c79316130b",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 37,
+          "target": {
+            "id": "presentation.6319cbda0771b21a",
+            "capability": "record-desk.undo",
+            "pane": null,
+            "domain": null,
+            "meaning": "9",
+            "observation": 37
+          }
+        },
+        {
+          "request_id": "089270a6-1dd8-4b68-804b-4f580e5de3aa",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 39,
+          "target": {
+            "id": "presentation.8cf99d939b96adfe",
+            "capability": "record-desk.redo",
+            "pane": null,
+            "domain": null,
+            "meaning": "10",
+            "observation": 39
+          }
+        }
+      ],
+      "physical_inputs": [
+        {
+          "request_id": "9cda8939-4ff3-4c83-8da5-99cf9743d375",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 11,
+          "node": "record-desk.record.1013",
+          "point": {
+            "x": 198.27,
+            "y": 303.25
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 129.53982099999996,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "3cda21a6-3c77-43e8-a532-0028f4a9a5cc",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 15,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 115.82764099999986,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "a603e366-d26e-4cdf-a3fe-33ba34592e2b",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 17,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "9cf01435-4074-4907-a83f-790aaf7f2ecd",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 17,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "71f5cbee-d677-4c3c-bf25-98b57c0a9804",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 20,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 119.55193899999995,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "f614846e-c28f-49a0-908c-62164ea99d29",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 22,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "616aba5a-63c8-442d-a4f7-97b399f78868",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 22,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "636e1a72-37c8-434d-af6f-e6d730d72768",
+          "route": "physical",
+          "input": "text",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 22,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "0c611b84-9c71-4259-98af-1384905b7a5d",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 25,
+          "node": "presentation.f7ff05ec65dae537",
+          "point": {
+            "x": 429.03125,
+            "y": 318.84375
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 116.87453600000003,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "f5e2997a-8609-4463-934f-85a1db21469b",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 29,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 116.05371100000002,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "dd1aafd5-19de-4e6b-860c-8ec6fdd67d27",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 31,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "e4bedd6a-c1e7-43f8-a59d-8fe6bd1c4c30",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 31,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "8243d7fe-7be4-4287-8766-e6d1a888815c",
+          "route": "physical",
+          "input": "text",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 31,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "10da16fd-856c-411b-a2f2-9b9e881e8d9c",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 41,
+          "node": "record-desk.title.1013",
+          "point": {
+            "x": 733,
+            "y": 232.21875
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 118.96353399999998,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "48eec7bf-241c-43fb-b317-cd144de726a8",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 43,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Control+a",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "9e2df51f-b6ff-4af9-87d7-45c415ef8df7",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 43,
+          "node": null,
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "key": "Backspace",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "673a07a5-49b8-43af-b420-97a671ef7511",
+          "route": "physical",
+          "input": "text",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 43,
+          "node": "record-desk.title.1013",
+          "focus": [
+            {
+              "id": "record-desk.title.1013",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "role": "text_input"
+            }
+          ],
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "7a2f1a5f-be17-4c4f-a299-dbfd736d0c6b",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 47,
+          "node": "presentation.8908386a03597fcf",
+          "point": {
+            "x": 418.328125,
+            "y": 477.84375
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 760,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 117.92775900000015,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "5f120e5a-d10f-45e5-bc05-d096961eef0c",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 51,
+          "node": null,
+          "focus": [],
+          "key": "Control+z",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        },
+        {
+          "request_id": "041be5fb-6efe-4652-a0be-84904a683a5c",
+          "route": "physical",
+          "input": "keyboard",
+          "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+          "observation": 54,
+          "node": null,
+          "focus": [],
+          "key": "Control+Shift+z",
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        }
+      ],
+      "failures": [
+        {
+          "name": "unsupported_version",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_version",
+            "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+            "error": {
+              "code": "unsupported_version",
+              "message": "supported protocol version is 1"
+            }
+          }
+        },
+        {
+          "name": "unsupported_operation",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_operation",
+            "instance": "b16e0462-424c-4108-b4ea-30b5e505e2e3",
+            "error": {
+              "code": "unsupported_operation",
+              "message": "operation is not supported by this protocol"
+            }
+          }
+        },
+        {
+          "name": "stale arrangement",
+          "receipt": {
+            "request_id": "0ee450b3-c7fe-4309-90e8-bb8abd2f2fd4",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 6,
+            "target": {
+              "id": "presentation.204692eabe72277d",
+              "capability": "record-desk.arrange",
+              "pane": null,
+              "domain": null,
+              "meaning": "Horizontal",
+              "observation": 3
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 6,
+          "after": 6
+        },
+        {
+          "name": "unavailable Apply",
+          "receipt": {
+            "request_id": "1d61a148-be63-4448-85c4-b596210acf37",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 15,
+            "target": {
+              "id": "presentation.8908386a03597fcf",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "3",
+              "observation": 15
+            },
+            "error": {
+              "code": "unavailable",
+              "message": "There are no draft changes"
+            }
+          },
+          "before": 15,
+          "after": 15
+        },
+        {
+          "name": "invalid draft",
+          "receipt": {
+            "request_id": "a0b0cc93-f135-4496-8c19-874a5ee73868",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 20,
+            "target": {
+              "id": "presentation.8908386a03597fcf",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "4",
+              "observation": 20
+            },
+            "error": {
+              "code": "validation_failed",
+              "message": "A title must contain 1\u2013120 characters after trimming."
+            }
+          },
+          "before": 20,
+          "after": 20
+        },
+        {
+          "name": "stale draft",
+          "receipt": {
+            "request_id": "2a8e4e92-0744-498a-bd4d-75bdf0d78751",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 35,
+            "target": {
+              "id": "presentation.8908386a03597fcf",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "6",
+              "observation": 29
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 35,
+          "after": 35
+        },
+        {
+          "name": "invalid arguments",
+          "receipt": {
+            "request_id": "2d48e6cf-e9c4-4ab2-8223-2b9a5c60c3e3",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 35,
+            "target": {
+              "id": "presentation.8908386a03597fcf",
+              "capability": "record-desk.apply",
+              "pane": null,
+              "domain": {
+                "kind": "external",
+                "value": {
+                  "namespace": "record-desk.record",
+                  "id": "1013"
+                }
+              },
+              "meaning": "8",
+              "observation": 35
+            },
+            "error": {
+              "code": "invalid_arguments",
+              "message": "this capability accepts no arguments"
+            }
+          },
+          "before": 35,
+          "after": 35
+        }
+      ],
+      "idle": {
+        "frame_before": 57,
+        "frame_after": 57,
+        "settle_initial_frame": 57,
+        "settle_final_frame": 57,
+        "settle_observed_ms": 700,
+        "idle_observed_ms": 700,
+        "deliberate_continuous_repaint": false
+      },
+      "capture": {
+        "file": "record-desk-browser.png",
+        "sha256": "e6e265ecbca4c8ec8e517bd4832136d169635b8864796597064e29d5e83ea44e",
+        "status": "complete",
+        "input_route": "semantic_and_physical",
+        "viewport": {
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "records",
+                "total": 12,
+                "observed": 12,
+                "offset": null,
+                "virtualised": false,
+                "complete": true
+              }
+            ]
+          },
+          "pixels_per_point": 1,
+          "root": {
+            "min_x": 0,
+            "min_y": 0,
+            "max_x": 1080,
+            "max_y": 760
+          }
+        },
+        "timing": {
+          "started": {
+            "monotonic_ms": 4013.524718,
+            "wall_time": "2026-10-06T09:10:47.085Z"
+          },
+          "finished": {
+            "monotonic_ms": 4090.670492,
+            "wall_time": "2026-10-06T09:10:47.162Z"
+          }
+        },
+        "geometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1080,
+          "height": 760,
+          "device_scale": 1
+        },
+        "relationship": {
+          "semantic_boundary": "completed_ui_pass",
+          "before_observation": 57,
+          "after_observation": 57,
+          "claim": "host capture bracketed by completed observations; GPU/OS frame identity is unavailable"
+        },
+        "exact_observation_frame": false,
+        "diagnostics": []
+      },
+      "full_report_sha256": "163bb140f2a69d9467cdc5e288d4744ef18491f4bfabc99f8f0200eb1f184923"
+    },
+    {
+      "application": "lab",
+      "host": "native",
+      "source_revision": "b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5",
+      "dirty": false,
+      "instance": "3376ec-18dbe5b89b3e4455-1",
+      "build": {
+        "binary_sha256": "07cc87cd4c45c900247d001ddbdace8879a2f9ffb6f4299c043c5f5466a3ff20"
+      },
+      "identity": {
+        "name": "Analytical Workspace Lab",
+        "build": {
+          "version": "0.1.6",
+          "source_revision": null
+        }
+      },
+      "operations": [
+        "hello",
+        "observe",
+        "query",
+        "discover",
+        "invoke",
+        "receipt",
+        "cancel"
+      ],
+      "steps": [
+        {
+          "name": "initial",
+          "observation": 7,
+          "frame": 7,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": true,
+            "camera.1.scale": "256",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Workspace ready",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        },
+        {
+          "name": "semantic-fit",
+          "observation": 13,
+          "frame": 13,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": false,
+            "camera.1.scale": "254.678729734653",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Workspace ready",
+            "undo_entries": 2
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        },
+        {
+          "name": "physical-link",
+          "observation": 17,
+          "frame": 17,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": true,
+            "camera.1.scale": "256",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Workspace ready",
+            "undo_entries": 3
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        }
+      ],
+      "receipts": [
+        {
+          "request_id": "lab-slice-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "lab-slice-native",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "72be2eb3-6021-4a8e-b015-149933f53c66",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 10,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "28136187-9263-4b0c-80a7-4c0d98d30776",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 10,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 10
+          },
+          "error": {
+            "code": "ambiguous",
+            "message": "selector resolves multiple capability bindings"
+          }
+        },
+        {
+          "request_id": "a842c4bd-5b68-4268-b946-c1acf4665495",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 10,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 10
+          },
+          "error": {
+            "code": "invalid_arguments",
+            "message": "this capability accepts no arguments"
+          }
+        },
+        {
+          "request_id": "0042fd69-2a0f-4d09-a53b-6168b4e5b3e5",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 10,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 10
+          }
+        }
+      ],
+      "physical_inputs": [
+        {
+          "request_id": "c853b428-3b5b-4dff-9106-61eaf125411c",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "3376ec-18dbe5b89b3e4455-1",
+          "observation": 13,
+          "node": "action.link_views.pane.1",
+          "point": {
+            "x": 251.78125,
+            "y": 86
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 146.2728309999984,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        }
+      ],
+      "failures": [
+        {
+          "name": "unsupported_version",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_version",
+            "instance": "3376ec-18dbe5b89b3e4455-1",
+            "error": {
+              "code": "unsupported_version",
+              "message": "protocol version is not supported"
+            }
+          }
+        },
+        {
+          "name": "unsupported_operation",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_operation",
+            "instance": "3376ec-18dbe5b89b3e4455-1",
+            "error": {
+              "code": "unsupported_operation",
+              "message": "operation is not supported by this protocol"
+            }
+          }
+        },
+        {
+          "name": "stale camera assumptions",
+          "receipt": {
+            "request_id": "72be2eb3-6021-4a8e-b015-149933f53c66",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 10,
+            "target": {
+              "id": "action.link_views.pane.1",
+              "capability": "link_views",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+              "observation": 7
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 10,
+          "after": 10
+        },
+        {
+          "name": "ambiguous Fit pane",
+          "receipt": {
+            "request_id": "28136187-9263-4b0c-80a7-4c0d98d30776",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 10,
+            "target": {
+              "id": "action.fit_view.pane.1",
+              "capability": "fit_view",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+              "observation": 10
+            },
+            "error": {
+              "code": "ambiguous",
+              "message": "selector resolves multiple capability bindings"
+            }
+          },
+          "before": 10,
+          "after": 10
+        },
+        {
+          "name": "invalid Fit arguments",
+          "receipt": {
+            "request_id": "a842c4bd-5b68-4268-b946-c1acf4665495",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 10,
+            "target": {
+              "id": "action.fit_view.pane.1",
+              "capability": "fit_view",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+              "observation": 10
+            },
+            "error": {
+              "code": "invalid_arguments",
+              "message": "this capability accepts no arguments"
+            }
+          },
+          "before": 10,
+          "after": 10
+        }
+      ],
+      "idle": {
+        "frame_before": 17,
+        "frame_after": 17,
+        "settle_initial_frame": 17,
+        "settle_final_frame": 17,
+        "settle_observed_ms": 700,
+        "idle_observed_ms": 700,
+        "deliberate_continuous_repaint": false
+      },
+      "capture": {
+        "file": "lab-native.png",
+        "sha256": "6d962376b272e602e06d8ac0b72445417921b3a9db0901f172e96bee0e51d227",
+        "status": "complete",
+        "input_route": "semantic_and_physical",
+        "viewport": {
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "pixels_per_point": 1,
+          "root": {
+            "min_x": 0,
+            "min_y": 0,
+            "max_x": 1440,
+            "max_y": 900
+          }
+        },
+        "timing": {
+          "started": {
+            "monotonic_ms": 19185.854618,
+            "wall_time": "2026-10-06T09:11:02.257Z"
+          },
+          "finished": {
+            "monotonic_ms": 19325.54343,
+            "wall_time": "2026-10-06T09:11:02.397Z"
+          }
+        },
+        "geometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900,
+          "device_scale": 1
+        },
+        "relationship": {
+          "semantic_boundary": "completed_ui_pass",
+          "before_observation": 17,
+          "after_observation": 17,
+          "claim": "host capture bracketed by completed observations; GPU/OS frame identity is unavailable"
+        },
+        "exact_observation_frame": false,
+        "diagnostics": []
+      },
+      "full_report_sha256": "0632d8076ed82e24c4c4866c6d09ffd070848873d399475c26bda46f763ec342"
+    },
+    {
+      "application": "lab",
+      "host": "browser",
+      "source_revision": "b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5",
+      "dirty": false,
+      "instance": "cf7ad8b2-dd6d-4cf2-ac7b-29c714576b32",
+      "build": {
+        "wasm_sha256": "e9b624e79ae6983892e5bd706f8886c28816070b94d14863e2b5f6ffac6540d0"
+      },
+      "identity": {
+        "name": "Analytical Workspace Lab",
+        "build": {
+          "version": "0.1.6",
+          "source_revision": null
+        }
+      },
+      "operations": [
+        "hello",
+        "observe",
+        "query",
+        "discover",
+        "invoke",
+        "receipt",
+        "cancel"
+      ],
+      "steps": [
+        {
+          "name": "initial",
+          "observation": 3,
+          "frame": 3,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": true,
+            "camera.1.scale": "256",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Initialising progressive data\u2026",
+            "undo_entries": 0
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        },
+        {
+          "name": "semantic-fit",
+          "observation": 11,
+          "frame": 11,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": false,
+            "camera.1.scale": "254.678729734653",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Workspace ready",
+            "undo_entries": 2
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        },
+        {
+          "name": "physical-link",
+          "observation": 15,
+          "frame": 15,
+          "facts": {
+            "camera.1.centre_x": "65536",
+            "camera.1.centre_y": "65536",
+            "camera.1.linked": true,
+            "camera.1.scale": "256",
+            "camera.2.centre_x": "65536",
+            "camera.2.centre_y": "65536",
+            "camera.2.linked": true,
+            "camera.2.scale": "256",
+            "camera.3.centre_x": "65536",
+            "camera.3.centre_y": "65536",
+            "camera.3.linked": false,
+            "camera.3.scale": "256",
+            "camera.4.centre_x": "65536",
+            "camera.4.centre_y": "65536",
+            "camera.4.linked": false,
+            "camera.4.scale": "256",
+            "diagnostics_open": true,
+            "redo_entries": 0,
+            "status": "Workspace ready",
+            "undo_entries": 3
+          },
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "nodes": 77,
+          "text": 106,
+          "semantic_audit": [],
+          "text_audit": [],
+          "coverage": {
+            "measured_components": 106,
+            "attempted_components": 138,
+            "successful_components": 138,
+            "failed_components": 0,
+            "native_text_controls": 0,
+            "observed_native_controls": 0,
+            "excluded_categories": [
+              "ordinary_egui_labels"
+            ]
+          }
+        }
+      ],
+      "receipts": [
+        {
+          "request_id": "lab-slice-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "lab-slice-browser",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 7,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          }
+        },
+        {
+          "request_id": "20c9fbaf-cd23-4b77-a314-ee320e0e2202",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 9,
+          "target": {
+            "id": "action.link_views.pane.1",
+            "capability": "link_views",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+            "observation": 7
+          },
+          "error": {
+            "code": "stale_target",
+            "message": "target identity or application-owned meaning changed"
+          }
+        },
+        {
+          "request_id": "a7e73647-a9bc-41af-9149-d9818003cccc",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 9,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 9
+          },
+          "error": {
+            "code": "ambiguous",
+            "message": "selector resolves multiple capability bindings"
+          }
+        },
+        {
+          "request_id": "4c1bbc54-c292-4486-8842-8a10d6a0bab8",
+          "state": "rejected",
+          "route": "semantic",
+          "before_observation": 9,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 9
+          },
+          "error": {
+            "code": "invalid_arguments",
+            "message": "this capability accepts no arguments"
+          }
+        },
+        {
+          "request_id": "7f81ed30-db26-4855-b816-e5278805509c",
+          "state": "completed",
+          "route": "semantic",
+          "before_observation": 9,
+          "target": {
+            "id": "action.fit_view.pane.1",
+            "capability": "fit_view",
+            "pane": 1,
+            "domain": {
+              "kind": "pane",
+              "value": 1
+            },
+            "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+            "observation": 9
+          }
+        }
+      ],
+      "physical_inputs": [
+        {
+          "request_id": "b872715e-b294-4b69-9f27-853564d46805",
+          "route": "physical",
+          "input": "pointer",
+          "instance": "cf7ad8b2-dd6d-4cf2-ac7b-29c714576b32",
+          "observation": 11,
+          "node": "action.link_views.pane.1",
+          "point": {
+            "x": 251.78125,
+            "y": 86
+          },
+          "geometry": {
+            "x": 0,
+            "y": 0,
+            "width": 1440,
+            "height": 900,
+            "device_scale": 1
+          },
+          "scale": 1,
+          "observed_ms": 140.5777189999999,
+          "completion": "input_dispatched",
+          "outcome": "unverified"
+        }
+      ],
+      "failures": [
+        {
+          "name": "unsupported_version",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_version",
+            "instance": "cf7ad8b2-dd6d-4cf2-ac7b-29c714576b32",
+            "error": {
+              "code": "unsupported_version",
+              "message": "supported protocol version is 1"
+            }
+          }
+        },
+        {
+          "name": "unsupported_operation",
+          "reply": {
+            "version": 1,
+            "request_id": "negotiation-unsupported_operation",
+            "instance": "cf7ad8b2-dd6d-4cf2-ac7b-29c714576b32",
+            "error": {
+              "code": "unsupported_operation",
+              "message": "operation is not supported by this protocol"
+            }
+          }
+        },
+        {
+          "name": "stale camera assumptions",
+          "receipt": {
+            "request_id": "20c9fbaf-cd23-4b77-a314-ee320e0e2202",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 9,
+            "target": {
+              "id": "action.link_views.pane.1",
+              "capability": "link_views",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":1}",
+              "observation": 7
+            },
+            "error": {
+              "code": "stale_target",
+              "message": "target identity or application-owned meaning changed"
+            }
+          },
+          "before": 9,
+          "after": 9
+        },
+        {
+          "name": "ambiguous Fit pane",
+          "receipt": {
+            "request_id": "a7e73647-a9bc-41af-9149-d9818003cccc",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 9,
+            "target": {
+              "id": "action.fit_view.pane.1",
+              "capability": "fit_view",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+              "observation": 9
+            },
+            "error": {
+              "code": "ambiguous",
+              "message": "selector resolves multiple capability bindings"
+            }
+          },
+          "before": 9,
+          "after": 9
+        },
+        {
+          "name": "invalid Fit arguments",
+          "receipt": {
+            "request_id": "4c1bbc54-c292-4486-8842-8a10d6a0bab8",
+            "state": "rejected",
+            "route": "semantic",
+            "before_observation": 9,
+            "target": {
+              "id": "action.fit_view.pane.1",
+              "capability": "fit_view",
+              "pane": 1,
+              "domain": {
+                "kind": "pane",
+                "value": 1
+              },
+              "meaning": "{\"pane\":1,\"camera\":{\"centre\":{\"x\":65536.0,\"y\":65536.0},\"pixels_per_screen_point\":256.0},\"link\":null}",
+              "observation": 9
+            },
+            "error": {
+              "code": "invalid_arguments",
+              "message": "this capability accepts no arguments"
+            }
+          },
+          "before": 9,
+          "after": 9
+        }
+      ],
+      "idle": {
+        "frame_before": 15,
+        "frame_after": 15,
+        "settle_initial_frame": 15,
+        "settle_final_frame": 15,
+        "settle_observed_ms": 700,
+        "idle_observed_ms": 700,
+        "deliberate_continuous_repaint": false
+      },
+      "capture": {
+        "file": "lab-browser.png",
+        "sha256": "1f76198cb4634f42cd677f6096a99aa2637831d8539908f7eabc969bc4e05881",
+        "status": "complete",
+        "input_route": "semantic_and_physical",
+        "viewport": {
+          "collection": {
+            "viewport": "main",
+            "boundary": "completed_ui_pass",
+            "collections": [
+              {
+                "id": "results",
+                "total": 1000000,
+                "observed": 14,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              },
+              {
+                "id": "thumbnails",
+                "total": 100000,
+                "observed": 0,
+                "offset": null,
+                "virtualised": true,
+                "complete": false
+              }
+            ]
+          },
+          "pixels_per_point": 1,
+          "root": {
+            "min_x": 0,
+            "min_y": 0,
+            "max_x": 1440,
+            "max_y": 900
+          }
+        },
+        "timing": {
+          "started": {
+            "monotonic_ms": 7863.753505,
+            "wall_time": "2026-10-06T09:10:50.935Z"
+          },
+          "finished": {
+            "monotonic_ms": 7993.838489,
+            "wall_time": "2026-10-06T09:10:51.065Z"
+          }
+        },
+        "geometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 900,
+          "device_scale": 1
+        },
+        "relationship": {
+          "semantic_boundary": "completed_ui_pass",
+          "before_observation": 15,
+          "after_observation": 15,
+          "claim": "host capture bracketed by completed observations; GPU/OS frame identity is unavailable"
+        },
+        "exact_observation_frame": false,
+        "diagnostics": []
+      },
+      "full_report_sha256": "6b4f06d27f0bd48f0e29c2f1ffed2e2393e329d5e3dd221670d7706af7169e52"
+    }
+  ],
+  "fresh_context": {
+    "result": "pass for both native tasks",
+    "scope": "one fresh agent, public guide and common CLI only",
+    "source_attribution": "dirty prototype before final qualification; separate from these exact committed-source journeys",
+    "record_desk": {
+      "operation": "record-desk.arrange",
+      "observed": "layout_axis Horizontal to Vertical",
+      "request": "6b08fc20-6ed2-493d-8855-62d4c19aa765",
+      "recovery": "same queued request completed after host visibility restored; no replay"
+    },
+    "lab": {
+      "operation": "toggle_diagnostics",
+      "observed": "diagnostics_open true to false"
+    },
+    "documentation_repairs": [
+      "native visibility and original receipt recovery",
+      "capability availability versus rendered controls"
+    ]
+  }
+}

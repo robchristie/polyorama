@@ -65,9 +65,47 @@ are retained in `.tools/runtime/application-interface-usability/`.
 
 ## Qualification state
 
-Expanded four-host journeys, canonical verification and exact committed-candidate
-qualification are in progress. Final results will replace this phase statement
-before independent review. No completed delivery claim is made by calibration.
+The [qualification manifest](application-interface-evidence/qualification.json)
+binds all four journeys to clean source checkpoint
+`b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5`, executable/WASM hashes, application
+instances, observation identities, input receipts and capture timing/hashes.
+Full reports remain in ignored `.tools/runtime/interface-qualified/application-interface/`.
+Canonical verification writes the same reports beneath
+`.tools/runtime/verification-evidence/application-interface`; CI retains them
+on success and failure for 14 days. [PR #48](https://github.com/robchristie/polyorama/pull/48)
+owns exact-head review, required checks, squash identity and post-merge CI.
+
+| Surface | Result |
+|---|---|
+| Shared Rust contract | 23 focused tests: negotiation, strict/correlated failures, bounds/cursors, repeated capabilities, current availability/meaning, duplicates/conflicts, queue/history limits, cancellation/restarts, missing observations, discarded passes, physical geometry and private native transport |
+| Common client and compatibility targeting | 46 tests: bounded/cancelled waits, idle conditions, capabilities without rendered controls, moving/disabled/clipped targets and scale, uncertain completion without replay, focus/keyboard evidence, browser readiness and partial capture/metadata diagnostics |
+| Record Desk integration regressions | Current narrow-window policy before queued dispatch; draft-field capabilities hidden without selection; ordinary consumer domain/store/UI/dependency checks retained |
+| Lab integration regression | Partially visible row targets use the scroll interaction clip; shared AccessKit bounds match; collection materialisation remains bounded |
+| Record Desk, both hosts | Discover/query; physical title and Reviewed edit; semantic Apply yields one transaction; replay yields no second entry; undo/redo availability and state; invalid, unavailable, stale and unsupported-argument rejection without mutation; matching physical Apply/undo/redo workflow |
+| Lab, both hosts | Fit changes observable scale through the normal validated camera intent; semantic and physical Link changes observed; pane/domain query and two-row continuation over the rendered subset of one million logical rows |
+| Cross-host failures and idle | Unsupported version/operation, invalid selector, stale target and ambiguous pane failures; absent query, timeout/cancellation; unchanged warmed presentation frames during read-only inspection |
+| Canonical verification | `cargo xtask verify` passed: format, native/WASM lint, tests, architecture, docs, release builds, packaged startup, five immutable UI fixtures, existing physical workflows and the shared four-host journeys |
+
+Local canonical execution used the maintained headed-browser/Xvfb route and
+pinned sysroot libraries. An earlier headless attempt timed out in the existing
+packaged-startup journey; an earlier socket fixture exceeded Unix path length
+under the canonical temporary directory. The latter was repaired without
+weakening its assertions. These failed attempts are retained; success is from
+the completed campaign and applicable focused repairs, not a summary of them.
+
+## Opened-image inspection
+
+Opened all four qualified host captures. Record Desk shows the committed physical
+edit, Reviewed state, history controls and unchanged list/detail composition.
+Lab shows the fitted primary view, linked view controls and bounded Results
+pane with its logical collection size. No overlapping primary controls or new
+presentation defect was found in these ordinary fixtures. Geometry/parity checks
+own the clipped-row claim; screenshots do not prove exact frame correspondence.
+
+- [Record Desk native](application-interface-evidence/record-desk-native.png)
+  and [browser](application-interface-evidence/record-desk-browser.png).
+- [Lab native](application-interface-evidence/lab-native.png)
+  and [browser](application-interface-evidence/lab-browser.png).
 
 ## Capture and host limits
 

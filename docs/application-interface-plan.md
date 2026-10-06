@@ -1,7 +1,7 @@
 # Shared application inspection and exercise
 
-Status: active
-Next action: Complete expanded four-host journeys, exact-candidate qualification and canonical verification, then review and land.
+Status: complete
+Delivery: [PR #48](https://github.com/robchristie/polyorama/pull/48)
 
 ## Outcome and boundaries
 
@@ -39,8 +39,8 @@ otherwise reconsider the service boundary before expanding.
 |---|---|---|---|
 | Contract and representative slice | Existing core/UI/application contracts | Both applications query/discover/invoke/observe through shared types | Complete |
 | Hosts and reusable client | Stable slice | Same protocol, explicit opt-in, lifecycle, bounded queues/history; common query/invoke/wait/physical/capture | Complete |
-| Real journeys and migration | Both adapters | Record physical draft → semantic Apply once → undo/redo; invalid/unavailable no mutation; corresponding physical workflow. Lab Fit/display result, pane/domain and bounded virtualised query. Both hosts | In progress |
-| Qualification and delivery | Complete integrations | Contract regressions, opened captures, fresh-context usability, full verify, exact-head review, CI, merge and post-merge CI | Pending |
+| Real journeys and migration | Both adapters | Record physical draft → semantic Apply once → undo/redo; invalid/unavailable no mutation; corresponding physical workflow. Lab Fit/display result, pane/domain and bounded virtualised query. Both hosts | Complete |
+| Qualification and delivery | Complete integrations | Contract regressions, opened captures, fresh-context usability, full verify; exact-head review, CI, merge and post-merge CI owned by the delivery PR | Complete for product qualification |
 
 Consequential tests cover negotiation, bounded empty/ambiguous/repeated queries,
 stale/disappearing targets/restarts, current availability and arguments,
@@ -48,7 +48,7 @@ duplicates/uncertain completion, timeout/cancel/missing observation, moving or
 clipped physical targets, idle read-only behaviour, cross-host parity,
 virtualisation bounds and honest partial capture diagnostics.
 
-## Current evidence
+## Qualification and closeout
 
 Base: `57e5d906fe7f40521049560d20605d47cbc6d724` (PR #47).
 Existing evidence informs design but cannot qualify changed code. Canonical
@@ -57,6 +57,10 @@ Independent architecture advice is read-only and separate from final review.
 The [evidence report](application-interface-evidence.md) retains calibration and
 fresh-context usability; all four representative host slices passed. The fresh
 agent completed both native tasks using only the public guide/common CLI and
-exposed a visibility/queued-receipt documentation gap, now repaired. Focused
-shared Rust tests and client/targeting regressions pass; these are not full
-acceptance or landing evidence.
+exposed a visibility/queued-receipt documentation gap, now repaired. Canonical
+verification and all four journeys passed; the checked-in manifest binds clean
+source checkpoint `b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5` to actual artefacts,
+receipts, observations and captures. The product implementation and qualification
+are complete. The delivery PR records independent exact-head review, required
+and post-merge CI, final merge identity and cleanup; this status does not assert
+that the PR has already merged.
