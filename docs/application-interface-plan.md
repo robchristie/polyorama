@@ -1,7 +1,7 @@
 # Shared application inspection and exercise
 
-Status: complete
-Delivery: [PR #48](https://github.com/robchristie/polyorama/pull/48)
+Status: active
+Next action: Repair the two independent review findings, qualify the new head, and obtain review and CI before landing PR #48.
 
 ## Outcome and boundaries
 

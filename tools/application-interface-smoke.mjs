@@ -116,6 +116,8 @@ async function journey(app, host, client, physical, build) {
     await failure('invalid arguments', selector('record-desk.apply'), 'invalid_arguments', { arguments: { title: 'forbidden' } });
     const applyId = `apply-${host}`;
     const currentExpected = (await client.discover(selector('record-desk.apply'))).capabilities[0].target;
+    assert.equal((await invoke(selector('record-desk.search'))).state, 'completed');
+    await client.wait({ condition: 'focused', selector: { id: 'record-desk.search' } });
     assert.equal((await invoke(selector('record-desk.apply'), { requestId: applyId, expected: currentExpected })).state, 'completed');
     await client.wait(fact('undo_entries', 1));
     await client.wait(fact('draft_dirty', false));

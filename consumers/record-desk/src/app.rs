@@ -23,7 +23,7 @@ pub struct RecordDeskApp {
     frame: u64,
     snapshot: Snapshot,
     inspection: Option<Inspection>,
-    inspection_revision: u64,
+    desk_epoch: u64,
     #[cfg(not(target_arch = "wasm32"))]
     _inspection_host: Option<NativeInspectionHost>,
     #[cfg(target_arch = "wasm32")]
@@ -78,7 +78,7 @@ impl RecordDeskApp {
             frame: 0,
             snapshot: Snapshot::default(),
             inspection: None,
-            inspection_revision: 0,
+            desk_epoch: 0,
             #[cfg(not(target_arch = "wasm32"))]
             _inspection_host: None,
             #[cfg(target_arch = "wasm32")]
@@ -107,6 +107,7 @@ impl RecordDeskApp {
             Ok(Some(saved)) => match Desk::new(saved.records.clone()) {
                 Ok(desk) => {
                     self.desk = desk;
+                    self.desk_epoch += 1;
                     self.workspace = saved.workspace.clone();
                     self.persisted = Some(saved);
                     self.load_error = false;
@@ -118,6 +119,7 @@ impl RecordDeskApp {
             },
             Ok(None) => {
                 self.desk = Desk::default();
+                self.desk_epoch += 1;
                 self.workspace = default_workspace();
                 self.persisted = None;
                 self.load_error = false;
@@ -234,7 +236,6 @@ impl RecordDeskApp {
         if action != Action::Restore {
             self.error = false;
         }
-        self.inspection_revision += 1;
         Ok(())
     }
 
@@ -465,9 +466,6 @@ impl RecordDeskApp {
                 self.failure(error);
             }
             changed = true;
-        }
-        if changed {
-            self.inspection_revision += 1;
         }
         self.snapshot = Snapshot {
             ui: ui_snapshot,

@@ -2,6 +2,62 @@
 use super::*;
 use polyorama_ui_egui::*;
 
+pub(crate) fn inspection_bindings_for_state(
+    session: &Session,
+    history: &CommandHistory,
+    workspace: &Workspace,
+) -> Vec<InspectionBinding<LabAction>> {
+    LabAction::ALL
+        .into_iter()
+        .flat_map(|action| {
+            let panes: Vec<_> = if action.specification().scope == ActionScope::Application {
+                vec![None]
+            } else {
+                (1..=8).map(|p| Some(PaneId(p))).collect()
+            };
+            panes.into_iter().map(move |pane| {
+                let target = ActionTarget { action, pane };
+                let camera = session.cameras.iter().find(|s| Some(s.pane) == pane);
+                let context = ActionContext {
+                    undo_depth: history.undo_len(),
+                    redo_depth: history.redo_len(),
+                    active_pane: workspace.active_pane,
+                    target_pane: pane,
+                    selected_annotation: session.selected_annotation,
+                    selected_result: session.selected_result,
+                    polygon_vertices: crate::actions::polygon_vertex_count(
+                        session.gesture.as_ref(),
+                    ),
+                    ..Default::default()
+                };
+                let meaningful = match action {
+                    LabAction::FitView | LabAction::LinkViews => {
+                        serde_json::to_string(&camera).unwrap()
+                    }
+                    LabAction::ToggleDiagnostics => workspace
+                        .closed_optional_panes
+                        .contains(&DIAGNOSTICS_PANE)
+                        .to_string(),
+                    _ => "stable".into(),
+                };
+                let binding = InspectionBinding::new(
+                    target,
+                    availability(action, context),
+                    matches!(
+                        action,
+                        LabAction::FitView | LabAction::LinkViews | LabAction::ToggleDiagnostics
+                    ),
+                    meaningful,
+                );
+                match pane {
+                    Some(pane) => binding.with_domain(DomainReference::Pane(pane)),
+                    None => binding,
+                }
+            })
+        })
+        .collect()
+}
+
 impl AnalyticalWorkspaceApp {
     #[cfg(not(target_arch = "wasm32"))]
     fn new_inspection() -> Inspection {
@@ -50,55 +106,7 @@ impl AnalyticalWorkspaceApp {
     }
 
     fn inspection_bindings(&self) -> Vec<InspectionBinding<LabAction>> {
-        LabAction::ALL
-            .into_iter()
-            .flat_map(|action| {
-                let panes: Vec<_> = if action.specification().scope == ActionScope::Application {
-                    vec![None]
-                } else {
-                    (1..=8).map(|p| Some(PaneId(p))).collect()
-                };
-                panes.into_iter().map(move |pane| {
-                    let target = ActionTarget { action, pane };
-                    let camera = self.session.cameras.iter().find(|s| Some(s.pane) == pane);
-                    let context = ActionContext {
-                        undo_depth: self.history.undo_len(),
-                        redo_depth: self.history.redo_len(),
-                        active_pane: self.workspace.active_pane,
-                        target_pane: pane,
-                        selected_annotation: self.session.selected_annotation,
-                        selected_result: self.session.selected_result,
-                        ..Default::default()
-                    };
-                    let meaningful = match action {
-                        LabAction::FitView | LabAction::LinkViews => {
-                            serde_json::to_string(&camera).unwrap()
-                        }
-                        LabAction::ToggleDiagnostics => self
-                            .workspace
-                            .closed_optional_panes
-                            .contains(&DIAGNOSTICS_PANE)
-                            .to_string(),
-                        _ => "stable".into(),
-                    };
-                    let binding = InspectionBinding::new(
-                        target,
-                        availability(action, context),
-                        matches!(
-                            action,
-                            LabAction::FitView
-                                | LabAction::LinkViews
-                                | LabAction::ToggleDiagnostics
-                        ),
-                        meaningful,
-                    );
-                    match pane {
-                        Some(pane) => binding.with_domain(DomainReference::Pane(pane)),
-                        None => binding,
-                    }
-                })
-            })
-            .collect()
+        inspection_bindings_for_state(&self.session, &self.history, &self.workspace)
     }
 
     fn inspection_action(

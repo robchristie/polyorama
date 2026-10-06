@@ -20,7 +20,7 @@ use tracing::info_span;
 use web_time::Instant;
 
 #[path = "inspection.rs"]
-mod inspection;
+pub(crate) mod inspection;
 
 use crate::{
     APPLICATION_NAME,

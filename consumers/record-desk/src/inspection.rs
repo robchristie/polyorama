@@ -64,11 +64,22 @@ impl RecordDeskApp {
                 );
                 // Guard assumptions that affect meaning, not focus or repaint counters.
                 let meaning = match action {
-                    Action::Apply
-                    | Action::Cancel
-                    | Action::Undo
-                    | Action::Redo
-                    | Action::ResetFilters => self.inspection_revision.to_string(),
+                    Action::Apply | Action::Cancel => format!(
+                        "{}:draft:{}:history:{}",
+                        self.desk_epoch,
+                        self.desk.draft_revision(),
+                        self.desk.history_revision()
+                    ),
+                    Action::Undo | Action::Redo => format!(
+                        "{}:history:{}",
+                        self.desk_epoch,
+                        self.desk.history_revision()
+                    ),
+                    Action::ResetFilters => format!(
+                        "{}:filters:{}",
+                        self.desk_epoch,
+                        self.desk.filter_revision()
+                    ),
                     Action::Arrange => match &self.workspace.root {
                         polyorama_core::DockNode::Split { axis, .. } => format!("{axis:?}"),
                         _ => "unsplit".into(),
@@ -198,6 +209,145 @@ impl RecordDeskApp {
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
     use super::*;
+
+    fn present(app: &mut RecordDeskApp, context: &egui::Context) {
+        let mut output = context.run_ui(
+            egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(
+                    egui::Pos2::ZERO,
+                    egui::vec2(1080.0, 760.0),
+                )),
+                ..Default::default()
+            },
+            |ui| app.present(ui),
+        );
+        output.textures_delta.clear();
+    }
+
+    fn target(service: &Inspection, action: Action) -> ResolvedTarget {
+        let reply = service.handle(InspectionRequest {
+            version: 1,
+            request_id: "discover".into(),
+            instance: Some(service.instance()),
+            operation: InspectionOperation::Discover {
+                selector: InspectionSelector {
+                    capability: Some(action.stable_id().into()),
+                    ..Default::default()
+                },
+                limit: 1,
+                cursor: None,
+            },
+        });
+        let Some(InspectionResult::Discover { capabilities, .. }) = reply.result else {
+            panic!("discovery");
+        };
+        capabilities[0].target.clone()
+    }
+
+    fn invoke(
+        app: &mut RecordDeskApp,
+        service: &Inspection,
+        action: Action,
+        expected: ResolvedTarget,
+        id: &str,
+    ) -> InvocationReceipt {
+        let bindings = app.inspection_bindings(&app.snapshot.ui);
+        let reply = service.dispatch(
+            InspectionRequest {
+                version: 1,
+                request_id: id.into(),
+                instance: Some(service.instance()),
+                operation: InspectionOperation::Invoke {
+                    selector: InspectionSelector {
+                        capability: Some(action.stable_id().into()),
+                        ..Default::default()
+                    },
+                    expected,
+                    arguments: serde_json::Value::Null,
+                },
+            },
+            &bindings,
+            |target| {
+                app.action(target.action)
+                    .map_err(InspectionError::validation)
+            },
+        );
+        let Some(InspectionResult::Receipt { receipt }) = reply.result else {
+            panic!("receipt");
+        };
+        receipt
+    }
+
+    #[test]
+    fn semantic_guards_ignore_focus_and_layout_but_track_draft_and_history() {
+        let directory = tempfile::tempdir().unwrap();
+        let context = egui::Context::default();
+        let mut app = RecordDeskApp::with_store(
+            &context,
+            Store::at_path(directory.path().join("records.json")),
+        );
+        let service = Inspection::new("meaning-test");
+        service.install_completion_hook(&context);
+        app.inspection = Some(service.clone());
+        let mut draft = app.desk.draft().unwrap().clone();
+        draft.title = "One valid edit".into();
+        app.desk.edit_draft(draft.clone()).unwrap();
+        present(&mut app, &context);
+        let apply = target(&service, Action::Apply);
+        app.action(Action::Search).unwrap();
+        polyorama_core::WorkspaceResize {
+            node: polyorama_core::DockNodeId(1),
+            before: match &app.workspace.root {
+                DockNode::Split { fraction, .. } => *fraction,
+                _ => unreachable!(),
+            },
+            after: 0.45,
+        }
+        .apply(&mut app.workspace)
+        .unwrap();
+        present(&mut app, &context);
+        assert_eq!(
+            invoke(&mut app, &service, Action::Apply, apply, "apply").state,
+            ReceiptState::Completed
+        );
+        present(&mut app, &context);
+        let undo = target(&service, Action::Undo);
+        app.action(Action::Search).unwrap();
+        polyorama_core::WorkspaceResize {
+            node: polyorama_core::DockNodeId(1),
+            before: 0.45,
+            after: 0.5,
+        }
+        .apply(&mut app.workspace)
+        .unwrap();
+        present(&mut app, &context);
+        assert_eq!(
+            invoke(&mut app, &service, Action::Undo, undo.clone(), "undo").state,
+            ReceiptState::Completed
+        );
+        present(&mut app, &context);
+        assert_eq!(
+            invoke(&mut app, &service, Action::Undo, undo, "old-undo")
+                .error
+                .unwrap()
+                .code,
+            InspectionErrorCode::StaleTarget
+        );
+        app.desk.edit_draft(draft.clone()).unwrap();
+        present(&mut app, &context);
+        let old_apply = target(&service, Action::Apply);
+        draft.title = "A different edit".into();
+        app.desk.edit_draft(draft).unwrap();
+        present(&mut app, &context);
+        assert_eq!(
+            invoke(&mut app, &service, Action::Apply, old_apply, "old-apply")
+                .error
+                .unwrap()
+                .code,
+            InspectionErrorCode::StaleTarget
+        );
+        assert_eq!(app.desk.undo_len(), 0);
+    }
 
     #[test]
     fn draft_field_capabilities_are_hidden_without_a_selected_record() {

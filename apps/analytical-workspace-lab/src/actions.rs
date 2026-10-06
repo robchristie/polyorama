@@ -4,6 +4,13 @@ use polyorama_ui_egui::{
 };
 use serde::{Deserialize, Serialize};
 
+pub(crate) fn polygon_vertex_count(gesture: Option<&polyorama_core::GesturePreview>) -> usize {
+    match gesture {
+        Some(polyorama_core::GesturePreview::Polygon { vertices, .. }) => vertices.len(),
+        _ => 0,
+    }
+}
+
 /// The same fit intent is used by physical controls and semantic invocation.
 pub(crate) fn fit_view_intent(
     pane: PaneId,
