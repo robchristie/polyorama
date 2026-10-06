@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use super::*;
 
 #[test]
@@ -896,10 +898,7 @@ fn native_socket_is_private_read_without_ui_and_owned_cleanup() {
     use std::time::Duration;
     let (inspection, snapshot, bindings) = fixture();
     publish(&inspection, &snapshot, &bindings);
-    let path = std::env::temp_dir().join(format!(
-        "polyorama-inspection-test-{}.sock",
-        inspection.instance()
-    ));
+    let path = std::env::temp_dir().join(format!("pi-{}.sock", inspection.instance()));
     let wakes = Arc::new(AtomicU64::new(0));
     let count = Arc::clone(&wakes);
     let host = NativeInspectionHost::start(

@@ -693,6 +693,26 @@ impl Inspection {
     /// Parse the same wire envelope on every host. Parsing/size errors never
     /// admit a mutation. IDs from malformed JSON cannot be relied upon.
     pub fn handle_json(&self, json: &str) -> String {
+        if json.len() <= INSPECTION_REQUEST_BYTES
+            && let Ok(value) = serde_json::from_str::<serde_json::Value>(json)
+            && let Some(version) = value.get("version").and_then(|v| v.as_u64())
+            && version != u64::from(INSPECTION_VERSION)
+        {
+            let request_id = value
+                .get("request_id")
+                .and_then(|v| v.as_str())
+                .filter(|id| !id.is_empty() && id.len() <= 128)
+                .unwrap_or_default()
+                .to_owned();
+            return serde_json::to_string(&self.error_reply(
+                request_id,
+                InspectionError::new(
+                    InspectionErrorCode::UnsupportedVersion,
+                    "protocol version is not supported",
+                ),
+            ))
+            .expect("inspection reply serialises");
+        }
         // Unknown operation names are distinct from malformed arguments. Use
         // the shared operation type rather than a second string registry.
         if json.len() <= INSPECTION_REQUEST_BYTES
