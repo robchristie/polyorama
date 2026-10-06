@@ -17,10 +17,10 @@ impl AnalyticalWorkspaceApp {
     #[cfg(not(target_arch = "wasm32"))]
     pub(super) fn start_inspection(&mut self, context: &egui::Context) {
         let inspection = Self::new_inspection();
-        inspection.install_completion_hook(context);
-        let context = context.clone();
-        match inspection.start_native(move || context.request_repaint()) {
+        let wake_context = context.clone();
+        match inspection.start_native(move || wake_context.request_repaint()) {
             Ok(Some(host)) => {
+                inspection.install_completion_hook(context);
                 self.inspection = Some(inspection);
                 self._inspection_host = Some(host);
             }
