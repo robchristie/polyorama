@@ -199,6 +199,9 @@ bash tools/record-desk-browser-smoke.sh
 
 These operate current semantic/control geometry using OS/Playwright pointer and
 keyboard input, and retain step snapshots/captures in ignored runtime evidence.
+The browser journey waits for an enabled target with stable current geometry
+before each pointer event; a bounded timeout fails visibly. Reports retain the
+frame and rectangle used, including popup options that need following passes.
 `RECORD_DESK_SNAPSHOT=/absolute/path/snapshot.json` enables native read-only
 observations; browser `window.__RECORD_DESK.snapshot()` returns the same JSON.
 The hook supplies no application commands. Direct model/UI tests and physical

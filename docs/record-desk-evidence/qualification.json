@@ -84,12 +84,14 @@
     "tools/minimal-native-smoke.sh": "0a5f22775590b6ffddbb439e7c419e23d7dc0447392bca8350b2f85265728e9f",
     "tools/native-smoke-lifecycle.sh": "5ce44a2c94a4004f457581546357c0632cb065b00ca3091b622d47404b3c51c8",
     "tools/owned-process.py": "7367df4b8ae559327a1cf2ff8c08284a3f3d9476d436f96ba5654a7cfa306c67",
-    "tools/record-desk-browser-smoke.mjs": "9c560fae1358725ae29faf48ebac8e70f1f0701ffda92603efb8808bbff67bf7",
+    "tools/record-desk-browser-smoke.mjs": "05610fd9733870d69586232b5afecb5edb5dccb1e30f78de8191f3276af7cfd3",
     "tools/record-desk-browser-smoke.sh": "e1f671463d7c255a2da163d0e4c4e3d19822e8a1d2934a5f83e1f927e852d9a2",
     "tools/record-desk-native-smoke.py": "1a83325b979f1d286afe0e2bf3303c6676d991d76c7751c03b28a0c26c9d956f",
     "tools/record-desk-native-smoke.sh": "98c7ba6ef3ba73cabc0b6e50f07048bd054b1017051644482f6dcc7d296142b3",
+    "tools/record-desk-target.mjs": "6bada16e6d6590bdabdb8256e2717bcaad03713561179274072ca3d9bfe35f7e",
     "tools/tests/browser-idle.test.mjs": "594394b21d6c6bb7f5ad174cffebc27a09ad53304a96d1ea88d3d0b2eee5e0d7",
-    "xtask/src/main.rs": "6746e34fb22d5ef33c4db55fc2f3c8fd09b23048a3af8967c2e249ebded1912e"
+    "tools/tests/record-desk-target.test.mjs": "3e7d4f3a83bd6ef3eb9b0fab1d4ee1b0dea53108ec8e23a0b1031004e84484ed",
+    "xtask/src/main.rs": "7e1792c0cec06ab2996f16b159affe956698403f1d1d84e63724b867aef5615e"
   },
   "native": {
     "artifact_sha256": "e5e79e4b5b593567030fc104bb277d3bb7685aaf0940b0a437a441d52faddc36",

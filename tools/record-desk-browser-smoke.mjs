@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
 import { hostedLinuxWebGpuLaunchOptions } from './browser-launch.mjs';
+import { waitForClickTarget } from './record-desk-target.mjs';
 
 const root = resolve('consumers/record-desk/web');
 const evidence = resolve(process.env.POLYORAMA_EVIDENCE_DIR ?? '.tools/runtime/record-desk-evidence/record-desk');
@@ -21,6 +22,7 @@ const server = createServer(async (req, res) => {
 });
 let browser;
 const steps = [];
+const pointerTargets = [];
 const errors = [];
 let page;
 const storageKey = 'polyorama.record-desk.v1';
@@ -36,15 +38,11 @@ async function record(name) {
   await writeFile(resolve(evidence, `browser-${name}.json`), JSON.stringify(state, null, 2));
 }
 async function clickNode(id) {
-  // Popup placement can settle in the pass after its first publication. Read
-  // current geometry after that pass, rather than reuse opening-frame bounds.
-  await page.waitForTimeout(50);
-  const state = await snapshot();
-  const node = state.ui.nodes.find(n => n.id === id || n.actions.includes(id));
-  assert(node?.enabled, `missing/enabled node ${id}`);
+  const { state, node, root, observed_ms } = await waitForClickTarget(snapshot, ms => page.waitForTimeout(ms), id);
+  pointerTargets.push({ id, node_id: node.id, frame: state.ui.frame, rect: node.rect, observed_ms });
   const r = node.rect;
   const canvas = await page.locator('canvas').boundingBox();
-  const rootRect = state.ui.nodes.find(n => n.id === state.ui.root).rect;
+  const rootRect = root.rect;
   await page.mouse.click(canvas.x + ((r.min_x + r.max_x) / 2 - rootRect.min_x) * canvas.width / (rootRect.max_x - rootRect.min_x), canvas.y + ((r.min_y + r.max_y) / 2 - rootRect.min_y) * canvas.height / (rootRect.max_y - rootRect.min_y));
 }
 async function focusNode(id) {
@@ -186,7 +184,7 @@ try {
     const info = (await navigator.gpu.requestAdapter())?.info;
     return info && { vendor: info.vendor, architecture: info.architecture, device: info.device, description: info.description };
   });
-  const report = { source_revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), dirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim() !== '', wasm_sha256: createHash('sha256').update(await readFile(resolve(root, 'pkg/record_desk_bg.wasm'))).digest('hex'), url, browser: browser.version(), launch: hostedLinuxWebGpuLaunchOptions(), adapter, errors, steps, input_route: 'Playwright mouse/keyboard; snapshot read only', fault_setup: 'localStorage malformed bytes and Storage.setItem quota fixture' };
+  const report = { source_revision: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), dirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim() !== '', wasm_sha256: createHash('sha256').update(await readFile(resolve(root, 'pkg/record_desk_bg.wasm'))).digest('hex'), url, browser: browser.version(), launch: hostedLinuxWebGpuLaunchOptions(), adapter, errors, steps, pointer_targets: pointerTargets, input_route: 'Playwright mouse/keyboard; snapshot read only', fault_setup: 'localStorage malformed bytes and Storage.setItem quota fixture' };
   await writeFile(resolve(evidence, 'browser-workflow.json'), JSON.stringify(report, null, 2));
   console.log('Record Desk browser passed: search/filter/select, invalid Apply, transaction, undo/redo, save/reload, draft exclusion, layout restore, narrow, errors and idle');
 } catch (error) {
@@ -194,6 +192,7 @@ try {
     await page.screenshot({ path: resolve(evidence, 'browser-failure.png') }).catch(() => {});
     await writeFile(resolve(evidence, 'browser-failure.json'), JSON.stringify(await snapshot().catch(() => null), null, 2));
     await writeFile(resolve(evidence, 'browser-input-failure.json'), JSON.stringify(await page.evaluate(() => ({ hasFocus: document.hasFocus(), active: document.activeElement?.outerHTML, events: window.recordDeskInputEvidence })).catch(() => null), null, 2));
+    await writeFile(resolve(evidence, 'browser-pointer-targets.json'), JSON.stringify(pointerTargets, null, 2));
   }
   throw error;
 } finally {

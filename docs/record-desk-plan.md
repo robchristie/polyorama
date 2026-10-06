@@ -78,7 +78,9 @@ source/documentation. [Evidence and decisions](record-desk-evidence.md) own the
 details. Full local `cargo xtask verify` passes, including preserved existing
 applications, production startup, UI snapshots and both consumer journeys.
 Qualification harnesses retain bounded idle observations and parsed native
-snapshots, with regression coverage. AccessKit parity tests also cover clipped
+snapshots, with regression coverage. Browser pointer targeting also requires
+bounded, stable enabled geometry, covered by observer regressions and a slowed
+physical journey. AccessKit parity tests cover clipped
 targets, full records and
 open/closed options at the runtime viewport sizes. The product state is complete;
 the owning PR retains the exact reviewed head, required CI, squash revision and

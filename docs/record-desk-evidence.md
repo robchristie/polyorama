@@ -96,6 +96,16 @@ write race: the reader could see an empty file after its initial valid check.
 Its native smoke now retains one parsed observation for geometry/evidence and
 resolves the current action before each click; application behaviour is unchanged.
 
+The next CI run exposed a transient popup target between the browser smoke's
+initial presence check and its fixed-delay geometry read. Its retained failure
+image and following snapshot showed the open, enabled option. Pointer targeting
+now requires three identical enabled geometry observations across 100 ms within
+a 15-second budget, retaining the actual frame/rectangle used for each click.
+Six regressions cover transient absence, moving geometry, exact identity,
+unavailable targets and invalid bounds. A bounded physical journey with fourfold
+Chromium CPU throttling passed after this repair. This is read-only input
+synchronisation; application state still changes through physical events.
+
 The browser host reserves only registered application chords while its canvas
 or text input owns focus: browser Find/Location/Reload defaults otherwise steal
 focus before egui consumes them. The Linux consumer smoke supplies bundled

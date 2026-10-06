@@ -125,6 +125,7 @@ fn verify() -> Result<()> {
             "apps/emuella-viewer/web/tests/worker.test.mjs",
             "tools/tests/browser-startup.test.mjs",
             "tools/tests/browser-idle.test.mjs",
+            "tools/tests/record-desk-target.test.mjs",
             "tools/tests/browser-package.test.mjs",
         ],
         &evidence_environment,
