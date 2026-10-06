@@ -198,7 +198,12 @@ export class BrowserTransport {
     aborted(signal);
     boundedJson(json, REQUEST_BYTES, 'Request');
     let result;
-    try { result = await this.page.evaluate(async request => {
+    try {
+      if (JSON.parse(json).operation?.op === 'hello') {
+        await this.page.waitForFunction(() => typeof window.__POLYORAMA_AUTOMATION?.request === 'function', null, { timeout: 60000 });
+        aborted(signal);
+      }
+      result = await this.page.evaluate(async request => {
       if (typeof window.__POLYORAMA_AUTOMATION?.request !== 'function') {
         throw new Error('Application automation is unavailable; enable ?automation=1 before startup');
       }

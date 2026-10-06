@@ -412,6 +412,17 @@ test('browser hook and canvas access are encapsulated and CSS coordinates respec
   await assert.rejects(physical.geometry(), { code: 'ambiguous' });
 });
 
+test('browser startup readiness belongs to the shared hello transport', async () => {
+  const calls = [];
+  const transport = new BrowserTransport({
+    waitForFunction: async () => calls.push('ready'),
+    evaluate: async (_fn, request) => { calls.push('request'); return request; },
+  });
+  const request = '{"operation":{"op":"hello"}}';
+  assert.equal(await transport.request(request), request);
+  assert.deepEqual(calls, ['ready', 'request']);
+});
+
 test('socket transport handles fragmented replies and connection loss with no retry', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'polyorama-socket-'));
   const path = join(directory, 'application.sock');

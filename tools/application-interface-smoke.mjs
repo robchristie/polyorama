@@ -228,7 +228,6 @@ try {
   for (const app of ['record-desk', 'lab']) {
     const page = await browser.newPage({ viewport: app === 'lab' ? { width: 1440, height: 900 } : { width: 1080, height: 760 } });
     await page.goto(`http://127.0.0.1:${server.address().port}/${app}/?automation=1`);
-    await page.waitForFunction(() => Boolean(window.__POLYORAMA_AUTOMATION));
     await journey(app, 'browser', new ApplicationClient(new BrowserTransport(page)), new BrowserPhysicalAdapter(page), { wasm_sha256: await hash(resolve(webRoots[app], 'pkg', app === 'lab' ? 'analytical_workspace_lab_bg.wasm' : 'record_desk_bg.wasm')) });
     await page.close();
   }
