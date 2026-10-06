@@ -1,7 +1,7 @@
 # Shared application inspection and exercise
 
-Status: active
-Next action: Repair the two independent review findings, qualify the new head, and obtain review and CI before landing PR #48.
+Status: complete
+Delivery: [PR #48](https://github.com/robchristie/polyorama/pull/48)
 
 ## Outcome and boundaries
 
@@ -59,8 +59,10 @@ fresh-context usability; all four representative host slices passed. The fresh
 agent completed both native tasks using only the public guide/common CLI and
 exposed a visibility/queued-receipt documentation gap, now repaired. Canonical
 verification and all four journeys passed; the checked-in manifest binds clean
-source checkpoint `b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5` to actual artefacts,
+source checkpoint `60c286a8fe7b5e81dbbc69d3cd86f114cce131c5` to actual artefacts,
 receipts, observations and captures. The product implementation and qualification
-are complete. The delivery PR records independent exact-head review, required
-and post-merge CI, final merge identity and cleanup; this status does not assert
-that the PR has already merged.
+are complete, including review repairs for polygon capability availability and
+action-specific Record Desk draft/history guards, and verification repairs for
+native pointer placement and fully clipped virtual rows. The delivery PR records
+independent exact-head review, required and post-merge CI, final merge identity
+and cleanup; this status does not assert that the PR has already merged.

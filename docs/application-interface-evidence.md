@@ -67,9 +67,9 @@ are retained in `.tools/runtime/application-interface-usability/`.
 
 The [qualification manifest](application-interface-evidence/qualification.json)
 binds all four journeys to clean source checkpoint
-`b2ddf7159a77c2fa3a15ecd76bb89c4724b422f5`, executable/WASM hashes, application
+`60c286a8fe7b5e81dbbc69d3cd86f114cce131c5`, executable/WASM hashes, application
 instances, observation identities, input receipts and capture timing/hashes.
-Full reports remain in ignored `.tools/runtime/interface-qualified/application-interface/`.
+Full reports remain in ignored `.tools/runtime/interface-final-source/application-interface/`.
 Canonical verification writes the same reports beneath
 `.tools/runtime/verification-evidence/application-interface`; CI retains them
 on success and failure for 14 days. [PR #48](https://github.com/robchristie/polyorama/pull/48)
@@ -78,10 +78,10 @@ owns exact-head review, required checks, squash identity and post-merge CI.
 | Surface | Result |
 |---|---|
 | Shared Rust contract | 23 focused tests: negotiation, strict/correlated failures, bounds/cursors, repeated capabilities, current availability/meaning, duplicates/conflicts, queue/history limits, cancellation/restarts, missing observations, discarded passes, physical geometry and private native transport |
-| Common client and compatibility targeting | 46 tests: bounded/cancelled waits, idle conditions, capabilities without rendered controls, moving/disabled/clipped targets and scale, uncertain completion without replay, focus/keyboard evidence, browser readiness and partial capture/metadata diagnostics |
-| Record Desk integration regressions | Current narrow-window policy before queued dispatch; draft-field capabilities hidden without selection; ordinary consumer domain/store/UI/dependency checks retained |
-| Lab integration regression | Partially visible row targets use the scroll interaction clip; shared AccessKit bounds match; collection materialisation remains bounded |
-| Record Desk, both hosts | Discover/query; physical title and Reviewed edit; semantic Apply yields one transaction; replay yields no second entry; undo/redo availability and state; invalid, unavailable, stale and unsupported-argument rejection without mutation; matching physical Apply/undo/redo workflow |
+| Common client and compatibility targeting | 47 tests: bounded/cancelled waits, idle conditions, capabilities without rendered controls, moving/disabled/clipped targets and scale, uncertain completion without replay, focus/keyboard evidence, browser readiness, unchanged native pointer placement with one click, and partial capture/metadata diagnostics |
+| Record Desk integration regressions | Current narrow-window policy before queued dispatch; draft-field capabilities hidden without selection; retained Apply/Undo targets survive Search focus and layout resize while genuine draft/history changes become stale; ordinary consumer domain/store/UI/dependency checks retained |
+| Lab integration regressions | Polygon discovery and rendered availability agree at two and three vertices; partially visible row targets use the scroll interaction clip and completely clipped valid allocations are omitted; shared AccessKit bounds match; collection materialisation remains bounded |
+| Record Desk, both hosts | Discover/query; physical title and Reviewed edit; retained semantic Apply target survives Search focus and yields one transaction; replay yields no second entry; undo/redo availability and state; invalid, unavailable, stale and unsupported-argument rejection without mutation; matching physical Apply/undo/redo workflow |
 | Lab, both hosts | Fit changes observable scale through the normal validated camera intent; semantic and physical Link changes observed; pane/domain query and two-row continuation over the rendered subset of one million logical rows |
 | Cross-host failures and idle | Unsupported version/operation, invalid selector, stale target and ambiguous pane failures; absent query, timeout/cancellation; unchanged warmed presentation frames during read-only inspection |
 | Canonical verification | `cargo xtask verify` passed: format, native/WASM lint, tests, architecture, docs, release builds, packaged startup, five immutable UI fixtures, existing physical workflows and the shared four-host journeys |
@@ -92,6 +92,18 @@ packaged-startup journey; an earlier socket fixture exceeded Unix path length
 under the canonical temporary directory. The latter was repaired without
 weakening its assertions. These failed attempts are retained; success is from
 the completed campaign and applicable focused repairs, not a summary of them.
+
+Independent review rejected the earlier candidate's incomplete Lab polygon
+context and Record Desk guards tied to unrelated UI changes. Both integrations
+now derive capability availability and meaning from the relevant application
+state, with direct service/UI regressions and the retained-target host journey.
+The earlier candidate CI also exposed older `xdotool` waiting indefinitely for
+a movement event when the cursor was already at its target. The common adapter
+now verifies the resolved pointer position before one click. A later canonical
+scroll journey exposed a zero-area interaction rectangle at a clip boundary;
+only valid fully clipped row allocations are now omitted, preserving invalid
+allocation diagnostics. The final canonical run and all four clean-checkpoint
+journeys passed after these repairs.
 
 ## Opened-image inspection
 
