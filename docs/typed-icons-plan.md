@@ -1,7 +1,7 @@
 # Typed icons and shared action presentations
 
 Status: active
-Next action: Finish state capture qualification, run canonical verification and land the reviewed candidate.
+Next action: Run canonical verification, reconcile closeout and land the independently reviewed candidate.
 
 ## Outcome and boundaries
 
@@ -61,7 +61,7 @@ change separately before accepting it.
 
 ## Delivery state
 
-Implementation and focused native/WASM checks are complete. State capture
-qualification, canonical verification, review and landing remain pending. Detailed evidence
+Implementation, focused native/WASM checks and inspected visual qualification
+are complete. Canonical verification, review and landing remain pending. Detailed evidence
 belongs with the icon component, Gallery fixtures and evidence report rather
 than this plan.
