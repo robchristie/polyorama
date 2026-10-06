@@ -121,7 +121,14 @@ pub fn show(
                         .ui_geometry
                         .root
                         .is_some_and(|root| root.contains(selection.rect.into(), 1.0));
-                    if selection.rect.intersects(ui.clip_rect()) && inside_root {
+                    let completely_clipped = selection.rect.is_finite()
+                        && selection.rect.is_positive()
+                        && selection.interact_rect.is_finite()
+                        && !selection.interact_rect.is_positive();
+                    if selection.rect.intersects(ui.clip_rect())
+                        && inside_root
+                        && !completely_clipped
+                    {
                         outputs.ui_geometry.text_layouts.extend(row_observations);
                         outputs
                             .ui_geometry
