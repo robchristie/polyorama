@@ -143,6 +143,7 @@ async function journey(app, host, client, physical, build) {
     }
   } else {
     const fit = { capability: 'fit_view', pane: 1 };
+    await client.wait({ condition: 'capability_enabled', selector: { capability: 'toggle_diagnostics' } });
     await client.wait({ condition: 'enabled', selector: { id: 'action.fit_view.pane.1' } });
     assert.equal((await client.discover(fit)).capabilities[0].semantic_invocable, true);
     const paneQuery = await client.query({ pane: 1, domain: { kind: 'pane', value: 1 } }, { limit: 3 });

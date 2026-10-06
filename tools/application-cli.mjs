@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { writeFile } from 'node:fs/promises';
-import { ApplicationClient, SocketTransport, BrowserTransport, BrowserPhysicalAdapter, NativePhysicalAdapter } from './application-client.mjs';
+import { ApplicationClient, SocketTransport, BrowserTransport, BrowserPhysicalAdapter, NativePhysicalAdapter, describeApplicationError } from './application-client.mjs';
 
 const help = `Usage: node tools/application-cli.mjs [connection options] COMMAND [JSON or value]
 Connection: --socket PATH (or POLYORAMA_AUTOMATION_SOCKET), or --cdp URL [--url PAGE_URL]
@@ -95,7 +95,6 @@ async function main() {
 
 try { await main(); }
 catch (error) {
-  process.stderr.write(`${JSON.stringify({ error: { code: error.code ?? 'cli_error', message: error.message,
-    ...(error.request_id ? { request_id: error.request_id } : {}), ...(error.cause_code ? { cause_code: error.cause_code } : {}) } }, null, 2)}\n`);
+  process.stderr.write(`${JSON.stringify({ error: describeApplicationError(error) }, null, 2)}\n`);
   process.exitCode = 2;
 }

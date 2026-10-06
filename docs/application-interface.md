@@ -149,13 +149,17 @@ up in the new instance.
 
 `ApplicationClient.wait` polls completed observations with a monotonic deadline
 and optional `AbortSignal`. Conditions include `present`, `absent`, `enabled`,
-`focused`, `selected`, `checked`, `name`, `status`, `selection_changed`, `fact`
+`capability_enabled`, `focused`, `selected`, `checked`, `name`, `status`, `selection_changed`, `fact`
 and `audits_clear`. Checked compares a boolean `value`; audits-clear waits for
 empty semantic/text findings with retained coverage. Name and
 status conditions compare exact text with `value`; status restricts the role to
 `status`. Selection change compares selected stable IDs, against `previous` or
 the first observation. Fact conditions compare a named application-published
 primitive value; the available names are visible in `observe`.
+`enabled` tests a rendered control; `capability_enabled` tests the discovered
+application availability, including a supported action whose menu is closed.
+Timeout/cancellation diagnostics retain the last observation and relevant
+failure reason in both the JavaScript error and machine-readable CLI output.
 
 ```sh
 node tools/application-cli.mjs --socket /absolute/path/record-desk.sock \
@@ -184,6 +188,10 @@ that observation in the physical dispatch evidence. A dispatch record reports
 `outcome: "unverified"`; target stability and successful input submission do not
 establish the product outcome. Observe or wait for it separately. An uncertain
 physical operation likewise requires observation before another input attempt.
+Physical request IDs correlate client evidence; they are not retained in the
+semantic invocation ledger and cannot be recovered using `receipt`. Physical
+input has no replay guarantee. Observe its result after an unconfirmed failure
+before deciding whether another input is appropriate.
 
 This script uses the same client on either host, edits a field physically, then
 invokes Apply through the semantic action route:

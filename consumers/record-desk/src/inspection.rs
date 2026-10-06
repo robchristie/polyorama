@@ -178,8 +178,8 @@ impl RecordDeskApp {
                 total: Some(self.desk.records().len() as u64),
                 observed: snapshot.by_role(UiRole::ResultRow).count(),
                 offset: None,
-                virtualised: true,
-                complete: false,
+                virtualised: false,
+                complete: snapshot.by_role(UiRole::ResultRow).count() == self.desk.records().len(),
             }],
             ..Default::default()
         };

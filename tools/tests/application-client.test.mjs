@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:net';
 import { ApplicationClient, ApplicationError, SocketTransport, BrowserTransport,
-  BrowserPhysicalAdapter, NativePhysicalAdapter, matchesSelector } from '../application-client.mjs';
+  BrowserPhysicalAdapter, NativePhysicalAdapter, matchesSelector, describeApplicationError } from '../application-client.mjs';
 
 const rootRect = { min_x: 10, min_y: 20, max_x: 410, max_y: 320 };
 const targetRect = { min_x: 30, min_y: 40, max_x: 90, max_y: 80 };
@@ -115,6 +115,28 @@ test('checked waits observe toggle state and reject non-boolean expectations', a
   const { client } = await bound(() => ({ kind: 'observe', observation: observation([node({ checked: true })]) }));
   assert.equal((await client.wait({ condition: 'checked', selector: { id: 'apply' }, value: true })).node.checked, true);
   await assert.rejects(client.wait({ condition: 'checked', selector: { id: 'apply' }, value: 'true' }), { code: 'invalid_request' });
+});
+
+test('an enabled capability without a rendered control satisfies an idle wait', async () => {
+  const { client } = await bound(operation => operation.op === 'discover'
+    ? { kind: 'discover', observation: 1, total: 1, capabilities: [{ availability: { state: 'enabled' }, target }] }
+    : { kind: 'observe', observation: observation([]) });
+  const result = await client.wait({ condition: 'capability_enabled', selector: { capability: 'record.apply' } });
+  assert.equal(result.capability.availability.state, 'enabled');
+  assert.equal(result.capability_observation, 1);
+  assert.equal(result.node, null);
+});
+
+test('disabled physical targets retain the latest observation and reason for CLI diagnostics', async () => {
+  const { client } = await bound(() => ({ kind: 'observe', observation: observation([node({ enabled: false, disabled_reason: 'No draft changes' })]) }));
+  await assert.rejects(client.target({ id: 'apply' }, { timeoutMs: 120 }), error => {
+    const diagnostic = describeApplicationError(error);
+    assert.equal(diagnostic.code, 'timeout');
+    assert.equal(diagnostic.observation.id, 1);
+    assert.equal(diagnostic.last_reason, 'No draft changes');
+    assert.equal(diagnostic.cause, undefined);
+    return true;
+  });
 });
 
 test('transport timeout after a valid wait observation retains that observation', async () => {

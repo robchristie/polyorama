@@ -21,6 +21,15 @@ export class ApplicationError extends Error {
   }
 }
 
+/** Preserve bounded client diagnostics without serialising internal causes. */
+export function describeApplicationError(error) {
+  const description = { code: error.code ?? 'cli_error', message: error.message };
+  for (const key of ['request_id', 'cause_code', 'observation', 'last_error', 'last_capability', 'capability_observation', 'target', 'last_reason', 'ids', 'node', 'point']) {
+    if (error[key] !== undefined) description[key] = error[key];
+  }
+  return description;
+}
+
 function failure(code, message, details) { return new ApplicationError(code, message, details); }
 function aborted(signal) {
   if (signal?.aborted) throw failure('cancelled', 'The local operation was cancelled');
@@ -318,11 +327,13 @@ export class ApplicationClient {
     const deadline = this.scheduler.now() + timeout(timeoutMs);
     interval(intervalMs);
     const selected = selector(condition.selector ?? {});
-    const kinds = ['present', 'absent', 'enabled', 'focused', 'selected', 'checked', 'selection_changed', 'name', 'status', 'fact', 'audits_clear'];
+    const kinds = ['present', 'absent', 'enabled', 'capability_enabled', 'focused', 'selected', 'checked', 'selection_changed', 'name', 'status', 'fact', 'audits_clear'];
     if (!kinds.includes(condition.condition)) throw failure('invalid_request', 'Unsupported observation wait condition');
     let baseline = condition.previous;
     let last;
     let lastError;
+    let lastCapability;
+    let lastCapabilityObservation;
     try {
     while (true) {
       aborted(signal);
@@ -332,12 +343,24 @@ export class ApplicationClient {
         last = await this.observe({ timeoutMs: remaining, signal });
         if (this.scheduler.now() >= deadline) throw failure('timeout', 'Observation arrived after the monotonic wait deadline', { observation: last });
         lastError = undefined;
-        const node = ['selection_changed', 'fact', 'audits_clear'].includes(condition.condition) ? undefined
+        let capability;
+        let capabilityObservation;
+        const node = ['selection_changed', 'fact', 'audits_clear', 'capability_enabled'].includes(condition.condition) ? undefined
           : oneNode(last, condition.condition === 'status' ? { ...selected, role: 'status' } : selected);
         let done = false;
         if (condition.condition === 'present') done = Boolean(node);
         if (condition.condition === 'absent') done = !node;
         if (condition.condition === 'enabled') done = node?.enabled === true;
+        if (condition.condition === 'capability_enabled') {
+          const capabilities = await this.discover(selected, { limit: 2, timeoutMs: Math.max(1, deadline - this.scheduler.now()), signal });
+          if (capabilities.total > 1) throw failure('ambiguous', 'Capability wait requires one target; add a pane or identity');
+          capability = capabilities.capabilities[0];
+          capabilityObservation = capabilities.observation;
+          lastCapability = capability;
+          lastCapabilityObservation = capabilityObservation;
+          done = capability?.availability.state === 'enabled';
+          if (this.scheduler.now() >= deadline) throw failure('timeout', 'Capability discovery exceeded the wait deadline');
+        }
         if (condition.condition === 'focused') done = node?.focused === true;
         if (condition.condition === 'selected') done = node?.selected === true;
         if (condition.condition === 'checked') {
@@ -356,7 +379,8 @@ export class ApplicationClient {
           if (baseline === undefined) baseline = current;
           else done = !same(current, baseline);
         }
-        if (done) return { observation: last, node: node ?? null };
+        if (done) return { observation: last, node: node ?? null,
+          ...(capability ? { capability, capability_observation: capabilityObservation } : {}) };
       } catch (error) {
         if (error.code !== 'missing_observation') throw error;
         lastError = { code: error.code, message: error.message };
@@ -366,6 +390,10 @@ export class ApplicationClient {
     } catch (error) {
       error.observation = last ?? null;
       error.last_error = lastError ?? { code: error.code, message: error.message };
+      if (lastCapability) {
+        error.last_capability = lastCapability;
+        error.capability_observation = lastCapabilityObservation;
+      }
       throw error;
     }
   }
@@ -376,12 +404,17 @@ export class ApplicationClient {
     let confirmations = 0;
     let firstSample;
     let last;
+    let lastObservation;
+    let lastReason;
+    try {
     while (this.scheduler.now() < deadline) {
       aborted(signal);
       try {
         const observation = await this.observe({ timeoutMs: Math.max(1, deadline - this.scheduler.now()), signal });
+        lastObservation = observation;
         const node = oneNode(observation, selector(selected));
         if (node?.enabled) {
+          lastReason = 'Awaiting consistent enabled target and host geometry';
           const current = physicalTarget(observation, node);
           const geometry = adapter ? await hostCall(localSignal => adapter.geometry({ signal: localSignal }), deadline - this.scheduler.now(), signal) : undefined;
           if (adapter) adapter.point(current, geometry);
@@ -391,17 +424,26 @@ export class ApplicationClient {
           previous = fingerprint;
           last = { ...current, geometry, fingerprint, observed_ms: this.scheduler.now() - started };
           if (confirmations >= 3 && this.scheduler.now() - firstSample >= 100 && this.scheduler.now() < deadline) return last;
-        } else { previous = undefined; confirmations = 0; }
+        } else {
+          previous = undefined; confirmations = 0;
+          lastReason = node ? node.disabled_reason ?? 'Target is disabled' : 'Target is absent';
+        }
       } catch (error) {
         if (error.code !== 'missing_observation') throw error;
         previous = undefined; confirmations = 0;
       }
       await this.scheduler.sleep(Math.min(50, Math.max(0, deadline - this.scheduler.now())), signal);
     }
-    throw failure('timeout', 'Target did not become enabled and stable within the bounded observation deadline', { target: last });
+    throw failure('timeout', 'Target did not become enabled and stable within the bounded observation deadline', { target: last, last_reason: lastReason });
+    } catch (error) {
+      error.observation = lastObservation ?? null;
+      error.last_reason = error.last_reason ?? (error.code === 'timeout' ? lastReason ?? error.message : error.message);
+      throw error;
+    }
   }
   async click(selected, adapter, options = {}) {
     if (!adapter) throw failure('invalid_request', 'Physical input requires an explicit host adapter');
+    const requestId = randomUUID();
     const deadline = this.scheduler.now() + Math.min(15000, timeout(options.timeoutMs ?? 15000));
     const remaining = () => deadline - this.scheduler.now();
     const stable = await this.target(selected, { ...options, timeoutMs: remaining(), adapter });
@@ -416,14 +458,15 @@ export class ApplicationClient {
     try { await hostCall(signal => adapter.click(point, { signal }), remaining(), options.signal); }
     catch (error) {
       throw failure('uncertain_physical_input', 'Physical input completion is unconfirmed; observe the application before repeating it', {
-        cause_code: error.code, cause: error, point, node: node.id,
+        request_id: requestId, cause_code: error.code, cause: error, point, node: node.id,
       });
     }
-    return { route: 'physical', input: 'pointer', instance: this.instance, observation: observation.id,
+    return { request_id: requestId, route: 'physical', input: 'pointer', instance: this.instance, observation: observation.id,
       node: node.id, point, geometry, scale: current.scale, observed_ms: stable.observed_ms,
       completion: 'input_dispatched', outcome: 'unverified' };
   }
   async keyboardInput(input, value, adapter, options = {}) {
+    const requestId = randomUUID();
     if (!adapter) throw failure('invalid_request', 'Physical input requires an explicit host adapter');
     const deadline = this.scheduler.now() + timeout(options.timeoutMs ?? this.timeoutMs);
     const observation = await this.observe(options);
@@ -438,10 +481,10 @@ export class ApplicationClient {
       await hostCall(signal => adapter[input](value, { signal }), deadline - this.scheduler.now(), options.signal);
     } catch (error) {
       throw failure('uncertain_physical_input', 'Physical input completion is unconfirmed; observe the application before repeating it', {
-        cause_code: error.code, cause: error, observation: observation.id, node: node?.id ?? null,
+        request_id: requestId, cause_code: error.code, cause: error, observation: observation.id, node: node?.id ?? null,
       });
     }
-    return { route: 'physical', input: input === 'key' ? 'keyboard' : 'text', instance: this.instance,
+    return { request_id: requestId, route: 'physical', input: input === 'key' ? 'keyboard' : 'text', instance: this.instance,
       observation: observation.id, node: node?.id ?? null,
       focus: observation.snapshot.nodes.filter(candidate => candidate.focused).map(candidate => ({ id: candidate.id,
         pane: candidate.pane, domain: candidate.domain_reference, role: candidate.role })),
