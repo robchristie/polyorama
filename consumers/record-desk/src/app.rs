@@ -137,6 +137,11 @@ impl RecordDeskApp {
     }
 
     pub(crate) fn availability(&self, action: Action) -> Availability {
+        if matches!(action, Action::ToggleReviewed | Action::EditCategory)
+            && self.desk.draft().is_none()
+        {
+            return Availability::Hidden;
+        }
         let reason = match action {
             Action::Apply | Action::Cancel if !self.desk.is_dirty() => {
                 Some("There are no draft changes")

@@ -200,6 +200,23 @@ mod tests {
     use super::*;
 
     #[test]
+    fn draft_field_capabilities_are_hidden_without_a_selected_record() {
+        let directory = tempfile::tempdir().unwrap();
+        let context = egui::Context::default();
+        let mut app = RecordDeskApp::with_store(
+            &context,
+            Store::at_path(directory.path().join("records.json")),
+        );
+        app.desk = Desk::new(Vec::new()).unwrap();
+        assert_eq!(
+            app.availability(Action::ToggleReviewed),
+            Availability::Hidden
+        );
+        assert_eq!(app.availability(Action::EditCategory), Availability::Hidden);
+        assert!(!app.availability(Action::Apply).enabled());
+    }
+
+    #[test]
     fn queued_arrange_rechecks_the_current_narrow_window_policy() {
         let directory = tempfile::tempdir().unwrap();
         let context = egui::Context::default();
