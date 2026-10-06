@@ -419,10 +419,9 @@ impl PaneSurface<'_> {
             });
         }
         if fit {
-            self.outputs.intents.push(ImageIntent::SetCamera {
-                pane,
-                camera: Camera::fit(rect.width() as f64, rect.height() as f64),
-            });
+            self.outputs
+                .intents
+                .push(crate::actions::fit_view_intent(pane, rect.into()));
         }
         if toggle_link {
             self.outputs.intents.push(ImageIntent::SetCameraLink {

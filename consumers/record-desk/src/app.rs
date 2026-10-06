@@ -5,6 +5,9 @@ use serde::Serialize;
 
 use crate::{actions::Action, model::*, panes::*, store::Store};
 
+#[path = "inspection.rs"]
+mod inspection;
+
 pub struct RecordDeskApp {
     pub(crate) desk: Desk,
     pub(crate) workspace: Workspace,
@@ -19,6 +22,12 @@ pub struct RecordDeskApp {
     focus_search: bool,
     frame: u64,
     snapshot: Snapshot,
+    inspection: Option<Inspection>,
+    inspection_revision: u64,
+    #[cfg(not(target_arch = "wasm32"))]
+    _inspection_host: Option<NativeInspectionHost>,
+    #[cfg(target_arch = "wasm32")]
+    inspection_context: egui::Context,
 }
 
 #[derive(Clone, Default, Serialize)]
@@ -68,8 +77,16 @@ impl RecordDeskApp {
             focus_search: false,
             frame: 0,
             snapshot: Snapshot::default(),
+            inspection: None,
+            inspection_revision: 0,
+            #[cfg(not(target_arch = "wasm32"))]
+            _inspection_host: None,
+            #[cfg(target_arch = "wasm32")]
+            inspection_context: context.clone(),
         };
         app.load();
+        #[cfg(not(target_arch = "wasm32"))]
+        app.start_inspection(context);
         app
     }
 
@@ -212,6 +229,7 @@ impl RecordDeskApp {
         if action != Action::Restore {
             self.error = false;
         }
+        self.inspection_revision += 1;
         Ok(())
     }
 
@@ -220,6 +238,7 @@ impl RecordDeskApp {
     }
 
     pub fn present(&mut self, root: &mut Ui) {
+        self.drain_inspection(root.ctx());
         let tokens = self.preferences.tokens(root.style().visuals.dark_mode);
         // Adapt the authoritative tree itself; never create a second docking model.
         self.narrow_layout = root.available_width() < 640.0;
@@ -414,6 +433,7 @@ impl RecordDeskApp {
             semantic_audit: vec![],
         };
         ui_snapshot.semantic_audit = ui_snapshot.audit();
+        self.publish_inspection(root.ctx(), &ui_snapshot);
         let mut changed = false;
         if let Some(resize) = resize {
             match resize.apply(&mut self.workspace) {
@@ -440,6 +460,9 @@ impl RecordDeskApp {
                 self.failure(error);
             }
             changed = true;
+        }
+        if changed {
+            self.inspection_revision += 1;
         }
         self.snapshot = Snapshot {
             ui: ui_snapshot,
