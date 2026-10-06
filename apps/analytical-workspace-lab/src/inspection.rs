@@ -28,7 +28,6 @@ pub(crate) fn inspection_bindings_for_state(
                     polygon_vertices: crate::actions::polygon_vertex_count(
                         session.gesture.as_ref(),
                     ),
-                    ..Default::default()
                 };
                 let meaningful = match action {
                     LabAction::FitView | LabAction::LinkViews => {
