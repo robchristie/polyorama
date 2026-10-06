@@ -79,8 +79,14 @@ for count in 1 2; do
 done
 DISPLAY="$DISPLAY_NUMBER" ui_sandbox "$IMPORT" -window "$WINDOW_ID" \
   "$EVIDENCE_DIR/minimal-native-after.png"
-if rg 'panicked|WGPU error|Exiting because of error' "$APP_LOG"; then
+if grep -E 'panicked|WGPU error|Exiting because of error' "$APP_LOG"; then
   echo "minimal native smoke observed an application failure" >&2
   exit 1
+else
+  log_scan_status=$?
+  if [[ "$log_scan_status" != 1 ]]; then
+    echo "minimal native smoke could not inspect the application log" >&2
+    exit 1
+  fi
 fi
 echo "minimal native smoke passed: physical Add actions, 0→1→2 triangles/history entries, measured count and empty text audits"

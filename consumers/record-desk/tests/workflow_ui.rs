@@ -38,6 +38,46 @@ fn records() -> Vec<Record> {
     Desk::default().records()[..2].to_vec()
 }
 
+#[test]
+fn every_startup_presentation_publishes_valid_visible_semantics() {
+    for width in [1080.0, 390.0] {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("state.json");
+        let mut harness = Harness::builder()
+            .with_size(Vec2::new(width, if width < 640.0 { 844.0 } else { 760.0 }))
+            .build_ui_state(
+                move |ui, state: &mut (Option<RecordDeskApp>, Vec<record_desk::app::Snapshot>)| {
+                    if state.0.is_none() {
+                        state.0 = Some(RecordDeskApp::with_store(ui.ctx(), Store::at_path(&path)));
+                        ui.ctx().request_repaint();
+                        return;
+                    }
+                    let app = state.0.as_mut().unwrap();
+                    app.present(ui);
+                    state.1.push(app.snapshot());
+                },
+                (None, Vec::new()),
+            );
+        harness.run();
+        assert!(!harness.state().1.is_empty());
+        for snapshot in &harness.state().1 {
+            assert!(
+                snapshot.ui.semantic_audit.is_empty(),
+                "width {width}, frame {}: {:?}",
+                snapshot.ui.frame,
+                snapshot.ui.semantic_audit
+            );
+            assert!(snapshot.ui.text_audit.is_empty());
+        }
+        let settled = harness.state().0.as_ref().unwrap().snapshot();
+        assert!(settled.ui.nodes.iter().any(|node| {
+            node.actions
+                .iter()
+                .any(|action| action.0 == "record-desk.save")
+        }));
+    }
+}
+
 fn assert_accesskit(h: &Harness<'_, Option<RecordDeskApp>>) {
     let snapshot = h.state().as_ref().unwrap().snapshot();
     // The harness consumes egui's updates. Audit its resulting AccessKit tree,

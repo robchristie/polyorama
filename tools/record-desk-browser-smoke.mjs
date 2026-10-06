@@ -30,6 +30,10 @@ const snapshot = () => page.evaluate(() => JSON.parse(window.__RECORD_DESK.snaps
 async function wait(predicate) {
   await page.waitForFunction(`window.__RECORD_DESK && (${predicate})(JSON.parse(window.__RECORD_DESK.snapshot()))`, null, { timeout: 15000 });
 }
+async function ready() {
+  await page.locator('canvas[data-ready="true"]').waitFor();
+  await wait('s => ["record-desk.undo", "record-desk.redo", "record-desk.save", "record-desk.restore", "record-desk.arrange"].every(action => s.ui.nodes.some(n => n.actions.includes(action) && n.rect.max_y > n.rect.min_y))');
+}
 async function record(name) {
   const state = await snapshot();
   assert.deepEqual(state.ui.text_audit, [], `${name}: text audit`);
@@ -86,7 +90,7 @@ try {
       }, { capture: true });
     }
   });
-  await page.locator('canvas[data-ready="true"]').waitFor();
+  await ready();
   await wait('s => s.records.length === 12 && s.ui.nodes.length > 10');
   await record('ordinary');
   await page.screenshot({ path: resolve(evidence, 'browser-ordinary.png') });
@@ -147,7 +151,7 @@ try {
   assert.equal(saved.records[1].title, 'Review agenda updated');
   assert.deepEqual(saved.workspace, savedLayout);
   await page.reload();
-  await page.locator('canvas[data-ready="true"]').waitFor();
+  await ready();
   await wait('s => s.records[1].title === "Review agenda updated" && s.undo_entries === 0 && !s.draft_dirty && !s.unsaved');
   assert.deepEqual((await snapshot()).workspace, savedLayout);
   await record('reload-restored');
@@ -162,7 +166,7 @@ try {
   // Fault setup is direct local storage injection, never counted as physical input.
   await page.evaluate(key => localStorage.setItem(key, '{broken'), storageKey);
   await page.reload();
-  await page.locator('canvas[data-ready="true"]').waitFor();
+  await ready();
   await wait('s => s.save_blocked && s.error');
   await page.keyboard.press('Control+s');
   assert.equal(await page.evaluate(key => localStorage.getItem(key), storageKey), '{broken');

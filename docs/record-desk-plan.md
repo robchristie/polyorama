@@ -68,7 +68,7 @@ uses only core/UI; optional image rendering and layout-only resize remove the
 demonstrated dependencies. Session's analytical defaults and four-image-camera
 validation remain compatible because the non-image consumer does not need them.
 
-The separate consumer checks pass: metadata, 24 model/store/UI tests, native and
+The separate consumer checks pass: metadata, 26 model/store/UI tests, native and
 WASM lint/build and browser packaging. Physical native/browser journeys pass
 including filtering a stable selection, one Apply transaction, undo/redo,
 persisted layout/records after restart/reload and visible storage failures.
@@ -86,3 +86,7 @@ open/closed options at the runtime viewport sizes. The product state is complete
 the owning PR retains the exact reviewed head, required CI, squash revision and
 cleanup evidence under the reviewed delivery procedure. Public GitHub-hosted CI
 is retained.
+
+First-presentation regressions also cover completely clipped toolbar actions:
+visibility composition remains consumer-owned, keeps invalid allocation evidence
+and requires principal chrome before host workflow readiness.

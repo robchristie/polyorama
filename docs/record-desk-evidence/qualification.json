@@ -7,7 +7,7 @@
     "node": "25.8.2",
     "linux_ui": "bootstrapped sysroot, Source Sans 3 fontconfig, headed Xvfb; consumer native GL and browser WebGPU SwiftShader"
   },
-  "consumer_tests": 24,
+  "consumer_tests": 26,
   "probe_tests": 4,
   "captures": {
     "native-ordinary.png": "d81a6e171f228b0f4ab2d4594ab954d202bbfa1caed2ce27c30f5cda98ab80ea",
@@ -24,14 +24,14 @@
     "consumers/record-desk/Cargo.toml": "bfd39a69a1d7bc40899abe1bd276ffb95bd3f7bc3832fefc7ae347c38ea9ffc2",
     "consumers/record-desk/build-web.sh": "6656bec358f6a36add1e8ca6dc131a74a135daa45026da1b1f0d3d27f1b4ef60",
     "consumers/record-desk/src/actions.rs": "8a5c0fce12b526db8108e82fade946b3874a934488434bce5ea25dcecfa1d5c1",
-    "consumers/record-desk/src/app.rs": "89e25f8d6d732cbfb466d3f707cc6fe063bdb561a685b38ffe2f9040973dc0ca",
+    "consumers/record-desk/src/app.rs": "a775f138062b183a0b9ac55cdd5c72439da0ece6ff658c4c257ee133f9cc1f24",
     "consumers/record-desk/src/lib.rs": "834a83017ebe5b7b3d4bb9d9f3f446cc05eb8022b649ce7f09e38c4373f1a54c",
     "consumers/record-desk/src/main.rs": "789044ab99799989a374cf4e7675c88409bf5ba3bc264a95199b2b5c07b68f2c",
     "consumers/record-desk/src/model.rs": "6be7fc6651b090e101539215b074744bf0ae4108b8f868818a2604ca279b1873",
     "consumers/record-desk/src/panes.rs": "5a18ff5ebf36b6471c771f2c2d11c062a253289b5a5bb96daf26934d66f2a021",
     "consumers/record-desk/src/store.rs": "a7239ecd9055cee1ac7892294b0bd9bae5a31dab75d83dfffb21bb0a30d3e81c",
     "consumers/record-desk/tests/reset_filters.rs": "812cdb9ff01155f5841d4b11e59400aa5807de268bb948383df0927197f38bdf",
-    "consumers/record-desk/tests/workflow_ui.rs": "27f3f1eb0068d1566072491374d9e8706648b2ec2fe4e3134b98dd5c43c9794d",
+    "consumers/record-desk/tests/workflow_ui.rs": "3fc41255f28a7be6c17a28059ad91f149da55106cbf7824b0cc0d051a297d714",
     "consumers/record-desk/web/bootstrap.js": "82bc52ef050eecf769bc413667fdcf30a53fb3719c5c6012671e9280735ca13a",
     "consumers/record-desk/web/index.html": "956adc3aebbbb3145b43caaf04fdf6060bac56e062862021921080f5b4507948",
     "crates/polyorama-core/Cargo.toml": "204a4a435b45e3c044bc31f570913683468ddbe2d19e181127caf46bf305a0bb",
@@ -81,12 +81,12 @@
     "tools/browser-launch.mjs": "c691afb4f48460d3003042c50182eed522c3d876a632d76ccb7e72c6f04dcd71",
     "tools/browser-smoke.mjs": "93dd47f992e32889e45c50f0f26899c522eb441df287f5cf5ff63e39f85ff984",
     "tools/check-record-desk.py": "5dc8649b03c4df312ee6d470a4a3f7773c3d38d868cb92cf1624030630095d7e",
-    "tools/minimal-native-smoke.sh": "0a5f22775590b6ffddbb439e7c419e23d7dc0447392bca8350b2f85265728e9f",
+    "tools/minimal-native-smoke.sh": "7b6eaa45d8dd8c63de7080a7f98ff303b19dfee4c55f469470a3e08396839f63",
     "tools/native-smoke-lifecycle.sh": "5ce44a2c94a4004f457581546357c0632cb065b00ca3091b622d47404b3c51c8",
     "tools/owned-process.py": "7367df4b8ae559327a1cf2ff8c08284a3f3d9476d436f96ba5654a7cfa306c67",
-    "tools/record-desk-browser-smoke.mjs": "05610fd9733870d69586232b5afecb5edb5dccb1e30f78de8191f3276af7cfd3",
+    "tools/record-desk-browser-smoke.mjs": "c07a44c53d175dc6d9fbe1a3ced2f7d128c9772eef9c26608d5d5f4c92ef8685",
     "tools/record-desk-browser-smoke.sh": "e1f671463d7c255a2da163d0e4c4e3d19822e8a1d2934a5f83e1f927e852d9a2",
-    "tools/record-desk-native-smoke.py": "1a83325b979f1d286afe0e2bf3303c6676d991d76c7751c03b28a0c26c9d956f",
+    "tools/record-desk-native-smoke.py": "1e1294f19492ee17e955b2eda78af6bca673d865508b0fb0174d361a7762730b",
     "tools/record-desk-native-smoke.sh": "98c7ba6ef3ba73cabc0b6e50f07048bd054b1017051644482f6dcc7d296142b3",
     "tools/record-desk-target.mjs": "6bada16e6d6590bdabdb8256e2717bcaad03713561179274072ca3d9bfe35f7e",
     "tools/tests/browser-idle.test.mjs": "594394b21d6c6bb7f5ad174cffebc27a09ad53304a96d1ea88d3d0b2eee5e0d7",
@@ -94,7 +94,7 @@
     "xtask/src/main.rs": "7e1792c0cec06ab2996f16b159affe956698403f1d1d84e63724b867aef5615e"
   },
   "native": {
-    "artifact_sha256": "e5e79e4b5b593567030fc104bb277d3bb7685aaf0940b0a437a441d52faddc36",
+    "artifact_sha256": "9b32ab7e899934fedcd2f10a18715eba85528262b56d941fe5b8b5632e0f6527",
     "input_route": "xdotool OS pointer/keyboard; snapshot read only",
     "steps": [
       "ordinary",
@@ -110,7 +110,7 @@
     ]
   },
   "browser": {
-    "artifact_sha256": "f035f3e745a5df19e89c5a89962ede8ea3bf0c98c78d7a7610a72f88e2009e73",
+    "artifact_sha256": "adfa06fbb3e94f2f0b3e64329b2382d78904775fe7623602bc681bd5439373c5",
     "input_route": "Playwright mouse/keyboard; snapshot read only",
     "steps": [
       "ordinary",

@@ -134,8 +134,12 @@ domain/semantic identity and the native egui activation behaviour.
 Custom controls must keep their AccessKit name, description, state and current
 visible bounds consistent with their semantic observation. Shared dock splitter
 names describe the divider's orientation, perpendicular to the split axis.
-`tests/workflow_ui.rs` audits the actual AccessKit tree at ordinary/narrow sizes,
-with full records and open/closed options; run it when adding interactive chrome.
+The consumer owns observation visibility: toolbar actions are omitted only when
+a valid allocation is completely clipped in the current sizing pass. Partial
+targets keep their visible bounds; invalid allocation evidence remains auditable.
+`tests/workflow_ui.rs` audits the actual AccessKit tree at ordinary/narrow sizes
+with full records and open/closed options, and checks semantic/text observations
+from every startup presentation. Run it when adding interactive chrome.
 For an action, extend `Action`, its stable ID/specification, availability and the
 application action handler. Emit `Intent::Action`; route the registered shortcut
 through the same availability rule. Domain operations belong in `Desk`, not panes.

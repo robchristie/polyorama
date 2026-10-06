@@ -103,6 +103,11 @@ def launch():
     else:
         raise RuntimeError("Record Desk window did not become visible")
     xdo("windowfocus", "--sync", window)
+    # Readiness requires the principal chrome, not just an initial sizing pass.
+    wait(lambda s: all(any(action in n["actions"] and n["rect"]["max_y"] > n["rect"]["min_y"]
+        for n in s["ui"]["nodes"]) for action in (
+            "record-desk.undo", "record-desk.redo", "record-desk.save",
+            "record-desk.restore", "record-desk.arrange")))
 
 
 def stop():

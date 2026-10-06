@@ -56,8 +56,8 @@ session, application history or preference framework was introduced. The
 
 | Surface | Evidence |
 |---|---|
-| Direct domain/store tests | 12 model and five store tests: stable filtering/selection, draft rejection/cancellation, transaction/redo behaviour, identity/layout/envelope validation, bounded input, atomic replacement and protected malformed/unsupported bytes |
-| Public egui input tests | Seven integration tests, including the four retained authoring-probe tests: editing/history, ordinary/narrow/empty observations, open/closed filter options, Reset button/shortcut/availability and preservation invariants |
+| Direct domain/store tests | 12 model and five store tests: stable filtering/selection, draft rejection/cancellation, transaction/redo behaviour, identity/layout/envelope validation, bounded input, atomic replacement and protected malformed/unsupported bytes; one visibility guard regression preserves invalid allocation evidence |
+| Public egui input tests | Eight integration tests, including the four retained authoring-probe tests: editing/history, every startup presentation, ordinary/narrow/empty observations, open/closed filter options, Reset button/shortcut/availability and preservation invariants |
 | Native physical workflow | Release executable under Xvfb, wgpu GL/Mesa llvmpipe; xdotool pointer/keyboard searches, traverses/selects a record, chooses filters, rejects invalid Apply, commits title/reviewed together, undoes/redoes, adjusts the splitter by keyboard and saves/restarts |
 | Browser physical workflow | Release WASM in headful Chromium/WebGPU SwiftShader; Playwright mouse/keyboard performs the same workflow, saves/reloads, restores records/layout and excludes an uncommitted draft |
 | Failure fixtures | Malformed native file/localStorage bytes are supplied directly, then visible feedback and blocked Save are observed physically. A direct browser quota fixture exercises visible Save failure/retry; native write failure is a store test |
@@ -105,6 +105,17 @@ Six regressions cover transient absence, moving geometry, exact identity,
 unavailable targets and invalid bounds. A bounded physical journey with fourfold
 Chromium CPU throttling passed after this repair. This is read-only input
 synchronisation; application state still changes through physical events.
+
+The following CI run passed that browser journey, then exposed five invalid
+native toolbar targets in the first panel sizing pass. A regression capturing
+every presentation reproduced the same bounds (`min_y=35`, `max_y=33`). The
+consumer now omits a toolbar action only when its allocated rectangle is finite
+and positive and its current interaction bounds prove complete finite clipping.
+Partially visible actions remain; invalid allocations/non-finite observations
+remain audit failures. Shared recipes and repaint policy are unchanged. Startup
+tests cover every presentation at both widths, and host journeys require all
+principal toolbar targets before declaring readiness. The minimal native smoke's
+error-log scan also uses a portable grep and fails closed if inspection fails.
 
 The browser host reserves only registered application chords while its canvas
 or text input owns focus: browser Find/Location/Reload defaults otherwise steal

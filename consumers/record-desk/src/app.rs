@@ -276,13 +276,9 @@ impl RecordDeskApp {
             }
         }
         egui::Panel::top("record-desk-bar").show(root, |ui| {
-            let mut p = PresentationContext::new(
-                ui,
-                tokens,
-                1.0,
-                PresentationScope::new("record-desk.chrome"),
-                SemanticUiId::root(),
-            );
+            let scope = PresentationScope::new("record-desk.chrome");
+            let mut clipped_actions = Vec::new();
+            let mut p = PresentationContext::new(ui, tokens, 1.0, scope, SemanticUiId::root());
             ui.horizontal_wrapped(|ui| {
                 p.heading(ui, "title", "Record Desk");
             });
@@ -294,7 +290,7 @@ impl RecordDeskApp {
                     Action::Restore,
                     Action::Arrange,
                 ] {
-                    if p.action(
+                    let response = p.action(
                         ui,
                         action,
                         button(
@@ -303,9 +299,11 @@ impl RecordDeskApp {
                             self.availability(action),
                             ActionEmphasis::Normal,
                         ),
-                    )
-                    .clicked()
-                    {
+                    );
+                    if completely_clipped_action(response.rect, response.interact_rect) {
+                        clipped_actions.push(scope.instance(action).semantic_id());
+                    }
+                    if response.clicked() {
                         output.intents.push(Intent::Action(action));
                     }
                 }
@@ -330,7 +328,12 @@ impl RecordDeskApp {
                 content_spec(TextRole::Secondary, 2),
             );
             let observed = p.finish(ui);
-            nodes.extend(observed.semantic_nodes);
+            nodes.extend(
+                observed
+                    .semantic_nodes
+                    .into_iter()
+                    .filter(|node| !clipped_actions.contains(&node.id)),
+            );
             text.extend(observed.text_layouts);
         });
         egui::Panel::bottom("record-desk-status").show(root, |ui| {
@@ -474,5 +477,36 @@ impl eframe::App for RecordDeskApp {
 
     fn ui(&mut self, root: &mut Ui, _frame: &mut eframe::Frame) {
         self.present(root);
+    }
+}
+
+fn completely_clipped_action(allocated: egui::Rect, interactive: egui::Rect) -> bool {
+    // The first panel sizing pass can clip a valid toolbar allocation entirely.
+    // Preserve invalid allocations/non-finite observations as audit failures.
+    allocated.is_finite()
+        && allocated.is_positive()
+        && interactive.is_finite()
+        && !interactive.is_positive()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::completely_clipped_action;
+    use egui::{Rect, pos2};
+
+    #[test]
+    fn visibility_requires_valid_allocation_and_complete_finite_clipping() {
+        let allocated = Rect::from_min_max(pos2(8.0, 35.0), pos2(60.0, 63.0));
+        let hidden = Rect::from_min_max(allocated.min, pos2(60.0, 33.0));
+        let partial = Rect::from_min_max(allocated.min, pos2(60.0, 48.0));
+        assert!(completely_clipped_action(allocated, hidden));
+        assert!(!completely_clipped_action(allocated, partial));
+        assert!(!completely_clipped_action(allocated, allocated));
+        assert!(!completely_clipped_action(hidden, hidden));
+        assert!(!completely_clipped_action(Rect::NOTHING, hidden));
+        assert!(!completely_clipped_action(allocated, Rect::NOTHING));
+        let invalid = Rect::from_min_max(pos2(f32::NAN, 35.0), allocated.max);
+        assert!(!completely_clipped_action(invalid, hidden));
+        assert!(!completely_clipped_action(allocated, invalid));
     }
 }
