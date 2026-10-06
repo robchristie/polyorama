@@ -131,6 +131,11 @@ current floating popup targets; do not clip these option nodes to the pane.
 Browser read-only app inspection also requires eframe's WASM `App::as_any_mut`
 hook. Record rows use a consumer-owned measured recipe with stable
 domain/semantic identity and the native egui activation behaviour.
+Custom controls must keep their AccessKit name, description, state and current
+visible bounds consistent with their semantic observation. Shared dock splitter
+names describe the divider's orientation, perpendicular to the split axis.
+`tests/workflow_ui.rs` audits the actual AccessKit tree at ordinary/narrow sizes,
+with full records and open/closed options; run it when adding interactive chrome.
 For an action, extend `Action`, its stable ID/specification, availability and the
 application action handler. Emit `Intent::Action`; route the registered shortcut
 through the same availability rule. Domain operations belong in `Desk`, not panes.

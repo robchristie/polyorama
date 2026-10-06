@@ -7,7 +7,7 @@
     "node": "25.8.2",
     "linux_ui": "bootstrapped sysroot, Source Sans 3 fontconfig, headed Xvfb; consumer native GL and browser WebGPU SwiftShader"
   },
-  "consumer_tests": 23,
+  "consumer_tests": 24,
   "probe_tests": 4,
   "captures": {
     "native-ordinary.png": "d81a6e171f228b0f4ab2d4594ab954d202bbfa1caed2ce27c30f5cda98ab80ea",
@@ -28,10 +28,10 @@
     "consumers/record-desk/src/lib.rs": "834a83017ebe5b7b3d4bb9d9f3f446cc05eb8022b649ce7f09e38c4373f1a54c",
     "consumers/record-desk/src/main.rs": "789044ab99799989a374cf4e7675c88409bf5ba3bc264a95199b2b5c07b68f2c",
     "consumers/record-desk/src/model.rs": "6be7fc6651b090e101539215b074744bf0ae4108b8f868818a2604ca279b1873",
-    "consumers/record-desk/src/panes.rs": "ad08d8ad53ee11992edc13af08b0e4c511b29008744c9b8caf48809594cc2ff4",
+    "consumers/record-desk/src/panes.rs": "5a18ff5ebf36b6471c771f2c2d11c062a253289b5a5bb96daf26934d66f2a021",
     "consumers/record-desk/src/store.rs": "a7239ecd9055cee1ac7892294b0bd9bae5a31dab75d83dfffb21bb0a30d3e81c",
     "consumers/record-desk/tests/reset_filters.rs": "812cdb9ff01155f5841d4b11e59400aa5807de268bb948383df0927197f38bdf",
-    "consumers/record-desk/tests/workflow_ui.rs": "b9b1a52976ad2476cd126c1e40b413e9742fcab18df45f0b6da6dca1c97d4f28",
+    "consumers/record-desk/tests/workflow_ui.rs": "27f3f1eb0068d1566072491374d9e8706648b2ec2fe4e3134b98dd5c43c9794d",
     "consumers/record-desk/web/bootstrap.js": "82bc52ef050eecf769bc413667fdcf30a53fb3719c5c6012671e9280735ca13a",
     "consumers/record-desk/web/index.html": "956adc3aebbbb3145b43caaf04fdf6060bac56e062862021921080f5b4507948",
     "crates/polyorama-core/Cargo.toml": "204a4a435b45e3c044bc31f570913683468ddbe2d19e181127caf46bf305a0bb",
@@ -52,7 +52,7 @@
     "crates/polyorama-ui-egui/assets/fonts/SourceSans3-Semibold.ttf": "a3f4f8dcf343a8f24dc61951de93f3ba1558b15cd250ba24af8a40e957081b7d",
     "crates/polyorama-ui-egui/src/actions.rs": "6a261e802bcf94419c84ca6e6eff3e8331d7b7350d7970345c9786f40d56e90d",
     "crates/polyorama-ui-egui/src/application_theme.rs": "036536b100fc3112bdbdd3554d66b6250ab607bd520606e32b39a361dd9f8b82",
-    "crates/polyorama-ui-egui/src/components/action_button.rs": "d95d541f0cd8d73c10e6af46a08b0b7339531485c4ce1e9ecfa81371d5bf1993",
+    "crates/polyorama-ui-egui/src/components/action_button.rs": "c791b0f0698ae98dcd777ff581ba13432985c915f4948dd3eed3914d41c04629",
     "crates/polyorama-ui-egui/src/components/choice.rs": "2945468f8658feada0f95b1c17078b33cdfd540ee4f3d3c4ecf9968de24d69b1",
     "crates/polyorama-ui-egui/src/components/mod.rs": "2fe75ac9911e203d17d765a21231789b53cc1d326a00f44360208fe6663d7058",
     "crates/polyorama-ui-egui/src/components/property.rs": "22d2af88e0a0f7879bc72f8b7feecc2b09528935bcecacfd611ee9eaf9f74ebc",
@@ -88,7 +88,7 @@
     "xtask/src/main.rs": "d2d95f00f1ce36663de5ae8a674f494ba1bbefa06f68306f52341beaf37172f1"
   },
   "native": {
-    "artifact_sha256": "42664282e17317fbb0543b4dda484643a44e85165b7f7c2e7a3b9f80852d13a2",
+    "artifact_sha256": "e5e79e4b5b593567030fc104bb277d3bb7685aaf0940b0a437a441d52faddc36",
     "input_route": "xdotool OS pointer/keyboard; snapshot read only",
     "steps": [
       "ordinary",
@@ -104,7 +104,7 @@
     ]
   },
   "browser": {
-    "artifact_sha256": "75950301a4c8281df42d416eaa54d4d1ae9b34afccb48201d75fb35a94570af5",
+    "artifact_sha256": "f035f3e745a5df19e89c5a89962ede8ea3bf0c98c78d7a7610a72f88e2009e73",
     "input_route": "Playwright mouse/keyboard; snapshot read only",
     "steps": [
       "ordinary",

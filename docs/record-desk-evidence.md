@@ -37,6 +37,11 @@ browser localStorage restore records/layout without fabricating image state.
 - Physical keyboard layout adjustment exposed missing splitter focus after a
   pointer click. The shared dock now requests focus on click/drag start, with a
   regression covering the compatible resize command.
+- AccessKit parity review exposed a consumer splitter name/description mismatch
+  and partially clipped action targets. Consumer observations now match shared
+  dock semantics; shared action buttons expose the visible interaction bounds
+  consistently in AccessKit and `UiSnapshot`, with an enabled/disabled clipping
+  regression. Consumer-owned row and editable-field bounds follow the same rule.
 - `choice_control_with_options` adds stable, currently visible popup identities
   and geometry to the existing choice recipe. Floating option observations are
   not clipped to a pane. Native editable fields have explicit text-input roles
@@ -52,11 +57,19 @@ session, application history or preference framework was introduced. The
 | Surface | Evidence |
 |---|---|
 | Direct domain/store tests | 12 model and five store tests: stable filtering/selection, draft rejection/cancellation, transaction/redo behaviour, identity/layout/envelope validation, bounded input, atomic replacement and protected malformed/unsupported bytes |
-| Public egui input tests | Six integration tests, including the four retained authoring-probe tests: editing/history, ordinary/narrow/empty observations, Reset button/shortcut/availability and preservation invariants |
+| Public egui input tests | Seven integration tests, including the four retained authoring-probe tests: editing/history, ordinary/narrow/empty observations, open/closed filter options, Reset button/shortcut/availability and preservation invariants |
 | Native physical workflow | Release executable under Xvfb, wgpu GL/Mesa llvmpipe; xdotool pointer/keyboard searches, traverses/selects a record, chooses filters, rejects invalid Apply, commits title/reviewed together, undoes/redoes, adjusts the splitter by keyboard and saves/restarts |
 | Browser physical workflow | Release WASM in headful Chromium/WebGPU SwiftShader; Playwright mouse/keyboard performs the same workflow, saves/reloads, restores records/layout and excludes an uncommitted draft |
 | Failure fixtures | Malformed native file/localStorage bytes are supplied directly, then visible feedback and blocked Save are observed physically. A direct browser quota fixture exercises visible Save failure/retry; native write failure is a store test |
 | Observation and repaint | Each retained step asserts clean semantic/text audits. Stable record/pane/field/option identities target real geometry. Both hosts settle without another presentation frame during a 350 ms idle observation after startup deadlines |
+
+Public UI tests additionally compare actual egui/AccessKit node data with the
+consumer snapshot at 1080×760 and 390×844, using the full synthetic collection,
+open/closed options, hidden selection, invalid/committed edits, undo/redo and an
+empty collection. The harness consumes egui updates; the audit traverses its
+resulting AccessKit tree rather than deriving nodes from the consumer model.
+The regression initially reproduced splitter name/description and clipped
+button/record-row bounds findings, then passed after their repair.
 
 The read-only snapshot hooks supply state and current geometry, with no command
 injection. Direct tests/fault setup are separate from physical interaction proof.

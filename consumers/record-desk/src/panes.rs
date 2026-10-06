@@ -422,7 +422,7 @@ impl PanePresenter for RecordPanes<'_> {
         &mut self,
         id: DockNodeId,
         rect: Rect,
-        _horizontal: bool,
+        horizontal: bool,
         focused: bool,
     ) {
         let mut node = UiNode::container(
@@ -431,7 +431,13 @@ impl PanePresenter for RecordPanes<'_> {
             UiRole::Splitter,
             rect.into(),
         );
-        node.name = "Resize workspace split".into();
+        node.name = if horizontal {
+            "Vertical splitter"
+        } else {
+            "Horizontal splitter"
+        }
+        .into();
+        node.description = Some("Resize adjacent dock panes".into());
         node.focused = focused;
         self.output.nodes.push(node);
     }
@@ -441,6 +447,17 @@ fn domain(id: RecordId) -> DomainReference {
     DomainReference::External {
         namespace: "record-desk.record".into(),
         id: id.0.to_string(),
+    }
+}
+
+fn set_visible_bounds(node: &mut egui::accesskit::Node, response: &egui::Response) {
+    if response.interact_rect.is_positive() {
+        node.set_bounds(egui::accesskit::Rect {
+            x0: f64::from(response.interact_rect.min.x),
+            y0: f64::from(response.interact_rect.min.y),
+            x1: f64::from(response.interact_rect.max.x),
+            y1: f64::from(response.interact_rect.max.y),
+        });
     }
 }
 
@@ -469,6 +486,7 @@ fn text_input(
         ui.ctx().accesskit_node_builder(response.id, |node| {
             node.set_label(name);
             node.set_author_id(id.to_owned());
+            set_visible_bounds(node, &response);
         });
         (response, ())
     });
@@ -545,6 +563,7 @@ fn record_row(
         node.clear_toggled();
         node.set_selected(selected);
         node.add_action(egui::accesskit::Action::Click);
+        set_visible_bounds(node, &response);
     });
     if selected || response.hovered() {
         ui.painter().rect_filled(

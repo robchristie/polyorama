@@ -68,7 +68,7 @@ uses only core/UI; optional image rendering and layout-only resize remove the
 demonstrated dependencies. Session's analytical defaults and four-image-camera
 validation remain compatible because the non-image consumer does not need them.
 
-The separate consumer checks pass: metadata, 23 model/store/UI tests, native and
+The separate consumer checks pass: metadata, 24 model/store/UI tests, native and
 WASM lint/build and browser packaging. Physical native/browser journeys pass
 including filtering a stable selection, one Apply transaction, undo/redo,
 persisted layout/records after restart/reload and visible storage failures.
@@ -77,6 +77,8 @@ authoring probe added Reset filters with four passing UI tests using public
 source/documentation. [Evidence and decisions](record-desk-evidence.md) own the
 details. Full local `cargo xtask verify` passes, including preserved existing
 applications, production startup, UI snapshots and both consumer journeys.
-The product state is complete; the owning PR retains the exact reviewed head,
-required CI, squash revision and cleanup evidence under the reviewed delivery
-procedure. Public GitHub-hosted CI is retained.
+AccessKit parity regressions also cover full records, clipped targets and
+open/closed options at the runtime viewport sizes. The product state is complete;
+the owning PR retains the exact reviewed head, required CI, squash revision and
+cleanup evidence under the reviewed delivery procedure. Public GitHub-hosted CI
+is retained.

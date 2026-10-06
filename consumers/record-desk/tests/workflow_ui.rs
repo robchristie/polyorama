@@ -2,6 +2,7 @@
 
 use egui::{Key, Modifiers, Vec2};
 use egui_kittest::{Harness, kittest::Queryable};
+use polyorama_ui_egui::audit_accesskit;
 use record_desk::{app::RecordDeskApp, model::*, store::Store};
 
 fn app_harness(
@@ -17,7 +18,7 @@ fn app_harness(
         ))
         .unwrap();
     let mut harness = Harness::builder()
-        .with_size(Vec2::new(width, 1000.0))
+        .with_size(Vec2::new(width, if width < 640.0 { 844.0 } else { 760.0 }))
         .build_ui_state(
             move |ui, state: &mut Option<RecordDeskApp>| {
                 if state.is_none() {
@@ -37,6 +38,34 @@ fn records() -> Vec<Record> {
     Desk::default().records()[..2].to_vec()
 }
 
+fn assert_accesskit(h: &Harness<'_, Option<RecordDeskApp>>) {
+    let snapshot = h.state().as_ref().unwrap().snapshot();
+    // The harness consumes egui's updates. Audit its resulting AccessKit tree,
+    // retaining actual node data rather than deriving it from our observations.
+    fn collect(
+        node: egui_kittest::kittest::AccessKitNode<'_>,
+        update: &mut egui::accesskit::TreeUpdate,
+    ) {
+        if node.is_focused() {
+            update.focus = node.locate().0;
+        }
+        update.nodes.push((node.locate().0, node.data().clone()));
+        for child in node.children() {
+            collect(child, update);
+        }
+    }
+    let root = h.kittest_state().root();
+    let mut update = egui::accesskit::TreeUpdate {
+        nodes: Vec::new(),
+        tree: Some(egui::accesskit::Tree::new(root.locate().0)),
+        tree_id: egui::accesskit::TreeId::ROOT,
+        focus: root.locate().0,
+    };
+    collect(root, &mut update);
+    let findings = audit_accesskit(&snapshot.ui, &update);
+    assert!(findings.is_empty(), "{findings:?}");
+}
+
 fn replace(h: &mut Harness<'_, Option<RecordDeskApp>>, text: &str) {
     h.get_by_label("Record title").click();
     h.run();
@@ -51,6 +80,7 @@ fn replace(h: &mut Harness<'_, Option<RecordDeskApp>>, text: &str) {
 #[test]
 fn editor_routes_invalid_cancel_apply_and_history_through_the_ui() {
     let (mut h, _dir) = app_harness(1080.0, records());
+    assert_accesskit(&h);
     let original = h.state().as_ref().unwrap().snapshot().records;
     replace(&mut h, "");
     h.key_press_modifiers(Modifiers::COMMAND, Key::Enter);
@@ -59,6 +89,7 @@ fn editor_routes_invalid_cancel_apply_and_history_through_the_ui() {
     assert!(invalid.error);
     assert_eq!(invalid.records, original);
     assert_eq!(invalid.undo_entries, 0);
+    assert_accesskit(&h);
     h.key_press_modifiers(Modifiers::COMMAND | Modifiers::SHIFT, Key::Enter);
     h.run();
     assert!(!h.state().as_ref().unwrap().snapshot().draft_dirty);
@@ -79,22 +110,58 @@ fn editor_routes_invalid_cancel_apply_and_history_through_the_ui() {
     assert_eq!(applied.undo_entries, 1);
     assert_eq!(applied.records[0].title, "A committed edit");
     assert_ne!(applied.records[0].reviewed, original[0].reviewed);
+    assert_accesskit(&h);
     h.key_press_modifiers(Modifiers::COMMAND, Key::Z);
     h.run();
     assert_eq!(h.state().as_ref().unwrap().snapshot().records, original);
+    assert_accesskit(&h);
     h.key_press_modifiers(Modifiers::COMMAND | Modifiers::SHIFT, Key::Z);
     h.run();
     assert_eq!(
         h.state().as_ref().unwrap().snapshot().records,
         applied.records
     );
+    assert_accesskit(&h);
+}
+
+#[test]
+fn open_filter_options_match_accesskit_and_disappear_when_closed() {
+    for width in [1080.0, 390.0] {
+        let (mut h, _dir) = app_harness(width, Desk::default().records().to_vec());
+        h.get_by_label("Category filter").click();
+        h.run();
+        assert_accesskit(&h);
+        let snapshot = h.state().as_ref().unwrap().snapshot();
+        assert_eq!(
+            snapshot
+                .ui
+                .nodes
+                .iter()
+                .filter(|node| node.role == polyorama_ui_egui::UiRole::RadioButton)
+                .count(),
+            4
+        );
+        h.get_by_label("Ideas").click();
+        h.run();
+        assert_accesskit(&h);
+        let snapshot = h.state().as_ref().unwrap().snapshot();
+        assert_eq!(snapshot.filters.category, Some(Category::Ideas));
+        assert!(
+            snapshot
+                .ui
+                .nodes
+                .iter()
+                .all(|node| node.role != polyorama_ui_egui::UiRole::RadioButton)
+        );
+    }
 }
 
 #[test]
 fn ordinary_narrow_and_empty_observations_have_stable_identity_and_honest_text_coverage() {
     let mut identities = Vec::new();
     for width in [1080.0, 390.0] {
-        let (h, _dir) = app_harness(width, records());
+        let (h, _dir) = app_harness(width, Desk::default().records().to_vec());
+        assert_accesskit(&h);
         let s = h.state().as_ref().unwrap().snapshot();
         assert!(s.ui.semantic_audit.is_empty(), "{:?}", s.ui.semantic_audit);
         assert!(s.ui.text_audit.is_empty(), "{:?}", s.ui.text_audit);
@@ -131,6 +198,7 @@ fn ordinary_narrow_and_empty_observations_have_stable_identity_and_honest_text_c
     }
     assert_eq!(identities[0], identities[1]);
     let (h, _dir) = app_harness(390.0, vec![]);
+    assert_accesskit(&h);
     let s = h.state().as_ref().unwrap().snapshot();
     assert!(s.visible_ids.is_empty());
     assert!(s.selected.is_none());
