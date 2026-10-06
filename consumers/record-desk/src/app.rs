@@ -238,7 +238,6 @@ impl RecordDeskApp {
     }
 
     pub fn present(&mut self, root: &mut Ui) {
-        self.drain_inspection(root.ctx());
         let tokens = self.preferences.tokens(root.style().visuals.dark_mode);
         // Adapt the authoritative tree itself; never create a second docking model.
         self.narrow_layout = root.available_width() < 640.0;
@@ -251,6 +250,7 @@ impl RecordDeskApp {
         {
             *axis = SplitAxis::Vertical;
         }
+        self.drain_inspection(root.ctx());
         let mut output = PaneOutput::default();
         let mut nodes = vec![UiNode::container(
             SemanticUiId::root(),

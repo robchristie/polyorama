@@ -194,3 +194,89 @@ impl RecordDeskApp {
         }
     }
 }
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn queued_arrange_rechecks_the_current_narrow_window_policy() {
+        let directory = tempfile::tempdir().unwrap();
+        let context = egui::Context::default();
+        let mut app = RecordDeskApp::with_store(
+            &context,
+            Store::at_path(directory.path().join("records.json")),
+        );
+        let service = Inspection::new("narrow-policy-test");
+        service.install_completion_hook(&context);
+        app.inspection = Some(service.clone());
+        let present = |app: &mut RecordDeskApp, width| {
+            let mut output = context.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(width, 844.0),
+                    )),
+                    ..Default::default()
+                },
+                |ui| app.present(ui),
+            );
+            output.textures_delta.clear();
+        };
+        present(&mut app, 1080.0);
+        let selector = InspectionSelector {
+            capability: Some(Action::Arrange.stable_id().into()),
+            ..Default::default()
+        };
+        let reply = service.handle(InspectionRequest {
+            version: 1,
+            request_id: "discover".into(),
+            instance: Some(service.instance()),
+            operation: InspectionOperation::Discover {
+                selector: selector.clone(),
+                limit: 1,
+                cursor: None,
+            },
+        });
+        let Some(InspectionResult::Discover { capabilities, .. }) = reply.result else {
+            panic!("discovery");
+        };
+        let message = app.message.clone();
+        service.handle(InspectionRequest {
+            version: 1,
+            request_id: "arrange".into(),
+            instance: Some(service.instance()),
+            operation: InspectionOperation::Invoke {
+                selector,
+                expected: capabilities[0].target.clone(),
+                arguments: serde_json::Value::Null,
+            },
+        });
+        present(&mut app, 390.0);
+        let reply = service.handle(InspectionRequest {
+            version: 1,
+            request_id: "receipt".into(),
+            instance: Some(service.instance()),
+            operation: InspectionOperation::Receipt {
+                request_id: "arrange".into(),
+            },
+        });
+        let Some(InspectionResult::Receipt { receipt }) = reply.result else {
+            panic!("receipt");
+        };
+        assert_eq!(receipt.state, ReceiptState::Rejected);
+        assert!(matches!(
+            receipt.error.unwrap().code,
+            InspectionErrorCode::StaleTarget | InspectionErrorCode::Unavailable
+        ));
+        assert_eq!(app.message, message);
+        assert_eq!(app.desk.undo_len(), 0);
+        assert!(matches!(
+            app.workspace.root,
+            DockNode::Split {
+                axis: SplitAxis::Vertical,
+                ..
+            }
+        ));
+    }
+}
