@@ -125,6 +125,20 @@ test('transport timeout after a valid wait observation retains that observation'
   });
 });
 
+test('metadata write failure preserves observations and a captured image report', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'application-capture-'));
+  try {
+    const { client } = await bound();
+    const physical = { geometry: async () => ({ width: 400, height: 300, device_scale: 1 }), capture: async () => {} };
+    const report = await client.capture(physical, { path: join(directory, 'image.png'), metadataPath: directory });
+    assert.equal(report.status, 'partial');
+    assert.equal(report.capture.status, 'captured');
+    assert.equal(report.before.observation.id, 1);
+    assert.equal(report.after.observation.id, 1);
+    assert.equal(report.diagnostics[0].stage, 'metadata');
+  } finally { await rm(directory, { recursive: true }); }
+});
+
 test('name/status and changed selection waits need no application parser', async () => {
   let selected = 'one';
   const scheduler = fakeClock();

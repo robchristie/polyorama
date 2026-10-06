@@ -487,8 +487,13 @@ export class ApplicationClient {
       after_observation: evidence.after.observation?.id ?? null,
       claim: 'host capture bracketed by completed observations; GPU/OS frame identity is unavailable' };
     if (metadataPath) {
-      await mkdir(dirname(resolve(metadataPath)), { recursive: true });
-      await writeFile(resolve(metadataPath), `${JSON.stringify(evidence, null, 2)}\n`);
+      try {
+        await mkdir(dirname(resolve(metadataPath)), { recursive: true });
+        await writeFile(resolve(metadataPath), `${JSON.stringify(evidence, null, 2)}\n`);
+      } catch (error) {
+        evidence.diagnostics.push({ stage: 'metadata', code: error.code ?? 'metadata_failed', message: error.message });
+        evidence.status = 'partial';
+      }
     }
     return evidence;
   }
