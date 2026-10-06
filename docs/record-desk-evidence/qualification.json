@@ -77,15 +77,19 @@
     "crates/polyorama-ui-egui/src/virtual_grid.rs": "ab96095edaceb5ad89bfe5dcc14d7f8f77d4d104e1fd35535570bbf83da022b2",
     "rust-toolchain.toml": "04ab0c8ee214f246c7c53bdfba7ba80a93dad65da5b8455edf17c5ec226d5b20",
     "tools/bootstrap-linux-ui.sh": "0f08cf11e228f808c69593553104f348ae9a5fd1786ef5b652efcf261414b550",
+    "tools/browser-idle.mjs": "7b3fda8dcb5914fa29d8ca0a6b0222d6cff566439747b64c7a737a7dadbb8e90",
     "tools/browser-launch.mjs": "c691afb4f48460d3003042c50182eed522c3d876a632d76ccb7e72c6f04dcd71",
+    "tools/browser-smoke.mjs": "93dd47f992e32889e45c50f0f26899c522eb441df287f5cf5ff63e39f85ff984",
     "tools/check-record-desk.py": "5dc8649b03c4df312ee6d470a4a3f7773c3d38d868cb92cf1624030630095d7e",
+    "tools/minimal-native-smoke.sh": "0a5f22775590b6ffddbb439e7c419e23d7dc0447392bca8350b2f85265728e9f",
     "tools/native-smoke-lifecycle.sh": "5ce44a2c94a4004f457581546357c0632cb065b00ca3091b622d47404b3c51c8",
     "tools/owned-process.py": "7367df4b8ae559327a1cf2ff8c08284a3f3d9476d436f96ba5654a7cfa306c67",
     "tools/record-desk-browser-smoke.mjs": "9c560fae1358725ae29faf48ebac8e70f1f0701ffda92603efb8808bbff67bf7",
     "tools/record-desk-browser-smoke.sh": "e1f671463d7c255a2da163d0e4c4e3d19822e8a1d2934a5f83e1f927e852d9a2",
     "tools/record-desk-native-smoke.py": "1a83325b979f1d286afe0e2bf3303c6676d991d76c7751c03b28a0c26c9d956f",
     "tools/record-desk-native-smoke.sh": "98c7ba6ef3ba73cabc0b6e50f07048bd054b1017051644482f6dcc7d296142b3",
-    "xtask/src/main.rs": "d2d95f00f1ce36663de5ae8a674f494ba1bbefa06f68306f52341beaf37172f1"
+    "tools/tests/browser-idle.test.mjs": "594394b21d6c6bb7f5ad174cffebc27a09ad53304a96d1ea88d3d0b2eee5e0d7",
+    "xtask/src/main.rs": "6746e34fb22d5ef33c4db55fc2f3c8fd09b23048a3af8967c2e249ebded1912e"
   },
   "native": {
     "artifact_sha256": "e5e79e4b5b593567030fc104bb277d3bb7685aaf0940b0a437a441d52faddc36",

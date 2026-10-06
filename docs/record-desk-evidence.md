@@ -81,6 +81,21 @@ workflow JSON, runtime logs and PNGs. Exact committed-candidate journeys and CI
 are attributable through the owning PR and its landing record. Full CI retains
 the `record-desk-evidence` artefact for 14 days on success and failure.
 
+Final CI qualification exposed a legacy Lab idle-check timing failure: one
+additional frame after a fixed 250 ms delay was labelled continuous repaint.
+A bounded headed-browser diagnostic probe observed 1.8 seconds of stable frames,
+no new repaint requests and empty work queues. The Lab smoke now first requires
+700 ms of observed quiescence within a 3.5-second settling budget, then retains
+the separate unchanged 700 ms idle window. Six observer regressions reject
+continuous/periodic painting, painting during that final window and invalid
+observations, while accepting one deferred interaction frame. Failure bundles
+also retain application diagnostics. This repairs qualification timing without
+changing the application repaint policy.
+The local qualification also exposed the minimal example's in-place snapshot
+write race: the reader could see an empty file after its initial valid check.
+Its native smoke now retains one parsed observation for geometry/evidence and
+resolves the current action before each click; application behaviour is unchanged.
+
 The browser host reserves only registered application chords while its canvas
 or text input owns focus: browser Find/Location/Reload defaults otherwise steal
 focus before egui consumes them. The Linux consumer smoke supplies bundled

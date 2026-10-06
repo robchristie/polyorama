@@ -77,7 +77,9 @@ authoring probe added Reset filters with four passing UI tests using public
 source/documentation. [Evidence and decisions](record-desk-evidence.md) own the
 details. Full local `cargo xtask verify` passes, including preserved existing
 applications, production startup, UI snapshots and both consumer journeys.
-AccessKit parity regressions also cover full records, clipped targets and
+Qualification harnesses retain bounded idle observations and parsed native
+snapshots, with regression coverage. AccessKit parity tests also cover clipped
+targets, full records and
 open/closed options at the runtime viewport sizes. The product state is complete;
 the owning PR retains the exact reviewed head, required CI, squash revision and
 cleanup evidence under the reviewed delivery procedure. Public GitHub-hosted CI

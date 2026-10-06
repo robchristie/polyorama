@@ -124,6 +124,7 @@ fn verify() -> Result<()> {
             "tools/tests/viewer-merged-qualification-preload.test.mjs",
             "apps/emuella-viewer/web/tests/worker.test.mjs",
             "tools/tests/browser-startup.test.mjs",
+            "tools/tests/browser-idle.test.mjs",
             "tools/tests/browser-package.test.mjs",
         ],
         &evidence_environment,
