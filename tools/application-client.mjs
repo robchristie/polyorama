@@ -318,7 +318,7 @@ export class ApplicationClient {
     const deadline = this.scheduler.now() + timeout(timeoutMs);
     interval(intervalMs);
     const selected = selector(condition.selector ?? {});
-    const kinds = ['present', 'absent', 'enabled', 'focused', 'selected', 'selection_changed', 'name', 'status', 'fact', 'audits_clear'];
+    const kinds = ['present', 'absent', 'enabled', 'focused', 'selected', 'checked', 'selection_changed', 'name', 'status', 'fact', 'audits_clear'];
     if (!kinds.includes(condition.condition)) throw failure('invalid_request', 'Unsupported observation wait condition');
     let baseline = condition.previous;
     let last;
@@ -340,6 +340,10 @@ export class ApplicationClient {
         if (condition.condition === 'enabled') done = node?.enabled === true;
         if (condition.condition === 'focused') done = node?.focused === true;
         if (condition.condition === 'selected') done = node?.selected === true;
+        if (condition.condition === 'checked') {
+          if (typeof condition.value !== 'boolean') throw failure('invalid_request', 'A checked wait requires a boolean value');
+          done = node?.checked === condition.value;
+        }
         if (condition.condition === 'name' || condition.condition === 'status') done = node?.name === condition.value;
         if (condition.condition === 'fact') {
           if (typeof condition.key !== 'string' || !condition.key) throw failure('invalid_request', 'A fact wait requires a named published fact');

@@ -748,7 +748,16 @@ impl Inspection {
             match serde_json::from_str::<InspectionRequest>(json) {
                 Ok(request) => self.handle(request),
                 Err(error) => self.error_reply(
-                    String::new(),
+                    serde_json::from_str::<serde_json::Value>(json)
+                        .ok()
+                        .and_then(|value| {
+                            value
+                                .get("request_id")
+                                .and_then(|id| id.as_str())
+                                .filter(|id| !id.is_empty() && id.len() <= 128)
+                                .map(str::to_owned)
+                        })
+                        .unwrap_or_default(),
                     InspectionError::new(
                         InspectionErrorCode::InvalidRequest,
                         format!("invalid request envelope: {error}"),

@@ -69,7 +69,8 @@ viewport: the client rejects mismatched root dimensions or scale.
 ## Read, discover and invoke
 
 Each request has `version`, a unique `request_id`, the bound host `instance` and
-an `operation`. `hello` returns application/build identity and limits and binds
+an `operation`. `hello` returns application/build identity, supported operation
+names and limits and binds
 the client. Other calls require the same instance. The CLI performs `hello`
 before its selected command; a JavaScript caller performs it once explicitly.
 
@@ -148,7 +149,9 @@ up in the new instance.
 
 `ApplicationClient.wait` polls completed observations with a monotonic deadline
 and optional `AbortSignal`. Conditions include `present`, `absent`, `enabled`,
-`focused`, `selected`, `name`, `status`, `selection_changed` and `fact`. Name and
+`focused`, `selected`, `checked`, `name`, `status`, `selection_changed`, `fact`
+and `audits_clear`. Checked compares a boolean `value`; audits-clear waits for
+empty semantic/text findings with retained coverage. Name and
 status conditions compare exact text with `value`; status restricts the role to
 `status`. Selection change compares selected stable IDs, against `previous` or
 the first observation. Fact conditions compare a named application-published
@@ -227,7 +230,9 @@ JavaScript callers may supply `inputRoute` to record the preceding exercise,
 for example `physical_pointer_keyboard` or `semantic`. If a screenshot fails,
 the after-observation is still attempted and the partial semantic evidence is
 retained. If a bracket observation fails, a successful image remains available
-with that diagnostic. The CLI returns status 2 for partial evidence. Host
+with that diagnostic. A metadata-write failure also returns partial evidence,
+retaining the observations and capture report in the returned object. The CLI
+returns status 2 for partial evidence. Host
 capture cannot identify the exact GPU/OS frame for a completed UI submission;
 the report states that limit and never claims an atomic screenshot/snapshot.
 `BuildIdentity.source_revision` is optional: build with

@@ -33,9 +33,14 @@ async function until(operation, predicate, milliseconds = 15000) {
 async function journey(app, host, client, physical, build) {
   const report = { app, host, revision, dirty, build, steps: [], inputs: [], receipts: [], failures: [], instance: null };
   reports.push(report);
-  await client.hello();
+  report.hello = await client.hello();
   report.instance = client.instance;
   report.application = client.application;
+  for (const [operation, version, code] of [[{ op: 'hello' }, 999, 'unsupported_version'], [{ op: 'evaluate' }, 1, 'unsupported_operation']]) {
+    const reply = JSON.parse(await client.transport.request(JSON.stringify({ version, request_id: `negotiation-${code}`, instance: client.instance, operation })));
+    assert.equal(reply.error.code, code);
+    report.failures.push({ name: code, reply });
+  }
   const observe = async name => {
     const observation = await client.observe();
     assert.deepEqual(observation.snapshot.semantic_audit, [], `${name}: semantic audit`);
@@ -70,6 +75,8 @@ async function journey(app, host, client, physical, build) {
   };
   await client.wait({ condition: 'present', selector: { role: 'application' } });
   await client.wait({ condition: 'audits_clear' });
+  assert.equal((await client.query({ id: 'deliberately-absent' })).total, 0);
+  await assert.rejects(client.query({ pane: -1 }), error => error.code === 'invalid_request');
   await observe('initial');
   if (app === 'record-desk') {
     // Representative slice before richer workflows: typed discovery, current
@@ -88,6 +95,7 @@ async function journey(app, host, client, physical, build) {
     const after = await observe('slice-arranged');
     assert.equal((await invoke(arrange, { requestId, expected })).state, 'completed');
     assert.deepEqual((await client.observe()).facts, after.facts);
+    await assert.rejects(client.invoke({ ...arrange, id: expected.id }, { requestId, expected }), error => error.code === 'request_id_conflict');
     await failure('stale arrangement', arrange, 'stale_target', { expected });
     assert.equal((await invoke(arrange)).state, 'completed');
     await client.wait(fact('layout_axis', before.facts.layout_axis));
@@ -99,8 +107,9 @@ async function journey(app, host, client, physical, build) {
     await edit('record-desk.title.1013', '');
     await failure('invalid draft', selector('record-desk.apply'), 'validation_failed');
     await edit('record-desk.title.1013', 'Shared interface edit');
+    const reviewedBefore = (await client.query(selector('record-desk.toggle-reviewed'))).nodes[0].node.checked;
     await click(selector('record-desk.toggle-reviewed'));
-    await client.wait(fact('draft_dirty', true));
+    await client.wait({ condition: 'checked', selector: selector('record-desk.toggle-reviewed'), value: !reviewedBefore });
     const applyExpected = (await client.discover(selector('record-desk.apply'))).capabilities[0].target;
     await edit('record-desk.title.1013', 'Shared interface edited again');
     await failure('stale draft', selector('record-desk.apply'), 'stale_target', { expected: applyExpected });
@@ -110,14 +119,17 @@ async function journey(app, host, client, physical, build) {
     assert.equal((await invoke(selector('record-desk.apply'), { requestId: applyId, expected: currentExpected })).state, 'completed');
     await client.wait(fact('undo_entries', 1));
     await client.wait(fact('draft_dirty', false));
+    await client.wait({ condition: 'checked', selector: selector('record-desk.toggle-reviewed'), value: !reviewedBefore });
     await observe('semantic-apply');
     assert.equal((await invoke(selector('record-desk.apply'), { requestId: applyId, expected: currentExpected })).state, 'completed');
     assert.equal((await client.observe()).facts.undo_entries, 1);
     assert.equal((await client.discover(selector('record-desk.undo'))).capabilities[0].availability.state, 'enabled');
     assert.equal((await invoke(selector('record-desk.undo'))).state, 'completed');
     await client.wait(fact('redo_entries', 1));
+    await client.wait({ condition: 'checked', selector: selector('record-desk.toggle-reviewed'), value: reviewedBefore });
     assert.equal((await invoke(selector('record-desk.redo'))).state, 'completed');
     await client.wait(fact('undo_entries', 1));
+    await client.wait({ condition: 'checked', selector: selector('record-desk.toggle-reviewed'), value: !reviewedBefore });
     await observe('semantic-redo');
     // Corresponding physical edit/Apply/undo/redo remains real host input.
     await edit('record-desk.title.1013', 'Physical shared interface edit');
@@ -154,6 +166,7 @@ async function journey(app, host, client, physical, build) {
     assert.equal((await invoke(link, { expected, requestId })).state, 'completed');
     assert.equal((await client.observe()).facts['camera.1.linked'], !linked);
     await failure('stale camera assumptions', link, 'stale_target', { expected });
+    await failure('ambiguous Fit pane', { capability: 'fit_view' }, 'ambiguous', { expected: (await client.discover(fit)).capabilities[0].target });
     if (!sliceOnly) {
     await failure('invalid Fit arguments', fit, 'invalid_arguments', { arguments: { camera: 'forbidden' } });
     // Fit reaches the shared validated camera-intent route and changes scale.

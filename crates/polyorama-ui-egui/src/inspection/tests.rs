@@ -34,6 +34,13 @@ fn negotiated_operations_identity_and_unsupported_operation_are_explicit() {
         reply.error.unwrap().code,
         InspectionErrorCode::UnsupportedOperation
     );
+    let invalid_selector = inspection.handle_json(r#"{"version":1,"request_id":"invalid-selector","operation":{"op":"query","selector":{"pane":-1}}}"#);
+    let reply: InspectionReply = serde_json::from_str(&invalid_selector).unwrap();
+    assert_eq!(reply.request_id, "invalid-selector");
+    assert_eq!(
+        reply.error.unwrap().code,
+        InspectionErrorCode::InvalidRequest
+    );
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]

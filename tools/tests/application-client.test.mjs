@@ -111,6 +111,12 @@ test('waits use completed idle observations without a new frame', async () => {
   assert.ok(requests.every(request => ['hello', 'observe'].includes(request.operation.op)));
 });
 
+test('checked waits observe toggle state and reject non-boolean expectations', async () => {
+  const { client } = await bound(() => ({ kind: 'observe', observation: observation([node({ checked: true })]) }));
+  assert.equal((await client.wait({ condition: 'checked', selector: { id: 'apply' }, value: true })).node.checked, true);
+  await assert.rejects(client.wait({ condition: 'checked', selector: { id: 'apply' }, value: 'true' }), { code: 'invalid_request' });
+});
+
 test('transport timeout after a valid wait observation retains that observation', async () => {
   let reads = 0;
   const { client } = await bound(() => {
