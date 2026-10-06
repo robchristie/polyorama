@@ -1,7 +1,7 @@
 # Typed icons and shared action presentations
 
-Status: active
-Next action: Run canonical verification, reconcile closeout and land the independently reviewed candidate.
+Status: complete
+Delivery: [Polyorama PR #50](https://github.com/robchristie/polyorama/pull/50)
 
 ## Outcome and boundaries
 
@@ -59,9 +59,24 @@ artwork is included in the vocabulary. Gallery calls production APIs. Frozen
 UI evaluation tasks remain unchanged; review any deliberate overflow baseline
 change separately before accepting it.
 
-## Delivery state
+## Closeout
 
-Implementation, focused native/WASM checks and inspected visual qualification
-are complete. Canonical verification, review and landing remain pending. Detailed evidence
-belongs with the icon component, Gallery fixtures and evidence report rather
-than this plan.
+The public vocabulary, vector painter, all three shared action presentations,
+Gallery compositions and dock overflow adoption are complete. Existing action
+and token struct literals remain compatible. The shared active/focus outlines
+and Primary hover treatment resolve the reference palette's state ambiguity.
+
+Focused regression coverage includes 108 UI tests and 11 Gallery tests, with
+native/WASM builds, the compiled consumer example, inspected native/browser
+images and physical action journeys. `cargo xtask verify` passed on source
+revision `4e6c6f2593cf10f14e561710f78e335d8238ecba`, including eight zero-tolerance
+snapshot fixtures and the production browser/native smokes. The original five
+fixtures retain their pixels, semantics and measured observations; only their
+honest catalogue coverage count changes. See the
+[qualification record](typed-icons-evidence/README.md).
+
+The plan records the verified product state. Independent review, required CI,
+eventual squash identity and cleanup are retained on the owning PR. Private
+HTTPS gateway access and the existing browser accessibility-adapter limitation
+remain explicit; application browser and native acceptance were exercised.
+Bokkie integration and the excluded downstream packages remain separate work.
