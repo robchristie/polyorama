@@ -423,6 +423,22 @@ test('browser startup readiness belongs to the shared hello transport', async ()
   assert.deepEqual(calls, ['ready', 'request']);
 });
 
+test('native pointer placement supports an unchanged position and dispatches one click', async () => {
+  const calls = [];
+  const physical = new NativePhysicalAdapter(17, { execute: async (_program, args) => {
+    calls.push(args);
+    return { stdout: args[0] === 'getmouselocation' ? 'X=73\nY=23\nSCREEN=0\nWINDOW=17\n' : '' };
+  } });
+  await physical.click({ x: 73.1, y: 23.2 });
+  assert.deepEqual(calls.find(args => args[0] === 'mousemove'), ['mousemove', '73', '23']);
+  assert.equal(calls.filter(args => args[0] === 'click').length, 1);
+  const misplaced = new NativePhysicalAdapter(17, { execute: async (_program, args) => {
+    assert.notEqual(args[0], 'click');
+    return { stdout: 'X=0\nY=0\n' };
+  } });
+  await assert.rejects(misplaced.click({ x: 73, y: 23 }), { code: 'invalid_geometry' });
+});
+
 test('socket transport handles fragmented replies and connection loss with no retry', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'polyorama-socket-'));
   const path = join(directory, 'application.sock');

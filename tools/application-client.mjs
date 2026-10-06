@@ -606,7 +606,14 @@ export class NativePhysicalAdapter {
   point(target, geometry) { return validateGeometry(target, geometry); }
   async click(point, options) {
     await this.run(this.xdotool, ['windowfocus', '--sync', this.windowId], options);
-    await this.run(this.xdotool, ['mousemove', '--sync', String(Math.round(point.x)), String(Math.round(point.y)), 'click', '1'], options);
+    const x = Math.round(point.x), y = Math.round(point.y);
+    // Older xdotool --sync waits for a movement event even when the pointer is
+    // already at its destination. Verify placement directly before one click.
+    await this.run(this.xdotool, ['mousemove', String(x), String(y)], options);
+    const { stdout } = await this.run(this.xdotool, ['getmouselocation', '--shell'], options);
+    const position = Object.fromEntries(stdout.trim().split('\n').map(line => line.split('=')));
+    if (Number(position.X) !== x || Number(position.Y) !== y) throw failure('invalid_geometry', 'Native pointer did not reach the resolved target');
+    await this.run(this.xdotool, ['click', '1'], options);
   }
   async key(key, options) {
     await this.run(this.xdotool, ['windowfocus', '--sync', this.windowId], options);
