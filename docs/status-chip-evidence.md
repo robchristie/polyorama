@@ -82,11 +82,12 @@ outside expected/ and accepted explicitly. Frozen evaluation tasks, fixture
 definitions, assertions and scoring remain unchanged. Verification never updates
 baselines.
 
-Canonical qualification is `cargo xtask verify`, including generated tokens,
+Canonical qualification passed with `cargo xtask verify` at
+`dd10a1253f86778dd0c3b2f3adedb0a3f914be96`, including generated tokens,
 format/lint/tests, native/WASM release builds, architecture and documentation,
 14 zero-tolerance fixtures, existing application paths and both new physical
 status-chip journeys. Its result and exact independent review/CI/merge identities
-are retained in the owning PR's delivery record.
+are retained in [PR #53](https://github.com/robchristie/polyorama/pull/53).
 
 ## Platform and preview limits
 

@@ -1,7 +1,7 @@
 # Compact status chip
 
-Status: active
-Next action: Complete canonical verification, independent review and authorised landing of the selected candidate.
+Status: complete
+Delivery: https://github.com/robchristie/polyorama/pull/53
 
 ## Outcome and boundaries
 
@@ -56,4 +56,16 @@ fixtures/assertions stay unchanged. Baseline acceptance is separate.
 | --- | --- | --- |
 | Production recipe and scoped API | Complete | Nine focused regressions and compiled consumer mapping |
 | Gallery, documentation and physical evidence | Complete | [UI evidence](status-chip-evidence.md), physical journeys and three inspected baselines |
-| Final qualification and landing | Pending | cargo xtask verify, independent exact-head review, required CI |
+| Candidate qualification | Complete | cargo xtask verify at dd10a1253f86778dd0c3b2f3adedb0a3f914be96; review, CI and merge retained in the PR |
+
+## Closeout
+
+The production chip, automatic scoped observations, compiled consumer mapping,
+three Gallery stories, documentation and inspected baselines are complete.
+Nine UI regressions plus Gallery palette/clipping/parity coverage and physical
+native/browser journeys passed. Full canonical verification passed on the
+committed implementation. Final review/CI/merge qualification remains with the
+owning PR; this completed product state does not assert that it has merged.
+Bokkie integration and interactive chips remain separate work. Private HTTPS
+browser verification remains denied by the gateway; the local harness qualifies
+the application, without extending platform screen-reader support.
