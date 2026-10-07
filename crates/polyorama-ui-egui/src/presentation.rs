@@ -318,7 +318,7 @@ impl PresentationContext {
 
     /// Present a destination row with automatic semantic and measured-text ownership.
     /// Supply a stable destination key; handle clicked() through your own intent route.
-    /// Hidden rows return a zero-size hover response without observations.
+    /// Hidden rows return an empty hover response without observations.
     ///
     /// ```
     /// use polyorama_ui_egui::{ActionKey, ActionScope, ActionSpec, ActionTarget,

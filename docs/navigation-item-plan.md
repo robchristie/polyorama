@@ -1,7 +1,7 @@
 # Navigation-item recipe
 
-Status: active
-Next action: Complete canonical verification, independent review and authorised landing.
+Status: complete
+Delivery: [Polyorama PR #52](https://github.com/robchristie/polyorama/pull/52)
 
 ## Outcome and ownership
 
@@ -49,4 +49,15 @@ Frozen evaluation seeds stay unchanged. Baselines are reviewed separately.
 | --- | --- | --- |
 | Production recipe and scoped API | Complete | Navigation regressions and executable consumer example |
 | Gallery, consumer documentation and physical evidence | Complete | [UI evidence](navigation-item-evidence.md), physical journeys and 3 inspected baselines |
-| Candidate qualification and landing | Pending | cargo xtask verify, independent review and GitHub CI |
+| Candidate qualification | Complete | cargo xtask verify and [qualification evidence](navigation-item-evidence.md); review, CI and merge recorded in the PR |
+
+## Closeout
+
+The production navigation recipe, scoped publication, compiled consumer example,
+application-owned Gallery destinations/count action and regression coverage are
+complete. Ten navigation regressions, the Gallery appearance matrix, rendered
+critique, eleven snapshot fixtures and physical native/browser workflows passed.
+The final code candidate passed `cargo xtask verify`; the owning PR retains exact
+review/CI/merge and cleanup identities. The private preview was stopped with its
+generation guard after the retained gateway HTTP 403 observation. Bokkie,
+collapsed-sidebar mode and broader status/chip recipes remain separate work.

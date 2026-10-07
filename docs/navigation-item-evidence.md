@@ -37,6 +37,8 @@ regression proves unchanged current semantics.
 
 ## Inspected rendered evidence
 
+- [Native states and count update](navigation-item-evidence/native-states.png)
+  with [native observations](navigation-item-evidence/native-observations.json).
 - [Ordinary dark sidebar](ui-snapshots/expected/navigation-sidebar-dark/visual.png).
 - [Light compact disabled/zero states](ui-snapshots/expected/navigation-states-light-compact/visual.png).
 - [Light high-contrast narrow/150%](ui-snapshots/expected/navigation-long-high-contrast/visual.png).
@@ -63,6 +65,10 @@ semantics, and identical measured observations. Only
 Three new fixtures were captured outside `expected/`, inspected, then explicitly
 accepted as reviewed source. Frozen seed stories, assertions, scoring and
 existing fixture definitions are unchanged. Verification never updates baselines.
+
+`cargo xtask verify` passed at `837306806763d839534440ae6fb7d995095f8e6d` in the configured bundled Linux
+UI environment, including all 11 zero-tolerance fixtures and physical native and
+browser journeys. Verification on the final PR head is retained by GitHub CI.
 
 Focused navigation regressions, Gallery's representative appearance matrix and
 the executable consumer rustdoc cover the production recipe. Canonical
