@@ -18,7 +18,7 @@ CRATES = (
     "polyorama-ui-egui",
 )
 EXPECTED_EXAMPLES = {crate: 1 for crate in CRATES}
-EXPECTED_EXAMPLES["polyorama-ui-egui"] = 2  # Crate composition and typed icon toolbar.
+EXPECTED_EXAMPLES["polyorama-ui-egui"] = 3  # Crate composition, icon toolbar and navigation consumer.
 SOURCE_CONSUMERS = (
     "crates/polyorama-core/src/lib.rs",
     "crates/polyorama-core/src/data.rs",

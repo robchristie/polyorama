@@ -1,0 +1,2097 @@
+{
+  "source_revision": "db89e80044fef7546b70cdb08c4f9fa3c088cca3",
+  "dirty": true,
+  "wasm_sha256": "b165aae29e3266bc926ed8ee4df6e27546fc00e8d2357a6f8fc8225761bb8a51",
+  "browser": "151.0.7922.34",
+  "input_route": "Physical Playwright mouse/keyboard; hooks only choose stories/appearance and read observations",
+  "idle": {
+    "frame_before": 265,
+    "frame_after": 265,
+    "settle_initial_frame": 256,
+    "settle_final_frame": 265,
+    "settle_observed_ms": 900,
+    "idle_observed_ms": 700,
+    "deliberate_continuous_repaint": false
+  },
+  "errors": [],
+  "steps": [
+    {
+      "name": "sidebar",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 12 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-sidebar.png",
+        "sha256": "d54d80a4bdd2430a2ae01f572057155ad934ad355cdb21ee47f94b7947989c2d"
+      }
+    },
+    {
+      "name": "focus",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 12 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-focus.png",
+        "sha256": "d77e4bbbf32b1b843ef6a7371c9ea4faf7824b6d329932a95612549c02a54d12"
+      }
+    },
+    {
+      "name": "enter",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "tasks",
+        "task_count": 11,
+        "attention_count": 3,
+        "activations": 1,
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; Current destination; 11 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-enter.png",
+        "sha256": "6fe430235e45f932dc9430f0c67fda1bd77fa1c9e8a4e5563794fe4abcfdd977"
+      }
+    },
+    {
+      "name": "space",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "tasks",
+        "task_count": 10,
+        "attention_count": 3,
+        "activations": 2,
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-space.png",
+        "sha256": "3cfd1f1faf5e887b408d4bb9fdbfbc22ad00a041eda709257d55b1a76c1164b7"
+      }
+    },
+    {
+      "name": "selected-hover",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "tasks",
+        "task_count": 10,
+        "attention_count": 3,
+        "activations": 2,
+        "hovered": "tasks",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-selected-hover.png",
+        "sha256": "48d708e598be1941b1b0a86e69accac4ffd357f065273402fddbceb20c9dc696"
+      }
+    },
+    {
+      "name": "selected-pressed",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "tasks",
+        "task_count": 10,
+        "attention_count": 3,
+        "activations": 2,
+        "hovered": "tasks",
+        "pointer_down": "tasks",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-selected-pressed.png",
+        "sha256": "4c1e3da1e3bdba470c5893673e9c6dea805397eab8e9bcd7ad64889f9f22f028"
+      }
+    },
+    {
+      "name": "destination-change",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "needs_attention",
+        "task_count": 9,
+        "attention_count": 3,
+        "activations": 4,
+        "hovered": "needs_attention",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 10,
+        "attempted_components": 10,
+        "successful_components": 10,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 9 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; Current destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": true,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-destination-change.png",
+        "sha256": "6ddad63e73d22a3d28a179df6b5942d57da5b7832b0433793a345cd7758ed545"
+      }
+    },
+    {
+      "name": "disabled-zero",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "settings",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 12 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-disabled-zero.png",
+        "sha256": "0f63fc0c9b1c834de96b799cab5d83fb1f9a60b72dbd4158dbc4efb61770731a"
+      }
+    },
+    {
+      "name": "light-compact",
+      "configuration": {
+        "appearance": "light",
+        "contrast": "standard",
+        "density": "compact",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "home",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 7,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 530,
+            "min_y": 105,
+            "max_x": 720,
+            "max_y": 137
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 530,
+            "min_y": 140,
+            "max_x": 720,
+            "max_y": 172
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 530,
+            "min_y": 175,
+            "max_x": 720,
+            "max_y": 207
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 530,
+            "min_y": 210,
+            "max_x": 720,
+            "max_y": 230
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-light-compact.png",
+        "sha256": "eb9deb9c3411cab55990069d0660c3ef2c563cd20482b0c73e684d0a7efa8c13"
+      }
+    },
+    {
+      "name": "light-compact-scrolled",
+      "configuration": {
+        "appearance": "light",
+        "contrast": "standard",
+        "density": "compact",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "needs_attention",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 8,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 530,
+            "min_y": 105,
+            "max_x": 720,
+            "max_y": 125
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 530,
+            "min_y": 128,
+            "max_x": 720,
+            "max_y": 160
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 530,
+            "min_y": 163,
+            "max_x": 720,
+            "max_y": 195
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination; Administrator permissions required",
+          "rect": {
+            "min_x": 530,
+            "min_y": 198,
+            "max_x": 720,
+            "max_y": 230
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-light-compact-scrolled.png",
+        "sha256": "8e7a60222d1872f5427a55352a1e430d1cc1cc1edff27d9fdf9c61008c7d61a5"
+      }
+    },
+    {
+      "name": "dark-high-contrast",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "high",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "home",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 7,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 724,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 724,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 724,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 724,
+            "max_y": 246
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-dark-high-contrast.png",
+        "sha256": "c1d2f9c047322ed12b3000bbf502d357c85f1ff80c173633ca7960e3ff711db1"
+      }
+    },
+    {
+      "name": "dark-high-contrast-scrolled",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "high",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "needs_attention",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 8,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 724,
+            "max_y": 135
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 140,
+            "max_x": 724,
+            "max_y": 172
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 534,
+            "min_y": 177,
+            "max_x": 724,
+            "max_y": 209
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination; Administrator permissions required",
+          "rect": {
+            "min_x": 534,
+            "min_y": 214,
+            "max_x": 724,
+            "max_y": 246
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-dark-high-contrast-scrolled.png",
+        "sha256": "a933a793def5c933d798163fb31c05e75adeb5bb37bc264e289cfa1b60c6e4b5"
+      }
+    },
+    {
+      "name": "light-high-contrast-150",
+      "configuration": {
+        "appearance": "light",
+        "contrast": "high",
+        "density": "comfortable",
+        "font_scale": 1.5,
+        "width": "narrow"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 9,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 694,
+            "min_y": 189,
+            "max_x": 979,
+            "max_y": 231
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 694,
+            "min_y": 236,
+            "max_x": 979,
+            "max_y": 278
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 694,
+            "min_y": 283,
+            "max_x": 979,
+            "max_y": 325
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination; Administrator permissions required",
+          "rect": {
+            "min_x": 694,
+            "min_y": 330,
+            "max_x": 979,
+            "max_y": 371.5
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-light-high-contrast-150.png",
+        "sha256": "19c9c91b71c170e76794d7d55857242357179556b8f974b59365fc30a2419e23"
+      }
+    },
+    {
+      "name": "light-high-contrast-150-scrolled",
+      "configuration": {
+        "appearance": "light",
+        "contrast": "high",
+        "density": "comfortable",
+        "font_scale": 1.5,
+        "width": "narrow"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "tasks",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ]
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 9,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks awaiting review by the entire regional operations team",
+          "description": "Open this destination; 12500 outstanding tasks",
+          "rect": {
+            "min_x": 694,
+            "min_y": 189,
+            "max_x": 979,
+            "max_y": 231
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 694,
+            "min_y": 236,
+            "max_x": 979,
+            "max_y": 278
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 694,
+            "min_y": 283,
+            "max_x": 979,
+            "max_y": 325
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination; Administrator permissions required",
+          "rect": {
+            "min_x": 694,
+            "min_y": 330,
+            "max_x": 979,
+            "max_y": 371.5
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-light-high-contrast-150-scrolled.png",
+        "sha256": "7c6bb78cda7f41b399c6e6cbdc21615c8d726476b6bba9997dccec89157b435e"
+      }
+    }
+  ],
+  "retained_images": {
+    "browser-focus.png": "d77e4bbbf32b1b843ef6a7371c9ea4faf7824b6d329932a95612549c02a54d12",
+    "browser-selected-hover.png": "48d708e598be1941b1b0a86e69accac4ffd357f065273402fddbceb20c9dc696",
+    "browser-selected-pressed.png": "4c1e3da1e3bdba470c5893673e9c6dea805397eab8e9bcd7ad64889f9f22f028",
+    "browser-light-high-contrast-150-scrolled.png": "7c6bb78cda7f41b399c6e6cbdc21615c8d726476b6bba9997dccec89157b435e",
+    "browser-dark-high-contrast.png": "c1d2f9c047322ed12b3000bbf502d357c85f1ff80c173633ca7960e3ff711db1"
+  }
+}

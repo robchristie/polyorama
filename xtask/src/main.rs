@@ -147,6 +147,11 @@ fn verify() -> Result<()> {
         &["tools/icon-actions-browser-smoke.sh"],
         &icon_evidence_environment,
     )?;
+    run_with_environment(
+        "bash",
+        &["tools/navigation-browser-smoke.sh"],
+        &evidence_environment,
+    )?;
     browser::build(Vec::new())?;
     run(
         "node",
@@ -193,6 +198,11 @@ fn verify() -> Result<()> {
             "bash",
             &["tools/icon-actions-native-smoke.sh"],
             &icon_evidence_environment,
+        )?;
+        run_with_environment(
+            "bash",
+            &["tools/navigation-native-smoke.sh"],
+            &evidence_environment,
         )?;
         run_with_environment(
             "bash",
