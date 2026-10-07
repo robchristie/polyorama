@@ -1,7 +1,7 @@
 # Compact status chip
 
 Status: complete
-Delivery: https://github.com/robchristie/polyorama/pull/53
+Delivery: [PR #53](https://github.com/robchristie/polyorama/pull/53)
 
 ## Outcome and boundaries
 
