@@ -131,7 +131,7 @@ def main() -> None:
         check_doctest_result(output, expected[crate])
     for target in ([], ["--target", "wasm32-unknown-unknown"]):
         run(["cargo", "check", *target, "-p", "analytical-workspace-lab", "--example", "minimal-workspace"])
-    print("API documentation checks passed: rendered generation, five executed examples, native/WASM consumer compilation and selected local links")
+    print("API documentation checks passed: rendered generation, six executed examples, native/WASM consumer compilation and selected local links")
 
 
 if __name__ == "__main__":
