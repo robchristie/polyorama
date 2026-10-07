@@ -118,7 +118,7 @@ def main() -> None:
     args = parser.parse_args()
     expected = coverage(ROOT)
     count = local_links(ROOT)
-    print(f"Selected coverage: five runnable rustdoc examples, native/WASM consumer, presenter variation; {count} local links")
+    print(f"Selected coverage: {sum(expected.values())} runnable rustdoc examples, native/WASM consumer, presenter variation; {count} local links")
     if args.links_only:
         return
     packages = [argument for crate in CRATES for argument in ("-p", crate)]

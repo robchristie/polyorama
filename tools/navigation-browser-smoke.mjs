@@ -128,6 +128,12 @@ try {
   await click('settings');
   await record('disabled-zero', { selected: 'home', activations: 0 });
   assert((await target('activity')).node.description.includes('0 new events'));
+  const unselected = await target('tasks');
+  await page.mouse.move(unselected.point.x, unselected.point.y);
+  await record('unselected-hover', { selected: 'home', hovered: 'tasks', activations: 0 });
+  await page.mouse.down();
+  await record('unselected-pressed', { selected: 'home', hovered: 'tasks', pointer_down: 'tasks', activations: 0 });
+  await page.mouse.up(); await fixture({ selected: 'tasks', activations: 1, task_count: 11 });
   for (const [name, config] of [
     ['light-compact', configuration({ appearance: 'light', density: 'compact' })],
     ['dark-high-contrast', configuration({ contrast: 'high' })],

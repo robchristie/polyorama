@@ -205,9 +205,17 @@ pub fn navigation_item<A: ActionKey>(
         });
     }
     let radius = tokens.geometry.control_radius.0;
-    if spec.selected {
+    let pointer_down = enabled && response.is_pointer_button_down_on();
+    if spec.selected || pointer_down {
+        // The validated selection pair keeps press feedback visible even when
+        // a theme aliases quiet-hover fill and the selection indicator.
         ui.painter()
             .rect_filled(rect, radius, tokens.colours.selection_background);
+    } else if enabled && response.hovered() {
+        ui.painter()
+            .rect_filled(rect, radius, tokens.colours.action_quiet_hover);
+    }
+    if spec.selected {
         let marker_width = tokens.spacing.unit.0 * 0.5;
         let marker = Rect::from_min_max(
             rect.min + egui::vec2(tokens.spacing.unit.0, tokens.spacing.block.0),
@@ -218,9 +226,6 @@ pub fn navigation_item<A: ActionKey>(
         );
         ui.painter()
             .rect_filled(marker, radius, tokens.colours.selection_indicator);
-    } else if enabled && response.hovered() {
-        ui.painter()
-            .rect_filled(rect, radius, tokens.colours.action_quiet_hover);
     }
     if enabled && spec.selected && response.hovered() {
         ui.painter().rect_stroke(
@@ -230,7 +235,7 @@ pub fn navigation_item<A: ActionKey>(
             egui::StrokeKind::Inside,
         );
     }
-    if enabled && response.is_pointer_button_down_on() {
+    if pointer_down {
         let inset = tokens.spacing.unit.0 * 0.5;
         ui.painter().rect_stroke(
             rect.shrink(inset),

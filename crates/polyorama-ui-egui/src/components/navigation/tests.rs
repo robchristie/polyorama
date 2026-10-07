@@ -662,3 +662,144 @@ fn failed_measurements_remain_observable_when_fully_clipped() {
     });
     output.textures_delta.clear();
 }
+
+#[test]
+fn valid_theme_with_aliased_hover_indicator_retains_unselected_press_feedback() {
+    use crate::{ApplicationTheme, Rgba8, TypographyProfile};
+    let black = Rgba8 {
+        red: 0,
+        green: 0,
+        blue: 0,
+        alpha: 255,
+    };
+    let white = Rgba8 {
+        red: 255,
+        green: 255,
+        blue: 255,
+        alpha: 255,
+    };
+    let grey = Rgba8 {
+        red: 102,
+        green: 102,
+        blue: 102,
+        alpha: 255,
+    };
+    let mut colours = ApplicationTheme::analytical().colours();
+    for colour in [
+        &mut colours.light,
+        &mut colours.dark,
+        &mut colours.light_high_contrast,
+        &mut colours.dark_high_contrast,
+    ] {
+        colour.surface_canvas = black;
+        colour.surface_panel = black;
+        colour.surface_raised = black;
+        colour.surface_hover = black;
+        colour.selection_background = black;
+        colour.action_quiet_hover = black;
+        colour.text_primary = white;
+        colour.text_muted = white;
+        colour.action_primary_background = white;
+        colour.action_primary_foreground = black;
+        colour.focus_ring = white;
+        colour.selection_indicator = white;
+    }
+    colours.light.action_quiet_hover = grey;
+    colours.light.selection_indicator = grey;
+    let theme = ApplicationTheme::new(colours)
+        .expect("aliased standard palette passes full theme validation");
+    let tokens = theme.resolve(
+        ThemeVariant::Light,
+        DensityVariant::Comfortable,
+        TypographyProfile::Dense,
+    );
+    let context = egui::Context::default();
+    context.enable_accesskit();
+    crate::install_typography_fonts(&context);
+    let identity = crate::PresentationScope::new("alias").instance("tasks");
+    let mut rect = Rect::NOTHING;
+    let mut output = context.run_ui(Default::default(), |ui| {
+        ui.set_width(240.0);
+        let response = navigation_item(
+            ui,
+            &spec("Tasks", false, None),
+            identity,
+            &tokens,
+            1.0,
+            &mut Vec::new(),
+        );
+        rect = response.rect;
+        response.request_focus();
+    });
+    output.textures_delta.clear();
+    for pressed in [false, true] {
+        let mut events = vec![egui::Event::PointerMoved(rect.center())];
+        if pressed {
+            events.push(egui::Event::PointerButton {
+                pos: rect.center(),
+                button: egui::PointerButton::Primary,
+                pressed: true,
+                modifiers: egui::Modifiers::NONE,
+            });
+        }
+        let mut nodes = Vec::new();
+        let mut output = context.run_ui(
+            egui::RawInput {
+                events,
+                ..Default::default()
+            },
+            |ui| {
+                ui.set_width(240.0);
+                let s = spec("Tasks", false, None);
+                let response = navigation_item(ui, &s, identity, &tokens, 1.0, &mut Vec::new());
+                assert!(response.has_focus());
+                nodes.push(navigation_item_semantic_node(
+                    &response,
+                    &s,
+                    identity,
+                    SemanticUiId::root(),
+                ));
+            },
+        );
+        output.textures_delta.clear();
+        let rectangles: Vec<_> = output
+            .shapes
+            .iter()
+            .filter_map(|shape| {
+                if let egui::Shape::Rect(rect) = &shape.shape {
+                    Some(rect)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(rectangles.iter().any(|shape| shape.rect == rect
+            && shape.fill == egui::Color32::from(if pressed { black } else { grey })));
+        assert!(
+            !rectangles
+                .iter()
+                .any(|shape| shape.rect.width() == tokens.spacing.unit.0 * 0.5),
+            "no current marker on pressed alternative"
+        );
+        assert_eq!(
+            rectangles.iter().any(
+                |shape| shape.rect == rect.shrink(tokens.spacing.unit.0 * 0.5)
+                    && shape.stroke.color == egui::Color32::from(grey)
+            ),
+            pressed
+        );
+        assert!(rectangles.iter().any(|shape| shape.rect == rect && shape.stroke.color == egui::Color32::from(white)), "independent focus");
+        assert!(!nodes[0].selected);
+        let update = output.platform_output.accesskit_update.take().unwrap();
+        assert!(
+            audit_accesskit(
+                &UiSnapshot {
+                    nodes,
+                    ..Default::default()
+                },
+                &update
+            )
+            .is_empty()
+        );
+    }
+}
