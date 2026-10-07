@@ -54,6 +54,25 @@
       ]
     },
     {
+      "id": "presentation.7de0a4140e890d90",
+      "parent": "gallery.story",
+      "role": "button",
+      "name": "Complete a demo task",
+      "description": "Reduce the fixture's outstanding task count",
+      "rect": {
+        "min_x": 775,
+        "min_y": 149.5,
+        "max_x": 929.25,
+        "max_y": 181.5
+      },
+      "enabled": true,
+      "focused": false,
+      "selected": false,
+      "actions": [
+        "gallery.navigation.complete_task"
+      ]
+    },
+    {
       "id": "presentation.98737c608d6ccd2f",
       "parent": "gallery.story",
       "role": "navigation_item",

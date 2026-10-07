@@ -276,7 +276,7 @@ badge. Parents must provide that width, scroll horizontally or relocate the
 sidebar. A smaller parent receives a minimum allocation that overflows; neither
 label nor badge is implicitly removed. The full row retains a token hit height,
 increasing for density and enlarged fonts. Selected rows keep a leading marker
-and fill, hover adds a control outline, press adds an inset state outline, and
+and fill, hover adds a control outline, press uses the validated selection colour pair and adds an inset state outline, and
 keyboard focus adds the outer focus ring. Current state remains recognisable
 when reference hover and selection fills coincide, including a disabled current
 row. All colours resolve from the supplied theme tokens.

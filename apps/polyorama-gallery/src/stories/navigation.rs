@@ -1,8 +1,9 @@
 use eframe::egui;
 use polyorama_ui_egui::{
-    ActionKey, ActionScope, ActionSpec, ActionTarget, Availability, ContentTextSpec, DesignTokens,
-    IconId, NavigationBadge, NavigationItemSpec, PresentationContext, PresentationScope,
-    SemanticUiId, TextInteraction, TextLayoutObservation, TextOverflow, TextRole, UiNode,
+    ActionButtonSpec, ActionButtonState, ActionEmphasis, ActionKey, ActionScope, ActionSpec,
+    ActionTarget, Availability, ContentTextSpec, DesignTokens, IconId, NavigationBadge,
+    NavigationItemSpec, PresentationContext, PresentationScope, SemanticUiId, TextInteraction,
+    TextLayoutObservation, TextOverflow, TextRole, UiNode,
 };
 use serde::Serialize;
 
@@ -68,6 +69,27 @@ impl ActionKey for Destination {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+enum FixtureAction {
+    CompleteTask,
+}
+
+impl ActionKey for FixtureAction {
+    fn stable_id(self) -> &'static str {
+        "gallery.navigation.complete_task"
+    }
+    fn specification(self) -> ActionSpec<Self> {
+        ActionSpec {
+            id: self,
+            label: "Complete a demo task",
+            description: "Reduce the fixture's outstanding task count",
+            compact_label: None,
+            shortcut: None,
+            scope: ActionScope::Application,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct NavigationTarget {
     pub destination: Destination,
@@ -84,6 +106,7 @@ pub struct NavigationFixtureState {
     pub hovered: Option<Destination>,
     pub pointer_down: Option<Destination>,
     pub targets: Vec<NavigationTarget>,
+    pub count_target: Option<SemanticUiId>,
 }
 impl Default for NavigationFixtureState {
     fn default() -> Self {
@@ -95,6 +118,7 @@ impl Default for NavigationFixtureState {
             hovered: None,
             pointer_down: None,
             targets: Vec::new(),
+            count_target: None,
         }
     }
 }
@@ -111,6 +135,7 @@ pub(super) fn story(
     state.hovered = None;
     state.pointer_down = None;
     state.targets.clear();
+    state.count_target = None;
     let scope = PresentationScope::new("gallery.navigation");
     let mut presentation = PresentationContext::new(
         ui,
@@ -121,6 +146,7 @@ pub(super) fn story(
     );
     let rendered_selection = state.selected;
     let mut navigation_intent = None;
+    let mut complete_task = false;
     let adversarial = story == StoryId::NavigationLongNarrow;
     let unavailable = story != StoryId::NavigationSidebar;
     ui.horizontal_top(|ui| {
@@ -212,6 +238,26 @@ pub(super) fn story(
                         interaction: TextInteraction::Inert,
                     },
                 );
+                let response = presentation.action_with_icon(
+                    ui,
+                    "complete-demo-task",
+                    ActionButtonSpec {
+                        target: ActionTarget::application(FixtureAction::CompleteTask),
+                        availability: if state.task_count == 0 {
+                            Availability::Disabled {
+                                reason: "No outstanding demo tasks".into(),
+                            }
+                        } else {
+                            Availability::Enabled
+                        },
+                        state: ActionButtonState::Momentary,
+                        emphasis: ActionEmphasis::QuietBorderless,
+                        compact: false,
+                    },
+                    IconId::Check,
+                );
+                state.count_target = Some(scope.instance("complete-demo-task").semantic_id());
+                complete_task = response.clicked();
             });
         }
     });
@@ -249,9 +295,10 @@ pub(super) fn story(
         // Application intent handling after coherent presentation of this pass.
         state.selected = destination;
         state.activations += 1;
-        if destination == Destination::Tasks {
-            state.task_count = state.task_count.saturating_sub(1);
-        }
+        ui.ctx().request_repaint();
+    }
+    if complete_task {
+        state.task_count = state.task_count.saturating_sub(1);
         ui.ctx().request_repaint();
     }
 }

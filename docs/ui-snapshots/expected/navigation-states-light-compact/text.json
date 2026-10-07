@@ -3,6 +3,38 @@
   "observations": [
     {
       "component_id": {
+        "kind": "action_button",
+        "instance": 180406050164112
+      },
+      "role": "button_label",
+      "horizontal_alignment": "start",
+      "vertical_alignment": "centre",
+      "allocated_rect": {
+        "min_x": 803,
+        "min_y": 153.5,
+        "max_x": 922.25,
+        "max_y": 177.5
+      },
+      "painted_rect": {
+        "min_x": 803,
+        "min_y": 157,
+        "max_x": 922,
+        "max_y": 174
+      },
+      "clip_rect": {
+        "min_x": 803,
+        "min_y": 153.5,
+        "max_x": 922.25,
+        "max_y": 177.5
+      },
+      "overflow": "ellipsis",
+      "interaction": "inert",
+      "declared_max_lines": 1,
+      "line_count": 1,
+      "truncated": false
+    },
+    {
+      "component_id": {
         "kind": "content_label",
         "instance": 2688299364614181
       },
@@ -388,9 +420,9 @@
   ],
   "audit": [],
   "coverage": {
-    "measured_components": 11,
-    "attempted_components": 11,
-    "successful_components": 11,
+    "measured_components": 12,
+    "attempted_components": 12,
+    "successful_components": 12,
     "failed_components": 0,
     "native_text_controls": 33,
     "observed_native_controls": 0,

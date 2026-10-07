@@ -52,7 +52,7 @@ async function fixture(expected) {
 }
 async function target(destination) {
   const s = await snapshot();
-  const id = s.navigation_fixture.targets.find(t => t.destination === destination).id;
+  const id = destination === 'complete_task' ? s.navigation_fixture.count_target : s.navigation_fixture.targets.find(t => t.destination === destination).id;
   const node = s.ui_snapshot.nodes.find(node => node.id === id);
   assert(node, `visible destination ${destination}`);
   const root = s.ui_snapshot.nodes.find(node => node.id === s.ui_snapshot.root).rect;
@@ -109,17 +109,20 @@ try {
   assert((await target('tasks')).node.focused);
   assert(focusState.ui_snapshot.nodes.find(n => n.name === 'Home' && n.role === 'navigation_item').selected);
   await page.keyboard.press('Enter');
-  await record('enter', { selected: 'tasks', activations: 1, task_count: 11 });
+  await record('enter', { selected: 'tasks', activations: 1, task_count: 12 });
   await page.keyboard.press('Space');
-  await record('space', { selected: 'tasks', activations: 2, task_count: 10 });
+  await record('space', { selected: 'tasks', activations: 2, task_count: 12 });
   const tasks = await target('tasks');
   await page.mouse.move(tasks.point.x, tasks.point.y);
   await record('selected-hover', { selected: 'tasks', hovered: 'tasks', pointer_down: null });
   await page.mouse.down();
   await record('selected-pressed', { selected: 'tasks', hovered: 'tasks', pointer_down: 'tasks' });
-  await page.mouse.up(); await fixture({ activations: 3, task_count: 9 });
+  await page.mouse.up(); await fixture({ activations: 3, task_count: 12 });
   assert.equal((await target('tasks')).node.id, tasks.node.id, 'count changes preserve row identity');
   assert((await target('tasks')).node.focused, 'count changes preserve focus');
+  await click('complete_task');
+  await record('count-update', { selected: 'tasks', activations: 3, task_count: 11 });
+  assert.equal((await target('tasks')).node.id, tasks.node.id, 'independent count update preserves row identity');
   await click('needs_attention');
   await record('destination-change', { selected: 'needs_attention', activations: 4 });
   assert((await snapshot()).text.some(t => t.component_id.kind === 'section_heading'), 'destination content heading');
@@ -133,7 +136,7 @@ try {
   await record('unselected-hover', { selected: 'home', hovered: 'tasks', activations: 0 });
   await page.mouse.down();
   await record('unselected-pressed', { selected: 'home', hovered: 'tasks', pointer_down: 'tasks', activations: 0 });
-  await page.mouse.up(); await fixture({ selected: 'tasks', activations: 1, task_count: 11 });
+  await page.mouse.up(); await fixture({ selected: 'tasks', activations: 1, task_count: 12 });
   for (const [name, config] of [
     ['light-compact', configuration({ appearance: 'light', density: 'compact' })],
     ['dark-high-contrast', configuration({ contrast: 'high' })],

@@ -11,6 +11,8 @@ counts and one strong current-destination cue.
 Behavioural checks: focused tests and actual native/browser input passed for
 pointer, Tab, Enter/Space, AccessKit Click, disabled rows, focus without selection,
 consumer selection/count updates, identity, current parity, clipping and idle.
+Navigation changes only selection; a separate application-owned completion
+action updates the outstanding task count.
 The Gallery applies pending navigation intents after coherent presentation of
 one pass, then repaints the changed state.
 
@@ -20,14 +22,18 @@ covers its fully visible allocation subset. Production measurements retain
 partially clipped galleys separately from their effective clips; shared inventory
 counts all attempted labels/badges and retains every failed observation.
 
-Design decision: accepted after one refinement. Initial ordinary review found
+Design decision: accepted after the marker refinement and a contrast invariant
+repair. Initial ordinary review found
 clear hierarchy, consistent starts and balanced count badges. Held press plus
 keyboard focus crowded the leading current marker. Moving the marker inward
 separates it from the inset press outline while retaining the existing icon slot.
 Re-critique found current, hover, press and focus distinguishable; narrow 150%
 text keeps readable rows, explicit elision and bounded badges. Scrolling can put
 the current destination outside the visible subset, as ordinary application
-scrolling requires. No collapsed mode is supplied.
+scrolling requires. No collapsed mode is supplied. A validated application theme can alias hover
+fill and the selection indicator; unselected press now uses the validated
+selection pair, with an inset outline and no current marker. Its focused
+regression proves unchanged current semantics.
 
 ## Inspected rendered evidence
 
@@ -37,6 +43,9 @@ scrolling requires. No collapsed mode is supplied.
 - [Keyboard focus before activation](navigation-item-evidence/browser-focus.png),
   [current hover](navigation-item-evidence/browser-selected-hover.png) and
   [current, held press and focus](navigation-item-evidence/browser-selected-pressed.png).
+- [Unselected hover](navigation-item-evidence/browser-unselected-hover.png),
+  [unselected held press](navigation-item-evidence/browser-unselected-pressed.png)
+  and [independent count update](navigation-item-evidence/browser-count-update.png).
 - [Dark high contrast](navigation-item-evidence/browser-dark-high-contrast.png)
   and [narrow 150% scrolled badge elision](navigation-item-evidence/browser-light-high-contrast-150-scrolled.png).
 

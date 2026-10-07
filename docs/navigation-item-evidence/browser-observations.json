@@ -1,14 +1,14 @@
 {
-  "source_revision": "db89e80044fef7546b70cdb08c4f9fa3c088cca3",
+  "source_revision": "64a641c19d07c82d7d5a64c0f25ab65c041d2995",
   "dirty": true,
-  "wasm_sha256": "b165aae29e3266bc926ed8ee4df6e27546fc00e8d2357a6f8fc8225761bb8a51",
+  "wasm_sha256": "1a521d4084d26c1eb29810fff126613be8a38e762cdabe588902e4a3059e1894",
   "browser": "151.0.7922.34",
   "input_route": "Physical Playwright mouse/keyboard; hooks only choose stories/appearance and read observations",
   "idle": {
-    "frame_before": 265,
-    "frame_after": 265,
-    "settle_initial_frame": 256,
-    "settle_final_frame": 265,
+    "frame_before": 277,
+    "frame_after": 277,
+    "settle_initial_frame": 267,
+    "settle_final_frame": 277,
     "settle_observed_ms": 900,
     "idle_observed_ms": 700,
     "deliberate_continuous_repaint": false
@@ -50,13 +50,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -167,7 +168,7 @@
       ],
       "image": {
         "path": "browser-sidebar.png",
-        "sha256": "d54d80a4bdd2430a2ae01f572057155ad934ad355cdb21ee47f94b7947989c2d"
+        "sha256": "5683210a8c746c856f8fe50c9088effb22c420b9ad382230465cb5079e7c2b08"
       }
     },
     {
@@ -205,13 +206,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -322,7 +324,7 @@
       ],
       "image": {
         "path": "browser-focus.png",
-        "sha256": "d77e4bbbf32b1b843ef6a7371c9ea4faf7824b6d329932a95612549c02a54d12"
+        "sha256": "9c61c517f28b123637f81d6f039151f1d75db218a248d69d180c86a8571e41e1"
       }
     },
     {
@@ -336,7 +338,7 @@
       },
       "fixture": {
         "selected": "tasks",
-        "task_count": 11,
+        "task_count": 12,
         "attention_count": 3,
         "activations": 1,
         "targets": [
@@ -360,13 +362,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -403,7 +406,7 @@
           "parent": "gallery.story",
           "role": "navigation_item",
           "name": "Tasks",
-          "description": "Open this destination; Current destination; 11 outstanding tasks",
+          "description": "Open this destination; Current destination; 12 outstanding tasks",
           "rect": {
             "min_x": 534,
             "min_y": 158,
@@ -477,7 +480,7 @@
       ],
       "image": {
         "path": "browser-enter.png",
-        "sha256": "6fe430235e45f932dc9430f0c67fda1bd77fa1c9e8a4e5563794fe4abcfdd977"
+        "sha256": "d7a1ea08570c515cc45e872062b13cd6e2b48a5843c6614274de337be93bbef2"
       }
     },
     {
@@ -491,7 +494,7 @@
       },
       "fixture": {
         "selected": "tasks",
-        "task_count": 10,
+        "task_count": 12,
         "attention_count": 3,
         "activations": 2,
         "targets": [
@@ -515,13 +518,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -558,7 +562,7 @@
           "parent": "gallery.story",
           "role": "navigation_item",
           "name": "Tasks",
-          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "description": "Open this destination; Current destination; 12 outstanding tasks",
           "rect": {
             "min_x": 534,
             "min_y": 158,
@@ -632,7 +636,7 @@
       ],
       "image": {
         "path": "browser-space.png",
-        "sha256": "3cfd1f1faf5e887b408d4bb9fdbfbc22ad00a041eda709257d55b1a76c1164b7"
+        "sha256": "d7a1ea08570c515cc45e872062b13cd6e2b48a5843c6614274de337be93bbef2"
       }
     },
     {
@@ -646,7 +650,7 @@
       },
       "fixture": {
         "selected": "tasks",
-        "task_count": 10,
+        "task_count": 12,
         "attention_count": 3,
         "activations": 2,
         "hovered": "tasks",
@@ -671,13 +675,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -714,7 +719,7 @@
           "parent": "gallery.story",
           "role": "navigation_item",
           "name": "Tasks",
-          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "description": "Open this destination; Current destination; 12 outstanding tasks",
           "rect": {
             "min_x": 534,
             "min_y": 158,
@@ -788,7 +793,7 @@
       ],
       "image": {
         "path": "browser-selected-hover.png",
-        "sha256": "48d708e598be1941b1b0a86e69accac4ffd357f065273402fddbceb20c9dc696"
+        "sha256": "975f84da491bc4c1ed2cf214cd5e618928af592c568386d84025eebdb616a106"
       }
     },
     {
@@ -802,7 +807,7 @@
       },
       "fixture": {
         "selected": "tasks",
-        "task_count": 10,
+        "task_count": 12,
         "attention_count": 3,
         "activations": 2,
         "hovered": "tasks",
@@ -828,13 +833,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -871,7 +877,7 @@
           "parent": "gallery.story",
           "role": "navigation_item",
           "name": "Tasks",
-          "description": "Open this destination; Current destination; 10 outstanding tasks",
+          "description": "Open this destination; Current destination; 12 outstanding tasks",
           "rect": {
             "min_x": 534,
             "min_y": 158,
@@ -945,11 +951,11 @@
       ],
       "image": {
         "path": "browser-selected-pressed.png",
-        "sha256": "4c1e3da1e3bdba470c5893673e9c6dea805397eab8e9bcd7ad64889f9f22f028"
+        "sha256": "ebfe47ad697bc03a0092e165e9019886dd30820d324fc02142b4f6bd9f980740"
       }
     },
     {
-      "name": "destination-change",
+      "name": "count-update",
       "configuration": {
         "appearance": "dark",
         "contrast": "standard",
@@ -958,11 +964,10 @@
         "width": "regular"
       },
       "fixture": {
-        "selected": "needs_attention",
-        "task_count": 9,
+        "selected": "tasks",
+        "task_count": 11,
         "attention_count": 3,
-        "activations": 4,
-        "hovered": "needs_attention",
+        "activations": 3,
         "targets": [
           {
             "destination": "home",
@@ -984,13 +989,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 10,
-        "attempted_components": 10,
-        "successful_components": 10,
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -1027,7 +1033,164 @@
           "parent": "gallery.story",
           "role": "navigation_item",
           "name": "Tasks",
-          "description": "Open this destination; 9 outstanding tasks",
+          "description": "Open this destination; Current destination; 11 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ]
+        }
+      ],
+      "image": {
+        "path": "browser-count-update.png",
+        "sha256": "90824ab6e8be3f0ab615765bedc2acbeeb1739244a7567e6ef963e1ab10adc8d"
+      }
+    },
+    {
+      "name": "destination-change",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "needs_attention",
+        "task_count": 11,
+        "attention_count": 3,
+        "activations": 4,
+        "hovered": "needs_attention",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 11,
+        "attempted_components": 11,
+        "successful_components": 11,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 11 outstanding tasks",
           "rect": {
             "min_x": 534,
             "min_y": 158,
@@ -1101,7 +1264,7 @@
       ],
       "image": {
         "path": "browser-destination-change.png",
-        "sha256": "6ddad63e73d22a3d28a179df6b5942d57da5b7832b0433793a345cd7758ed545"
+        "sha256": "6a4f9f4647862bbc2fe11428b60d97fe5550c06359627e770339b612c97b6c42"
       }
     },
     {
@@ -1140,13 +1303,14 @@
             "destination": "settings",
             "id": "presentation.98737c608d6ccd2f"
           }
-        ]
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
       },
       "text_audit": [],
       "text_audit_coverage": {
-        "measured_components": 11,
-        "attempted_components": 11,
-        "successful_components": 11,
+        "measured_components": 12,
+        "attempted_components": 12,
+        "successful_components": 12,
         "failed_components": 0,
         "native_text_controls": 33,
         "observed_native_controls": 0,
@@ -1258,7 +1422,324 @@
       ],
       "image": {
         "path": "browser-disabled-zero.png",
-        "sha256": "0f63fc0c9b1c834de96b799cab5d83fb1f9a60b72dbd4158dbc4efb61770731a"
+        "sha256": "4cc05322e9ff210b0ef4a54370ec19b57d1caeed152cc112abf16a496601339c"
+      }
+    },
+    {
+      "name": "unselected-hover",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "tasks",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 12,
+        "attempted_components": 12,
+        "successful_components": 12,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 12 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-unselected-hover.png",
+        "sha256": "07751568b9a9cc18078881ba7903d22de3927f3dc7f1af9583ef33874c0cf677"
+      }
+    },
+    {
+      "name": "unselected-pressed",
+      "configuration": {
+        "appearance": "dark",
+        "contrast": "standard",
+        "density": "comfortable",
+        "font_scale": 1,
+        "width": "regular"
+      },
+      "fixture": {
+        "selected": "home",
+        "task_count": 12,
+        "attention_count": 3,
+        "activations": 0,
+        "hovered": "tasks",
+        "pointer_down": "tasks",
+        "targets": [
+          {
+            "destination": "home",
+            "id": "presentation.1a625849c07e38af"
+          },
+          {
+            "destination": "tasks",
+            "id": "presentation.9d82c6d319a0f2fa"
+          },
+          {
+            "destination": "needs_attention",
+            "id": "presentation.b8b35c79d90be215"
+          },
+          {
+            "destination": "activity",
+            "id": "presentation.d2912afd3436ed31"
+          },
+          {
+            "destination": "settings",
+            "id": "presentation.98737c608d6ccd2f"
+          }
+        ],
+        "count_target": "presentation.7de0a4140e890d90"
+      },
+      "text_audit": [],
+      "text_audit_coverage": {
+        "measured_components": 12,
+        "attempted_components": 12,
+        "successful_components": 12,
+        "failed_components": 0,
+        "native_text_controls": 33,
+        "observed_native_controls": 0,
+        "excluded_categories": [
+          "ordinary_egui_labels",
+          "native_combo_box_text",
+          "native_button_text",
+          "native_selectable_text"
+        ]
+      },
+      "semantic_audit": [],
+      "navigation_nodes": [
+        {
+          "id": "presentation.1a625849c07e38af",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Home",
+          "description": "Open this destination; Current destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 121,
+            "max_x": 774,
+            "max_y": 153
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": true,
+          "actions": [
+            "gallery.navigation.home"
+          ]
+        },
+        {
+          "id": "presentation.9d82c6d319a0f2fa",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Tasks",
+          "description": "Open this destination; 12 outstanding tasks",
+          "rect": {
+            "min_x": 534,
+            "min_y": 158,
+            "max_x": 774,
+            "max_y": 190
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.tasks"
+          ]
+        },
+        {
+          "id": "presentation.b8b35c79d90be215",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Needs attention",
+          "description": "Open this destination; 3 items needing attention",
+          "rect": {
+            "min_x": 534,
+            "min_y": 195,
+            "max_x": 774,
+            "max_y": 227
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.needs_attention"
+          ]
+        },
+        {
+          "id": "presentation.d2912afd3436ed31",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Activity",
+          "description": "Open this destination; 0 new events",
+          "rect": {
+            "min_x": 534,
+            "min_y": 232,
+            "max_x": 774,
+            "max_y": 264
+          },
+          "enabled": true,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.activity"
+          ]
+        },
+        {
+          "id": "presentation.98737c608d6ccd2f",
+          "parent": "gallery.story",
+          "role": "navigation_item",
+          "name": "Settings",
+          "description": "Open this destination",
+          "rect": {
+            "min_x": 534,
+            "min_y": 269,
+            "max_x": 774,
+            "max_y": 301
+          },
+          "enabled": false,
+          "focused": false,
+          "selected": false,
+          "actions": [
+            "gallery.navigation.settings"
+          ],
+          "disabled_reason": "Administrator access required"
+        }
+      ],
+      "image": {
+        "path": "browser-unselected-pressed.png",
+        "sha256": "adadd01273adbac30a8cf0d722e0225943ddeee874c5564b9be1e63f5c5edacc"
       }
     },
     {
@@ -1348,7 +1829,7 @@
             "max_y": 172
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -1395,7 +1876,7 @@
       ],
       "image": {
         "path": "browser-light-compact.png",
-        "sha256": "eb9deb9c3411cab55990069d0660c3ef2c563cd20482b0c73e684d0a7efa8c13"
+        "sha256": "ef60639eca9e5fc9265f243eaeec7287496f6c6f3ad23209e4f21c2e5ae7f00d"
       }
     },
     {
@@ -1466,7 +1947,7 @@
             "max_y": 125
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -1533,7 +2014,7 @@
       ],
       "image": {
         "path": "browser-light-compact-scrolled.png",
-        "sha256": "8e7a60222d1872f5427a55352a1e430d1cc1cc1edff27d9fdf9c61008c7d61a5"
+        "sha256": "44ea2e527eb68a3c8f8b506d4bd4f7b9c38a377321d5b5429a42861d0150fe0b"
       }
     },
     {
@@ -1623,7 +2104,7 @@
             "max_y": 190
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -1670,7 +2151,7 @@
       ],
       "image": {
         "path": "browser-dark-high-contrast.png",
-        "sha256": "c1d2f9c047322ed12b3000bbf502d357c85f1ff80c173633ca7960e3ff711db1"
+        "sha256": "8a1c59bec64996388de571e5acd333d3ca40afa0aabb46ceaaa75ed93f55ffd3"
       }
     },
     {
@@ -1741,7 +2222,7 @@
             "max_y": 135
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -1808,7 +2289,7 @@
       ],
       "image": {
         "path": "browser-dark-high-contrast-scrolled.png",
-        "sha256": "a933a793def5c933d798163fb31c05e75adeb5bb37bc264e289cfa1b60c6e4b5"
+        "sha256": "4439e39d9c8c7ea2d1b5cefdf5e7a5ae632094c5949c3cfe6f147445e0e33602"
       }
     },
     {
@@ -1878,7 +2359,7 @@
             "max_y": 231
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -1945,7 +2426,7 @@
       ],
       "image": {
         "path": "browser-light-high-contrast-150.png",
-        "sha256": "19c9c91b71c170e76794d7d55857242357179556b8f974b59365fc30a2419e23"
+        "sha256": "ed8b71be989244d7647441a21da36f2c937c19f6d8c32860a9d804feaeb02b72"
       }
     },
     {
@@ -2016,7 +2497,7 @@
             "max_y": 231
           },
           "enabled": true,
-          "focused": false,
+          "focused": true,
           "selected": false,
           "actions": [
             "gallery.navigation.tasks"
@@ -2083,15 +2564,18 @@
       ],
       "image": {
         "path": "browser-light-high-contrast-150-scrolled.png",
-        "sha256": "7c6bb78cda7f41b399c6e6cbdc21615c8d726476b6bba9997dccec89157b435e"
+        "sha256": "bc368d4a0b1df0fee7eb5175e078f533d61fd951c7450fe757c7fdd7b95ffe0a"
       }
     }
   ],
   "retained_images": {
-    "browser-focus.png": "d77e4bbbf32b1b843ef6a7371c9ea4faf7824b6d329932a95612549c02a54d12",
-    "browser-selected-hover.png": "48d708e598be1941b1b0a86e69accac4ffd357f065273402fddbceb20c9dc696",
-    "browser-selected-pressed.png": "4c1e3da1e3bdba470c5893673e9c6dea805397eab8e9bcd7ad64889f9f22f028",
-    "browser-light-high-contrast-150-scrolled.png": "7c6bb78cda7f41b399c6e6cbdc21615c8d726476b6bba9997dccec89157b435e",
-    "browser-dark-high-contrast.png": "c1d2f9c047322ed12b3000bbf502d357c85f1ff80c173633ca7960e3ff711db1"
+    "browser-focus.png": "9c61c517f28b123637f81d6f039151f1d75db218a248d69d180c86a8571e41e1",
+    "browser-selected-hover.png": "975f84da491bc4c1ed2cf214cd5e618928af592c568386d84025eebdb616a106",
+    "browser-selected-pressed.png": "ebfe47ad697bc03a0092e165e9019886dd30820d324fc02142b4f6bd9f980740",
+    "browser-light-high-contrast-150-scrolled.png": "bc368d4a0b1df0fee7eb5175e078f533d61fd951c7450fe757c7fdd7b95ffe0a",
+    "browser-dark-high-contrast.png": "8a1c59bec64996388de571e5acd333d3ca40afa0aabb46ceaaa75ed93f55ffd3",
+    "browser-unselected-hover.png": "07751568b9a9cc18078881ba7903d22de3927f3dc7f1af9583ef33874c0cf677",
+    "browser-unselected-pressed.png": "adadd01273adbac30a8cf0d722e0225943ddeee874c5564b9be1e63f5c5edacc",
+    "browser-count-update.png": "90824ab6e8be3f0ab615765bedc2acbeeb1739244a7567e6ef963e1ab10adc8d"
   }
 }

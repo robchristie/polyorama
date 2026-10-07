@@ -77,7 +77,7 @@ xdo("windowfocus", "--sync", window)
 
 def node(control):
     state = snapshot()
-    target = next(t["id"] for t in state["navigation_fixture"]["targets"] if t["destination"] == control)
+    target = state["navigation_fixture"]["count_target"] if control == "complete_task" else next(t["id"] for t in state["navigation_fixture"]["targets"] if t["destination"] == control)
     current = next(n for n in state["ui_snapshot"]["nodes"] if n["id"] == target)
     root = next(n for n in state["ui_snapshot"]["nodes"] if n["id"] == state["ui_snapshot"]["root"])
     r, rr = current["rect"], root["rect"]
@@ -127,10 +127,10 @@ try:
     assert snapshot()["navigation_fixture"]["selected"] == "home"
     record("focus-without-selection")
     xdo("key", "Return")
-    fixture(selected="tasks", task_count=11, activations=1)
+    fixture(selected="tasks", task_count=12, activations=1)
     record("enter")
     xdo("key", "space")
-    fixture(selected="tasks", task_count=10, activations=2)
+    fixture(selected="tasks", task_count=12, activations=2)
     record("space")
     move("tasks")
     fixture(hovered="tasks")
@@ -139,7 +139,10 @@ try:
     fixture(pointer_down="tasks")
     record("selected-pressed")
     xdo("mouseup", "1")
-    fixture(selected="tasks", task_count=9, activations=3, pointer_down=None)
+    fixture(selected="tasks", task_count=12, activations=3, pointer_down=None)
+    click("complete_task")
+    fixture(selected="tasks", task_count=11, activations=3)
+    record("independent-count-update")
     click("needs_attention")
     fixture(selected="needs_attention", activations=4)
     record("pointer-destination-change")
