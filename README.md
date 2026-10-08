@@ -88,7 +88,7 @@ Run these commands from the repository root.
 ### Prerequisites
 
 - Rust and Cargo. [The repository toolchain](rust-toolchain.toml) and
-  [CI](.github/workflows/verify.yml) select Rust **1.98.1** for development and
+  [CI](.github/workflows/verify.yml) select Rust **1.99.0** for development and
   verification. The workspace minimum remains Rust **1.97.1**.
 - For native applications, a graphical session and a working graphics backend
   supported by wgpu. Linux builds enable X11 and Wayland support.
