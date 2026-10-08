@@ -1,6 +1,7 @@
 # Rust 1.99.0 maintenance
 
-Status: complete
+Status: active
+Next action: Run the complete owner contract on the committed semantic-focus repair, then renew independent review and exact-head CI without changing any action/deadline or interaction/resource predicate.
 Delivery: [Polyorama PR #54](https://github.com/robchristie/polyorama/pull/54)
 
 ## Outcome and scope
@@ -113,3 +114,30 @@ Native-nine/browser-six proof is therefore reused on unchanged relevant inputs;
 production manifests retain their actual repaired canonical-source identity.
 The owning PR supplies renewed independent review and final-head/public/post-merge
 CI. This repair creates no new platform/performance or broad qualification claim.
+
+
+## Deferred presentation reconsideration
+
+[CI 37741675597](https://github.com/robchristie/polyorama/actions/runs/37741675597)
+failed on the independently reviewed repaired head after forty native traversal
+actions. New transitions preserve Home selection and zero activations: Home focus
+is published on action 37/frame 52, action 38/frame 53 still shows Home, then
+action 39/frame 55 shows Needs attention and action 40/frame 56 Activity. The
+capture shows Activity focus without a runtime error. The first newer-frame
+barrier does not establish settled focus or input consumption. This meets the
+predeclared reconsideration condition; the bounded adviser is grounding the
+existing follow-up presentation rule before any further experiment or retry.
+The scanner repair remains accepted, and every original gate/bound remains.
+
+
+The selected navigation-owned rule refreshes before dispatch and, once fixture
+focus is visible, waits for different non-empty observable fixture focus before
+another Tab. Earlier chrome traversal retains only its limited frame barrier.
+Every distinct observation is checked for selection/activation mutations and
+retained, including intermediate frames; the single ten-second traversal deadline
+and forty-action cap remain. Actual-function Home→Home→Tasks and multiple unchanged
+Home-frame probes fail before the repair and pass afterwards without another key.
+Fourteen navigation regressions and a complete eight-state physical workflow pass;
+the existing seven scanner cases remain. No frame-54 or individual-event attribution,
+fixed-frame arithmetic, added sleep, production repaint/model change or broader
+observer claim is made. The selected committed repair requires full qualification.
