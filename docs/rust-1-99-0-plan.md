@@ -1,7 +1,6 @@
 # Rust 1.99.0 maintenance
 
-Status: active
-Next action: Resolve the native CI focus failure under bounded advice, preserve every interaction predicate, then qualify and independently review the repaired candidate.
+Status: complete
 Delivery: [Polyorama PR #54](https://github.com/robchristie/polyorama/pull/54)
 
 ## Outcome and scope
@@ -56,7 +55,8 @@ this package makes only the bounded public functional claim.
 | Increment | Status | Result |
 |---|---|---|
 | Exact compiler selection | Complete | Root toolchain, normal public CI, production guard and three maintained setup guides select 1.99.0; both 1.97.1 minima and locks remain |
-| Complete owner verification | Complete | Clean committed source `830eb7d7334f3b857437afd5fc3f158f545cd463` passes full `cargo xtask verify`, including release native/WASM and physical consumer/browser workflows |
+| Complete owner verification | Complete | Clean repaired harness source `ae1a5344e5249160d42575b922e939d3b389b7d3` passes full `cargo xtask verify`, including release native/WASM and physical consumer/browser workflows |
+| Necessary CI verification repair | Complete | Frame-observed navigation traversal retains forty actions and every interaction predicate; three log guards fail closed; fourteen regression cases and focused physical workflows pass |
 | Immutable viewer consumer proof | Complete | Exact 754 immutable input hashes reproduced; nine-input native/30-stage journey and unchanged six-input ordinary/pressure browser gate pass with all assertions/caps retained |
 | Private preview observations | Complete for bounded rendering and cleanup | Current approved Mac run/assets/rendering/linked pan observed; incomplete Thumbnails predicate and subsequent transport outage retained; both owned generations stopped |
 | Durable P1 qualification | Complete | [Owner evidence](rust-1-99-0-evidence/README.md) retains actual commands, compiler/input/build identities, successes and failures; owning PR retains independent review, CI, eventual merge and cleanup |
@@ -71,32 +71,45 @@ native/browser contracts remain passed. Existing representative/performance and
 protected-image qualification limits remain with their original owners.
 
 Receipts bind actual source/tree, installed Rust 1.99.0, original immutable
-fixture identities and native/production/browser hashes. Later plan/evidence-only
-commits preserve the verified executable inputs; production manifests keep the
-actual source revision. Plan completion records this verified product state,
+fixture identities and native/production/browser hashes. Application Rust and viewer binaries remain unchanged after source `830eb7d7334f3b857437afd5fc3f158f545cd463`.
+The repaired harness is qualified at `ae1a5344e5249160d42575b922e939d3b389b7d3`;
+later plan/evidence-only commits preserve those inputs. Production manifests
+retain the actual committed canonical source. Plan completion records this verified product state,
 while PR #54 owns exact-head independent review, public CI, reviewed squash,
 actual post-merge CI and four-state/scratch cleanup.
 
 
-## CI repair phase
+## CI verification repair and retained failure
 
-The independently reviewed `24ba90da0dab7e22140dcea736bd496044cabb96`
-passed the retained local owner contract, but public
-[CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
-failed after native navigation's `keyboard did not reach tasks`. Its capture
-shows the expected UI, without an application error; after-Tab state was not
-retained. The preceding icon guard also observed missing `rg`, which belongs in
-normal CI prerequisites. The owning PR retains the rejected CI result separately
-from its earlier exact-head review and local proof.
+Public [CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
+failed on previously reviewed `24ba90da0dab7e22140dcea736bd496044cabb96`
+after native navigation's `keyboard did not reach tasks`. Its capture shows the
+expected UI without an application error; after-Tab state was not retained.
+The preceding icon guard also observed missing `rg`. This failure stays separate
+from earlier local proof and its exact-head review; slow presentation remains
+a hypothesis, not an established compiler/product regression.
 
-The bounded question is whether physical traversal can preserve the exact
-focus/selection/activation expectations while waiting for actual presentation
-before another Tab, within the original action limits. The selected probe exercises the actual production traversal with controlled
-delayed/stale/40th-action callbacks and the scanner exit contract, then one
-complete physical navigation/icon journey on the existing 1.99.0 Gallery binary.
-All fourteen controlled tests and both physical journeys pass. The exit condition
-for selecting the repair is satisfied; the committed repair now needs the
-complete owner contract and renewed review/CI. The evidence owner remains this product PR and its qualification
-store. No UI-model repair, gate waiver, extra action bound, pressure selection or
-new performance research is included. A repaired head receives applicable local
-qualification, independent review and complete public CI.
+Bounded read-only advice selected a navigation-owned observation barrier and
+shared scanner-exit guard for only the three identical native checks. Traversal
+keeps at most forty physical Tabs, waits for a newer frame before another, checks
+the final action and stops after failed dispatch/stale presentation. Newer frames
+are observations, not GPU/input-consumption acknowledgements. Transitions and
+latest failure state are retained without masking the original error. Selection,
+activation, disabled/pointer/audit/idle predicates and all viewer caps are intact.
+CI explicitly installs its existing required ripgrep tool.
+
+All fourteen delayed/stale/action-bound/scanner regression cases pass. Complete
+physical navigation passes with 38 focus actions and unchanged selection/activation;
+the icon workflow passes the shared guard. Clean committed repair
+`ae1a5344e5249160d42575b922e939d3b389b7d3` then passes complete
+`cargo xtask verify` in 331.774 seconds, including every native guard and workflow.
+[Repair observations](rust-1-99-0-evidence/README.md#ci-verification-repair) retain
+commands, source/binary identities, transitions, captures and failed CI evidence.
+
+No application Rust, Cargo, edition/resolver, minimum, lock or viewer predicate
+changed. All twenty-seven production raw assets and HTML entries, plus the viewer,
+service and Gallery native binary hashes, match the original 1.99.0 qualification.
+Native-nine/browser-six proof is therefore reused on unchanged relevant inputs;
+production manifests retain their actual repaired canonical-source identity.
+The owning PR supplies renewed independent review and final-head/public/post-merge
+CI. This repair creates no new platform/performance or broad qualification claim.

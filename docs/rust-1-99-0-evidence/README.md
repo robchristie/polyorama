@@ -1,10 +1,14 @@
 # Rust 1.99.0 qualification observations
 
-These observations own portfolio package P1. Actual executable source is clean
+These observations own portfolio package P1. Initial application qualification uses clean
 commit `830eb7d7334f3b857437afd5fc3f158f545cd463`, tree
 `61d868d5e2178dae1d34ea59c50007fe2baacd75`, based on
-`8b2bb966d91191efdb47ff16c4cb71797bd2fea8`. Later plan/evidence-only commits
-preserve the executable inputs. Production manifests retain their actual build
+`8b2bb966d91191efdb47ff16c4cb71797bd2fea8`. The current complete harness is qualified at clean repair commit
+`ae1a5344e5249160d42575b922e939d3b389b7d3`, tree
+`24ee51f1e9bbdf8c3564a59ce87827b7767d6c87`. Its native application and
+production static bytes remain identical; the intervening delta includes CI/harness
+code, as described below. Later documentation-only commits preserve this repaired
+qualification surface. Production manifests retain their actual build
 revision; they do not relabel an earlier build. [PR #54](https://github.com/robchristie/polyorama/pull/54)
 owns exact-head review, applicable public CI, merge and post-merge CI.
 
@@ -80,3 +84,54 @@ The existing codec `6586e3d50f95429b242cb2e3535742b002784f2d` remains locked;
 requires no consumer/API refresh. Old-compiler observations supply fixture and
 compatibility knowledge, not Rust 1.99.0 build acceptance. No deployment,
 release, package/data publication or protected-resource operation is included.
+
+
+## CI verification repair
+
+[CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
+failed on previously reviewed `24ba90da0dab7e22140dcea736bd496044cabb96`
+after the native navigation focus helper exhausted forty Tabs. Its capture and
+report lack after-Tab state, so slow CI presentation is a hypothesis and no
+compiler/product-regression attribution is made. A preceding `rg: command not
+found` also proves an absent CI prerequisite and a conditional log guard that
+could silently skip scanner failure. The owning PR retains that failed gate.
+
+The bounded repair installs ripgrep in the existing CI prerequisites and makes
+only the three identical native guards share a fail-closed scanner contract:
+zero means a detected runtime error, one means clean, every other status fails.
+The navigation-owned production traversal waits for a newer presentation after
+each physical Tab, retains the forty-action bound, examines action forty's
+result and records target/frame/focus/selection/activation transitions. Failed
+dispatch or stale observation stops without another key. This barrier does not
+acknowledge GPU completion or prove individual input consumption. All original
+focus/no-selection/activation/disabled/pointer/audit/idle expectations remain.
+Failure retention preserves the original exception even if capture/report fails.
+
+[ci-repair-observations.tar.gz](ci-repair-observations.tar.gz), with
+[ci-repair-index.json](ci-repair-index.json), contains the complete failed CI log,
+failed capture/report, fourteen actual production-loop/scanner regression cases,
+focused physical navigation/icon reports and opened captures, source hashes,
+new committed canonical log and changed native guard observations. Delayed
+snapshots over 60 ms falsify fixed-delay pacing; the new loop waits. Stale timeout,
+failed dispatch, unreachable forty actions and target reached on action forty
+are checked directly. Actual guard tests cover clean/error, missing/unreadable
+log and unavailable/failing scanner. Physical navigation reaches Home on action
+37 and Tasks on 38, retaining selection/activation; all eight interaction states
+and idle pass. The icon workflow also passes the changed guard.
+
+The [repaired canonical receipt](ci-repair-canonical.json) binds clean committed
+`ae1a5344e5249160d42575b922e939d3b389b7d3`, actual Rust 1.99.0 and the same
+installed environment: complete `cargo xtask verify`, exit zero, 331.774 seconds,
+including all new regressions, fourteen snapshots, every native guard and the
+complete consumer/native/browser workflows. Its production manifest keeps that
+actual source identity; initial manifests are not relabelled.
+
+[Applicability proof](ci-repair-applicability.json) compares every relevant Rust,
+Cargo/minimum/lock/toolchain input, all twenty-seven production raw assets and
+all HTML entries, and the actual viewer/service/Gallery native hashes. They are
+unchanged from initial Rust 1.99.0 qualification. Native-nine/browser-six inputs,
+environment and predicates remain unchanged, so their original attributed proof
+is reused. This is independent of renewed exact-head review, fresh required CI
+and actual post-merge CI, which remain owned by PR #54. No semantic compiler/UI
+repair, expanded action/resource limit, pressure selection or performance study
+is claimed.
