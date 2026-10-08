@@ -1,7 +1,7 @@
 # Rust 1.99.0 maintenance
 
-Status: active
-Next action: Qualify the committed compiler selection through the complete owner contract and existing deterministic viewer journeys.
+Status: complete
+Delivery: [Polyorama PR #54](https://github.com/robchristie/polyorama/pull/54)
 
 ## Outcome and scope
 
@@ -36,9 +36,9 @@ There is no demonstrated dependency/API change: the existing codec pin
    recipe and hash-check their immutable identities; run the nine-input native
    journey and unchanged frozen six-input browser pressure gate. Preserve every
    existing admission/cancellation/eviction predicate and qualification limit.
-4. Open and exercise this worktree's compatible private HTTPS preview under the
-   installed launcher, retaining readiness separately from actual browser proof;
-   stop only the owned generation.
+4. Use this worktree's compatible private HTTPS preview under the installed
+   launcher, retaining readiness separately from actual browser observations
+   and their limits; stop only owned generations.
 5. Reconcile the verified owner state, obtain independent review of the exact
    candidate, pass public CI, then squash-merge and await actual post-merge CI.
    The owning PR retains review, merge identities and four-state/scratch cleanup.
@@ -48,3 +48,30 @@ applicable fixture recipes and environment knowledge. Its Rust 1.98.1 binaries
 and acceptance results are historical. Existing representative/performance and
 protected-image plans retain their original limits and incomplete outcomes;
 this package makes only the bounded public functional claim.
+
+
+## Delivery and closeout
+
+| Increment | Status | Result |
+|---|---|---|
+| Exact compiler selection | Complete | Root toolchain, normal public CI, production guard and three maintained setup guides select 1.99.0; both 1.97.1 minima and locks remain |
+| Complete owner verification | Complete | Clean committed source `830eb7d7334f3b857437afd5fc3f158f545cd463` passes full `cargo xtask verify`, including release native/WASM and physical consumer/browser workflows |
+| Immutable viewer consumer proof | Complete | Exact 754 immutable input hashes reproduced; nine-input native/30-stage journey and unchanged six-input ordinary/pressure browser gate pass with all assertions/caps retained |
+| Private preview observations | Complete for bounded rendering and cleanup | Current approved Mac run/assets/rendering/linked pan observed; incomplete Thumbnails predicate and subsequent transport outage retained; both owned generations stopped |
+| Durable P1 qualification | Complete | [Owner evidence](rust-1-99-0-evidence/README.md) retains actual commands, compiler/input/build identities, successes and failures; owning PR retains independent review, CI, eventual merge and cleanup |
+
+The bounded compiler outcome is verified without a semantic source repair,
+compatibility/dependency refresh or acceptance relaxation. The private preview
+proves current-run rendering and linked pan; it does not claim a complete Mac
+pilot. Its failed optional Thumbnails observation lacks sufficient after-state
+proof for a product-regression classification, and the focused follow-up stopped
+before input when the approved SSH route became unavailable. Maintained full
+native/browser contracts remain passed. Existing representative/performance and
+protected-image qualification limits remain with their original owners.
+
+Receipts bind actual source/tree, installed Rust 1.99.0, original immutable
+fixture identities and native/production/browser hashes. Later plan/evidence-only
+commits preserve the verified executable inputs; production manifests keep the
+actual source revision. Plan completion records this verified product state,
+while PR #54 owns exact-head independent review, public CI, reviewed squash,
+actual post-merge CI and four-state/scratch cleanup.
