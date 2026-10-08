@@ -196,7 +196,7 @@ access and can take longer than ordinary Rust tests.
 
 On Linux, the default [bootstrap script](tools/bootstrap-linux-ui.sh) unpacks
 pinned x86_64 UI packages into `.tools/`; that path also relies on tools such as
-`curl`, `bsdtar`, `bwrap`, ImageMagick and `jq`. For a system-library setup, use
+`curl`, `bsdtar`, `bwrap`, ImageMagick, `jq` and `rg`. For a system-library setup, use
 `POLYORAMA_USE_SYSTEM_UI_LIBS=1` and provision the dependencies and display as
 shown in the [Ubuntu CI workflow](.github/workflows/verify.yml).
 

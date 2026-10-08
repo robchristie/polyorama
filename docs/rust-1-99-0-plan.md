@@ -1,6 +1,7 @@
 # Rust 1.99.0 maintenance
 
-Status: complete
+Status: active
+Next action: Resolve the native CI focus failure under bounded advice, preserve every interaction predicate, then qualify and independently review the repaired candidate.
 Delivery: [Polyorama PR #54](https://github.com/robchristie/polyorama/pull/54)
 
 ## Outcome and scope
@@ -75,3 +76,27 @@ commits preserve the verified executable inputs; production manifests keep the
 actual source revision. Plan completion records this verified product state,
 while PR #54 owns exact-head independent review, public CI, reviewed squash,
 actual post-merge CI and four-state/scratch cleanup.
+
+
+## CI repair phase
+
+The independently reviewed `24ba90da0dab7e22140dcea736bd496044cabb96`
+passed the retained local owner contract, but public
+[CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
+failed after native navigation's `keyboard did not reach tasks`. Its capture
+shows the expected UI, without an application error; after-Tab state was not
+retained. The preceding icon guard also observed missing `rg`, which belongs in
+normal CI prerequisites. The owning PR retains the rejected CI result separately
+from its earlier exact-head review and local proof.
+
+The bounded question is whether physical traversal can preserve the exact
+focus/selection/activation expectations while waiting for actual presentation
+before another Tab, within the original action limits. The selected probe exercises the actual production traversal with controlled
+delayed/stale/40th-action callbacks and the scanner exit contract, then one
+complete physical navigation/icon journey on the existing 1.99.0 Gallery binary.
+All fourteen controlled tests and both physical journeys pass. The exit condition
+for selecting the repair is satisfied; the committed repair now needs the
+complete owner contract and renewed review/CI. The evidence owner remains this product PR and its qualification
+store. No UI-model repair, gate waiver, extra action bound, pressure selection or
+new performance research is included. A repaired head receives applicable local
+qualification, independent review and complete public CI.
