@@ -3,9 +3,10 @@
 These observations own portfolio package P1. Initial application qualification uses clean
 commit `830eb7d7334f3b857437afd5fc3f158f545cd463`, tree
 `61d868d5e2178dae1d34ea59c50007fe2baacd75`, based on
-`8b2bb966d91191efdb47ff16c4cb71797bd2fea8`. The current complete harness is qualified at clean repair commit
-`ae1a5344e5249160d42575b922e939d3b389b7d3`, tree
-`24ee51f1e9bbdf8c3564a59ce87827b7767d6c87`. Its native application and
+`8b2bb966d91191efdb47ff16c4cb71797bd2fea8`. The first repaired harness is retained at
+`ae1a5344e5249160d42575b922e939d3b389b7d3`; the current complete semantic harness
+is qualified at clean `9497023f30a959733ced5028599299d8b9e2670f`, tree
+`4e10c264de1bdcd82e0f8795f4f3145927525391`. Its native application and
 production static bytes remain identical; the intervening delta includes CI/harness
 code, as described below. Later documentation-only commits preserve this repaired
 qualification surface. Production manifests retain their actual build
@@ -135,3 +136,58 @@ is reused. This is independent of renewed exact-head review, fresh required CI
 and actual post-merge CI, which remain owned by PR #54. No semantic compiler/UI
 repair, expanded action/resource limit, pressure selection or performance study
 is claimed.
+
+
+## Semantic focus progress
+
+[CI 37741675597](https://github.com/robchristie/polyorama/actions/runs/37741675597)
+failed on independently reviewed `db135e3ce50541df44e8e8560a0c90dd2c78a8c6`
+after 50m51s. Compiler/release/startup/snapshot/browser and earlier native gates,
+ripgrep and the fail-closed icon guard passed. New native transitions show Home
+at action 37/frame 52, unchanged Home at action 38/frame 53, Needs attention at
+action 39/frame 55 and Activity at action 40/frame 56. Selection stayed Home and
+activation zero. The opened capture shows Activity focus, without a runtime
+error. This makes the first-frame observation gap concrete; frame 54 and any
+individual-event attribution remain unknown. The partial failed run is not a
+like-for-like performance comparison with a complete run.
+
+The existing adviser's reconsideration kept the repair navigation-owned. The
+current helper refreshes before every dispatch and checks selection/activation
+on every distinct observation, retaining intermediate states. Observable fixture
+focus must change to a different non-empty fixture focus before another Tab;
+an unchanged Home or empty focus is not settled. Before fixture focus appears,
+chrome traversal retains the existing limited frame barrier, with no uniform
+input/GPU acknowledgement claim. The target is checked on every observation,
+including action forty; failed dispatch or stale/progress timeout sends no further
+key. There is one ten-second traversal deadline and at most forty physical
+Tabs. No production repaint/input/model change, longer sleep, frame arithmetic,
+resource/action limit change or predicate relaxation was introduced.
+
+[focus-progress-observations.tar.gz](focus-progress-observations.tar.gz) and
+[focus-progress-index.json](focus-progress-index.json) retain twenty-five files:
+complete second CI failure log/report/capture, actual production-function
+fail-before/pass-after logs, exact helper/test source, focused physical and
+committed canonical navigation reports/captures, complete canonical log/receipt,
+production manifest and applicability proof. The old actual function fails the
+Home→Home→Tasks sentinel and two newer unchanged-Home frames. The final function
+reaches Tasks after one dispatch and retains every observation. Advancing Home
+frames or empty focus do not permit another key; timeout remains single across
+actions. Refreshed target, stale/failed dispatch, target on action forty, genuine
+forty non-target transitions and transient selection/activation mutations are
+checked directly. Fourteen navigation and seven unchanged guard cases pass.
+
+Complete physical navigation passes all eight original states/audits/idle with
+Home/action 37 and Tasks/action 38, with unchanged selection/activation during
+focus. The [current canonical receipt](focus-progress-canonical.json) binds clean
+committed `9497023f30a959733ced5028599299d8b9e2670f`, actual Rust 1.99.0,
+same recorded environment, complete `cargo xtask verify`, exit zero in 331.431
+seconds, twenty-one new focused cases, fourteen snapshots and every native/browser/
+consumer workflow. Production identity records that actual canonical source.
+
+[Current applicability](focus-progress-applicability.json) confirms unchanged
+Rust/Cargo/minimum/lock/toolchain inputs, all twenty-seven raw production assets
+and every HTML entry, and the exact viewer/service/Gallery native hashes.
+Native-nine/browser-six bytes, environment and predicates remain applicable with
+original attribution. Earlier archives and failed observations remain immutable.
+Renewed review, fresh final-head CI and actual post-merge CI remain mandatory;
+no speculative retry or new broad performance/platform qualification is claimed.

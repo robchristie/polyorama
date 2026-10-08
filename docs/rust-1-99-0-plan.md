@@ -1,7 +1,6 @@
 # Rust 1.99.0 maintenance
 
-Status: active
-Next action: Run the complete owner contract on the committed semantic-focus repair, then renew independent review and exact-head CI without changing any action/deadline or interaction/resource predicate.
+Status: complete
 Delivery: [Polyorama PR #54](https://github.com/robchristie/polyorama/pull/54)
 
 ## Outcome and scope
@@ -55,89 +54,70 @@ this package makes only the bounded public functional claim.
 
 | Increment | Status | Result |
 |---|---|---|
-| Exact compiler selection | Complete | Root toolchain, normal public CI, production guard and three maintained setup guides select 1.99.0; both 1.97.1 minima and locks remain |
-| Complete owner verification | Complete | Clean repaired harness source `ae1a5344e5249160d42575b922e939d3b389b7d3` passes full `cargo xtask verify`, including release native/WASM and physical consumer/browser workflows |
-| Necessary CI verification repair | Complete | Frame-observed navigation traversal retains forty actions and every interaction predicate; three log guards fail closed; fourteen regression cases and focused physical workflows pass |
-| Immutable viewer consumer proof | Complete | Exact 754 immutable input hashes reproduced; nine-input native/30-stage journey and unchanged six-input ordinary/pressure browser gate pass with all assertions/caps retained |
-| Private preview observations | Complete for bounded rendering and cleanup | Current approved Mac run/assets/rendering/linked pan observed; incomplete Thumbnails predicate and subsequent transport outage retained; both owned generations stopped |
-| Durable P1 qualification | Complete | [Owner evidence](rust-1-99-0-evidence/README.md) retains actual commands, compiler/input/build identities, successes and failures; owning PR retains independent review, CI, eventual merge and cleanup |
+| Exact compiler selection | Complete | Root toolchain, normal public CI, production guard and three maintained setup guides select 1.99.0; both 1.97.1 minima, locks and codec pin remain |
+| Complete owner verification | Complete | Clean committed semantic-harness source `9497023f30a959733ced5028599299d8b9e2670f` passes complete `cargo xtask verify` in 331.431 seconds, including releases and every native/browser/consumer workflow |
+| CI verification repair | Complete | Explicit ripgrep, three fail-closed log guards and semantic navigation focus progress; twenty-one controlled cases and complete physical navigation retain every original predicate and bound |
+| Immutable viewer consumer proof | Complete | All 754 immutable hashes reproduced; nine-input native/30-stage and frozen six-input ordinary/pressure browser gate pass on unchanged application/binary/input/environment/predicate identities |
+| Private preview observations | Complete for bounded rendering and cleanup | Current approved Mac assets/rendering/linked pan observed; incomplete Thumbnails predicate and unavailable transport follow-up retained; both owned generations stopped |
+| Durable qualification | Complete | [Owner evidence](rust-1-99-0-evidence/README.md) retains source boundaries, indexed archives, successes and both failed CI trajectories; the owning PR retains renewed review, CI, actual merge and cleanup |
 
-The bounded compiler outcome is verified without a semantic source repair,
-compatibility/dependency refresh or acceptance relaxation. The private preview
-proves current-run rendering and linked pan; it does not claim a complete Mac
-pilot. Its failed optional Thumbnails observation lacks sufficient after-state
-proof for a product-regression classification, and the focused follow-up stopped
-before input when the approved SSH route became unavailable. Maintained full
-native/browser contracts remain passed. Existing representative/performance and
-protected-image qualification limits remain with their original owners.
+## Verification repair trajectory
 
-Receipts bind actual source/tree, installed Rust 1.99.0, original immutable
-fixture identities and native/production/browser hashes. Application Rust and viewer binaries remain unchanged after source `830eb7d7334f3b857437afd5fc3f158f545cd463`.
-The repaired harness is qualified at `ae1a5344e5249160d42575b922e939d3b389b7d3`;
-later plan/evidence-only commits preserve those inputs. Production manifests
-retain the actual committed canonical source. Plan completion records this verified product state,
-while PR #54 owns exact-head independent review, public CI, reviewed squash,
-actual post-merge CI and four-state/scratch cleanup.
-
-
-## CI verification repair and retained failure
-
-Public [CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
-failed on previously reviewed `24ba90da0dab7e22140dcea736bd496044cabb96`
-after native navigation's `keyboard did not reach tasks`. Its capture shows the
-expected UI without an application error; after-Tab state was not retained.
-The preceding icon guard also observed missing `rg`. This failure stays separate
-from earlier local proof and its exact-head review; slow presentation remains
-a hypothesis, not an established compiler/product regression.
-
-Bounded read-only advice selected a navigation-owned observation barrier and
-shared scanner-exit guard for only the three identical native checks. Traversal
-keeps at most forty physical Tabs, waits for a newer frame before another, checks
-the final action and stops after failed dispatch/stale presentation. Newer frames
-are observations, not GPU/input-consumption acknowledgements. Transitions and
-latest failure state are retained without masking the original error. Selection,
-activation, disabled/pointer/audit/idle predicates and all viewer caps are intact.
-CI explicitly installs its existing required ripgrep tool.
-
-All fourteen delayed/stale/action-bound/scanner regression cases pass. Complete
-physical navigation passes with 38 focus actions and unchanged selection/activation;
-the icon workflow passes the shared guard. Clean committed repair
-`ae1a5344e5249160d42575b922e939d3b389b7d3` then passes complete
-`cargo xtask verify` in 331.774 seconds, including every native guard and workflow.
-[Repair observations](rust-1-99-0-evidence/README.md#ci-verification-repair) retain
-commands, source/binary identities, transitions, captures and failed CI evidence.
-
-No application Rust, Cargo, edition/resolver, minimum, lock or viewer predicate
-changed. All twenty-seven production raw assets and HTML entries, plus the viewer,
-service and Gallery native binary hashes, match the original 1.99.0 qualification.
-Native-nine/browser-six proof is therefore reused on unchanged relevant inputs;
-production manifests retain their actual repaired canonical-source identity.
-The owning PR supplies renewed independent review and final-head/public/post-merge
-CI. This repair creates no new platform/performance or broad qualification claim.
-
-
-## Deferred presentation reconsideration
+[CI 37734771653](https://github.com/robchristie/polyorama/actions/runs/37734771653)
+failed on reviewed `24ba90da0dab7e22140dcea736bd496044cabb96` after native
+navigation exhausted forty Tabs; after-Tab state was missing. The preceding icon
+guard observed absent `rg`. Bounded advice selected explicit prerequisites,
+fail-closed scanner status (zero/error, one/clean, other/fail) and a navigation-owned
+presentation barrier with transition/failure retention. Fourteen controlled cases,
+focused navigation/icon workflows and committed
+`ae1a5344e5249160d42575b922e939d3b389b7d3` full canonical verification passed.
 
 [CI 37741675597](https://github.com/robchristie/polyorama/actions/runs/37741675597)
-failed on the independently reviewed repaired head after forty native traversal
-actions. New transitions preserve Home selection and zero activations: Home focus
-is published on action 37/frame 52, action 38/frame 53 still shows Home, then
-action 39/frame 55 shows Needs attention and action 40/frame 56 Activity. The
-capture shows Activity focus without a runtime error. The first newer-frame
-barrier does not establish settled focus or input consumption. This meets the
-predeclared reconsideration condition; the bounded adviser is grounding the
-existing follow-up presentation rule before any further experiment or retry.
-The scanner repair remains accepted, and every original gate/bound remains.
+then failed on reviewed `db135e3ce50541df44e8e8560a0c90dd2c78a8c6` after forty
+actions. New observations show Home at action 37/frame 52, Home again at action
+38/frame 53, then Needs attention at action 39/frame 55 and Activity at action
+40/frame 56, with unchanged Home selection/zero activations and no runtime error.
+The first newer frame did not establish settled focus. The predeclared
+reconsideration condition was honoured; no unchanged retry or predicate waiver
+was used. Frame 54 and individual-event attribution remain unknown.
 
+The final helper refreshes immediately before dispatch, checks every distinct
+observation for selection/activation mutations, and checks the target on every
+observation including action forty. Once fixture focus is observable it waits
+for different, non-empty observable fixture focus before another physical Tab.
+Earlier chrome traversal retains only its limited frame barrier, not uniform
+input/GPU acknowledgement. The single ten-second traversal deadline, at most
+forty actions and all disabled/pointer/audit/idle/resource predicates remain.
+Failure/timeout stops without another speculative key; diagnostics preserve the
+original exception. No fixed frame arithmetic, additional sleep or production
+input/repaint/model change was introduced.
 
-The selected navigation-owned rule refreshes before dispatch and, once fixture
-focus is visible, waits for different non-empty observable fixture focus before
-another Tab. Earlier chrome traversal retains only its limited frame barrier.
-Every distinct observation is checked for selection/activation mutations and
-retained, including intermediate frames; the single ten-second traversal deadline
-and forty-action cap remain. Actual-function Home→Home→Tasks and multiple unchanged
-Home-frame probes fail before the repair and pass afterwards without another key.
-Fourteen navigation regressions and a complete eight-state physical workflow pass;
-the existing seven scanner cases remain. No frame-54 or individual-event attribution,
-fixed-frame arithmetic, added sleep, production repaint/model change or broader
-observer claim is made. The selected committed repair requires full qualification.
+The actual old helper fails Home→Home→Tasks and multiple newer unchanged-Home
+probes; the final helper passes those plus stale/dispatch, refreshed target,
+empty-focus, transient selection/activation, single deadline and forty-action
+boundaries. Fourteen navigation plus seven scanner cases pass. Complete physical
+navigation passes all eight states and idle with Home/action 37 and Tasks/action
+38. Clean committed `9497023f30a959733ced5028599299d8b9e2670f` then passes the
+complete canonical contract. [All detailed observations](rust-1-99-0-evidence/README.md#semantic-focus-progress)
+retain actual commands, source hashes, captures, transitions and both failed runs.
+
+## Provenance and limits
+
+Application Rust was qualified at `830eb7d7334f3b857437afd5fc3f158f545cd463`.
+The initial scanner/frame repair is retained at `ae1a5344e5249160d42575b922e939d3b389b7d3`;
+current semantic-harness qualification is `9497023f30a959733ced5028599299d8b9e2670f`.
+Later documentation-only commits preserve this current surface; production
+manifests retain their actual committed canonical source. All relevant Rust,
+Cargo/minimum/lock/toolchain inputs, twenty-seven production raw assets and HTML
+entries, and viewer/service/Gallery native hashes remain identical. The separate
+native-nine/browser-six proof is reused with its original source attribution.
+
+No semantic compiler/UI repair or renewed minimum-version build is claimed.
+The private preview proves actual assets/rendering/linked pan, with incomplete
+Thumbnails/Diagnostics/reload and concrete transport failure retained. No full Mac
+pilot, representative/performance or protected-image qualification is added.
+Existing failed observations, limits and stopping rules remain. Plan completion
+records verified local product state; PR #54 still owns renewed exact-head review,
+required public CI, protected squash, actual post-merge CI and four-state/scratch
+cleanup. No deployment, release, package/data publication or protected operation
+is part of this delivery.
