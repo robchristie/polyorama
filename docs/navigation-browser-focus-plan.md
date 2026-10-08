@@ -1,7 +1,7 @@
 # Browser navigation final-action observation
 
-Status: active
-Next action: Qualify the committed bounded browser repair through the complete canonical contract, then new repair PR review, CI and actual merge CI.
+Status: complete
+Delivery: [PR #55](https://github.com/robchristie/polyorama/pull/55)
 
 ## Outcome and scope
 
@@ -49,27 +49,37 @@ another invariant fails or success needs more actions/time/production changes.
 
 ## Acceptance and landing
 
-The initial actual-function discriminator fails on clean merged source as expected;
-seven production-function cases pass on the selected dirty repair. Preserve those
-source boundaries rather than relabelling evidence. After the physical checkpoint,
-commit one coherent repair and run complete `cargo xtask verify` on that source.
-The new Node regression is included in the existing explicit xtask list.
+The actual-function discriminator fails on clean merged source as expected;
+seven production-function cases pass on the selected dirty repair. Those original
+source boundaries remain. The committed repair at
+`c3aa2d28472247fee737d5157ec546f22814237b`, tree
+`cf563a43ba320ea69db7987e1e9f52b0c97a83ed`, passes complete `cargo xtask verify`
+on actual Rust 1.99.0 in 331.15 seconds, clean before and after. The new Node
+regression runs through the existing explicit xtask list; the complete committed
+physical browser workflow also passes.
 
-Inspect unchanged application/binary/input/environment/predicate identities before
-reusing the native-nine/browser-six and earlier platform evidence. Production
-manifests retain their actual canonical source. Reconcile the completed repair
-state before exact-head review; the original independent reviewer may review
-this delta, while the adviser remains ineligible. Pass fresh repair CI, protect
-the reviewed squash head, await actual post-merge CI and complete four-state/
-process/preview/tunnel/scratch cleanup. The owning PR's terminal receipt names
-intentionally retained private observations and monitoring recoveries.
+[Applicability proof](navigation-browser-focus-evidence/browser-focus-applicability.json)
+hashes all 135 relevant Rust/Cargo/minimum/lock/toolchain inputs. Only xtask's
+explicit new Node-test filename differs; application/crate source remains.
+All twenty-seven raw production assets, every HTML entry and the actual
+viewer/service/Gallery native hashes remain identical. Unchanged native-nine/
+browser-six input/environment/predicate evidence is reused with original source
+attribution. Production manifests keep their actual canonical source. Independent
+exact-head review, fresh repair CI, protected squash, actual post-merge CI and
+four-state/process/preview/tunnel/scratch cleanup remain PR delivery gates.
+The owning terminal receipt names retained private observations and monitoring
+recoveries; this completed product state does not assert future merge results.
 
 
-The selected checkpoint meets its exit condition: actual original source fails
+The selected repair meets its exit condition: actual original source fails
 with exactly forty-five dispatches/waits, all seven new production-function cases
 pass, and the complete physical browser workflow passes seventeen states with
 no errors. Existing 1.99.0 Gallery WASM identity, original appearance/clipping/
 selection/activation/disabled/pointer/audit/idle predicates and bounds are retained.
 The focused capture was opened; this is functional proof on the recorded software
-browser route, not a new platform or performance qualification. Commit the selected
-repair and establish the complete owner contract on that exact committed source.
+browser route, not a new platform or performance qualification. The complete
+owner contract now passes on the exact committed repair. The
+[indexed evidence](navigation-browser-focus-evidence/README.md) retains the failed
+merge trajectory, before/after source attribution and all limits. No renewed
+minimum-compiler run or complete Mac pilot is claimed; prior private-preview
+and performance limits remain visible in the original qualification receipt.
