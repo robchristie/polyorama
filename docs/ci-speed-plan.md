@@ -46,7 +46,7 @@ UI setup after the icon interaction check passed. Add it to every UI lane and
 retain the runtime-log scan. That failed stage cannot populate its archive;
 successful lanes may populate their provisional PR-scoped dependency archives.
 
-Next action: repair hosted prerequisites, then compare an unchanged fresh-run warm attempt and a changed-source warm run against the complete five-minute workflow target.
+Next action: qualify the complete warm workflow after replacing fixed native startup sleeps with bounded window readiness, then repeat it unchanged before final review.
 
 The partially warm repaired run 37866800165 passed checks (3m36s), native Lab
 (3m55s), production (3m19s) and UI (2m55s); native-other and Record Desk were
@@ -59,3 +59,12 @@ Tab through a monotonic application diagnostic before another key, preserving
 all focus/activation assertions and traversal limits. Both focused physical
 browser journeys and the delayed-receipt regressions passed locally. Temporary
 probe fields/logging were removed. Keep release profiles unchanged.
+
+The changed-source warm run 37869437618 passed six complete lanes, with a
+maximum lane duration of 4m04s. Native Lab failed before its window became
+visible: the legacy smoke searched once after a fixed five-second sleep while
+its runtime log still showed graphics startup. The selected repair waits up to
+30 seconds for the owned application's visible window, fails if its process
+exits, and keeps all existing interaction/persistence assertions. Gallery uses
+the same helper. Readiness regressions cover delayed visibility, timeout and
+application exit.
