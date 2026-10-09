@@ -45,6 +45,8 @@ def gate(needs, evidence=None, revision=None):
             summary = json.loads((evidence / f"interface-{stage}/application-interface/summary.json").read_text())
             if summary["revision"] != revision or summary["dirty"] is not False:
                 raise ValueError(f"unattributed interface qualification: {stage}")
+            if summary.get("slice_only") is not False:
+                raise ValueError(f"partial interface qualification: {stage}")
             selection = summary["selection"]
             if set(selection["apps"]) != apps or set(selection["hosts"]) != hosts:
                 raise ValueError(f"incorrect interface selection: {stage}")

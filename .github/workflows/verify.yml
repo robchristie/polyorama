@@ -40,6 +40,7 @@ jobs:
       - run: python3 tools/verify.py
 
   qualification:
+    name: Verify ${{ matrix.name }}
     needs: scope
     if: needs.scope.outputs.mode == 'full'
     strategy:
@@ -52,8 +53,6 @@ jobs:
       DISPLAY: ':95'
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: ./.github/actions/setup-verification
         id: setup
         with:

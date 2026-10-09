@@ -261,7 +261,7 @@ try {
     }
   }
   assertInterfaceCoverage(reports, selection);
-  await writeFile(resolve(evidence, 'summary.json'), JSON.stringify({ revision, dirty, selection, reports: reports.map(report => ({ app: report.app, host: report.host, instance: report.instance, steps: report.steps.length, failures: report.failures.length, idle: report.idle, capture: report.capture.status })) }, null, 2));
+  await writeFile(resolve(evidence, 'summary.json'), JSON.stringify({ revision, dirty, selection, slice_only: sliceOnly, reports: reports.map(report => ({ app: report.app, host: report.host, instance: report.instance, steps: report.steps.length, failures: report.failures.length, idle: report.idle, capture: report.capture.status })) }, null, 2));
   console.log(`Shared interface passed: ${reports.map(report => `${report.app}/${report.host}`).join(', ')}`);
 } catch (error) {
   await writeFile(resolve(evidence, 'failure.json'), JSON.stringify({ message: error.message, stack: error.stack, code: error.code, last_observation: error.observation, reports }, null, 2));

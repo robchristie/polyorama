@@ -32,10 +32,18 @@ test-skipping rule.
 
 | Phase | Owner | Status |
 | --- | --- | --- |
-| Preserve the canonical check inventory and split executable stages | Verifier | In progress |
-| Normalise runner toolchains and give parallel jobs appropriate caches | Workflow | Pending |
-| Probe combined native compilation and profile trade-offs | Calibration | Pending |
-| Qualify the complete hosted surface and cached elapsed time | CI | Pending |
+| Preserve the canonical check inventory and split executable stages | Verifier | Complete |
+| Normalise runner toolchains and give parallel jobs appropriate caches | Workflow | Complete |
+| Probe combined native compilation and profile trade-offs | Calibration | Complete for native target selection; retain the current release profile pending warm hosted timing |
+| Qualify the complete hosted surface and cached elapsed time | CI | In progress |
 | Review the exact candidate, land and verify the merge revision | Owning PR | Pending |
 
-Next action: implement and regression-test the shared verification stages, then measure their hosted critical path.
+The committed `d2b359e82eab876a313eed6c6985ea4c041a74fa` native-Lab stage passed
+the batched release build, both existing native smokes and its interface journey
+locally in 89.53s. This screens the partition; it is not hosted timing proof.
+Hosted calibration run 37865870558 exposed missing `ripgrep` in the new native
+UI setup after the icon interaction check passed. Add it to every UI lane and
+retain the runtime-log scan. That failed stage cannot populate its archive;
+successful lanes may populate their provisional PR-scoped dependency archives.
+
+Next action: repair hosted prerequisites, then compare an unchanged fresh-run warm attempt and a changed-source warm run against the complete five-minute workflow target.

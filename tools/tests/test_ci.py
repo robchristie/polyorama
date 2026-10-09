@@ -22,7 +22,7 @@ class GateTests(unittest.TestCase):
                                    ("record-desk", ["record-desk"], ["browser", "native"])):
             path = self.evidence / f"interface-{stage}/application-interface/summary.json"
             path.parent.mkdir(parents=True)
-            path.write_text(json.dumps({"revision": "candidate", "dirty": False,
+            path.write_text(json.dumps({"revision": "candidate", "dirty": False, "slice_only": False,
                                        "selection": {"apps": apps, "hosts": hosts},
                                        "reports": [{"app": app, "host": host} for app in apps for host in hosts]}))
 
@@ -46,6 +46,10 @@ class GateTests(unittest.TestCase):
         summary = json.loads(path.read_text())
         for reports in (summary["reports"][:1], summary["reports"] * 2):
             path.write_text(json.dumps({**summary, "reports": reports}))
+            with self.assertRaises(ValueError):
+                ci.gate(self.needs, self.evidence, "candidate")
+        for key, value in (("dirty", True), ("slice_only", True)):
+            path.write_text(json.dumps({**summary, key: value}))
             with self.assertRaises(ValueError):
                 ci.gate(self.needs, self.evidence, "candidate")
         path.unlink()
