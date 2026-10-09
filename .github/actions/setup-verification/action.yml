@@ -34,8 +34,8 @@ runs:
         workspaces: |
           . -> target
           ${{ inputs.consumer == 'true' && 'consumers/record-desk -> target' || '' }}
-        # Calibration-only PR writes will be removed before selecting the candidate.
-        save-if: ${{ inputs.stage != 'docs' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.head_ref == 'codex/ci-speed' && github.event.pull_request.head.repo.full_name == github.repository)) }}
+        # Each complete successful main stage owns its dependency archive.
+        save-if: ${{ inputs.stage != 'docs' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         cache-bin: false
     - uses: actions/setup-node@v5
       if: inputs.stage != 'docs' && inputs.stage != 'native-other'

@@ -32,6 +32,12 @@ stages retain separate summaries under
 The standalone interface smoke still selects all four journeys by default.
 Each stage uploads its qualification evidence separately for 14 days.
 
+Browser Tab traversal waits for the application's `tab_input_epoch` receipt
+before sending another key. The diagnostic counts keydowns once per egui input
+frame, including discarded layout passes without double-counting. Fixed pacing
+alone can leave keys queued behind slow frames; the physical focus, activation,
+capture and idle assertions and the existing action limits remain required.
+
 ## Rust dependencies
 
 `Swatinem/rust-cache@v2` owns the Cargo registry and dependency build artefacts.
@@ -79,10 +85,11 @@ checks, uploads, cache saving and final aggregation. A successful warm rerun
 must also be followed by a representative changed-source warm run. Different
 profiles, source surfaces and dependency states are not interchangeable.
 
-During provisional calibration only, this task's same-repository PR may save
-successful dependency-stage archives in its PR scope to permit fresh-runner warm
-measurement before landing. Remove that temporary writer before selecting the
-final candidate. GitHub's scope boundary keeps those entries out of main.
+Provisional calibration populated successful stage archives in this task's PR
+scope to permit fresh-runner warm measurement before landing. The final workflow
+restores those entries but no longer writes PR archives. GitHub's scope boundary
+keeps those entries out of main; post-merge qualification must populate the
+ordinary main-stage archives separately.
 
 Five minutes is the cached-run engineering target, not permission to truncate
 qualification or a guarantee of hosted queue/service latency. The CI plan owns

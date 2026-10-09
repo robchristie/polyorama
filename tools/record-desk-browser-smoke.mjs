@@ -54,9 +54,9 @@ async function focusNode(id) {
     const s = await snapshot();
     if (s.ui.nodes.some(n => n.id === id && n.focused)) return;
     await page.keyboard.press('Tab');
-    await wait(`s => s.ui.frame > ${s.ui.frame}`);
-    // Egui applies traversal as controls are submitted; observe the subsequent
-    // settled pass before dispatching another traversal/activation event.
+    await wait(`s => s.tab_input_epoch > ${s.tab_input_epoch}`);
+    // A receipt acknowledges this Tab, rather than an unrelated repaint.
+    // Preserve the settling pass before another traversal/activation event.
     await page.waitForTimeout(50);
   }
   throw new Error(`Keyboard could not reach ${id}`);

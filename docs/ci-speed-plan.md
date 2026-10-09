@@ -47,3 +47,15 @@ retain the runtime-log scan. That failed stage cannot populate its archive;
 successful lanes may populate their provisional PR-scoped dependency archives.
 
 Next action: repair hosted prerequisites, then compare an unchanged fresh-run warm attempt and a changed-source warm run against the complete five-minute workflow target.
+
+The partially warm repaired run 37866800165 passed checks (3m36s), native Lab
+(3m55s), production (3m19s) and UI (2m55s); native-other and Record Desk were
+still cold. Existing browser traversal raced slow input frames. Gallery's
+failure retained repeated frame observations while the helper continued sending
+Tab; Record Desk's failure retained five Tab keydowns followed by Enter on a
+different focused node. A bounded local probe found no target-focus assertion
+contradicting egui's current focused ID. The selected repair acknowledges each
+Tab through a monotonic application diagnostic before another key, preserving
+all focus/activation assertions and traversal limits. Both focused physical
+browser journeys and the delayed-receipt regressions passed locally. Temporary
+probe fields/logging were removed. Keep release profiles unchanged.
