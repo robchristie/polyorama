@@ -76,6 +76,31 @@ owned packages. `target/browser-cargo` retains the required dependency reuse.
 
 ## Tools
 
+The checks stage alone installs the checksum-verified pre-built Nextest
+**0.9.146** binary through the pinned installer action, with source fallback
+disabled. `.config/nextest.toml` enforces that minimum before test compilation.
+Both local and hosted canonical checks use `tools/test-rust.py`: the `workspace`
+selection retains the workspace's default packages, targets and features, and
+`ui-no-default` separately tests `polyorama-ui-egui --no-default-features`.
+Each runs Cargo doctests afterwards with the same selection. The selected API
+documentation doctest coverage and independent Record Desk checks also remain
+required.
+
+The two Nextest profiles inherit the common CI settings: continue after test
+failure, no retries, and diagnostic slow warnings every five seconds without a
+hard timeout. JUnit includes ignored and filtered tests and failed-test output,
+and is written to
+`.tools/runtime/verification-evidence/nextest/workspace/junit.xml` and
+`.tools/runtime/verification-evidence/nextest/ui-no-default/junit.xml`.
+The checks stage clears only these owned XML files before setup/compilation;
+each focused invocation clears its own report before version preflight. Reports
+from completed runs survive later verification failures and Rust-cache cleanup,
+and the existing always-run stage upload retains them for 14 days. Compilation
+or setup failure leaves the affected report absent rather than reusing stale
+results. Direct focused commands are `python3 tools/test-rust.py workspace` and
+`python3 tools/test-rust.py ui-no-default`; Nextest execution times describe
+individual tests, not the complete compilation and verification journey.
+
 The dedicated `actions/cache` entry owns only `~/.cargo/bin/wasm-bindgen`, keyed
 by version, OS and architecture. The installer checks the executable's exit
 status and exact **0.2.127** version, installs on a miss/mismatch, and checks
