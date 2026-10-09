@@ -1,6 +1,8 @@
 # CI feedback time
 
-Status: active
+Status: complete
+
+Delivery: [PR #56](https://github.com/robchristie/polyorama/pull/56)
 
 ## Outcome and acceptance
 
@@ -34,9 +36,9 @@ test-skipping rule.
 | --- | --- | --- |
 | Preserve the canonical check inventory and split executable stages | Verifier | Complete |
 | Normalise runner toolchains and give parallel jobs appropriate caches | Workflow | Complete |
-| Probe combined native compilation and profile trade-offs | Calibration | Complete for native target selection; retain the current release profile pending warm hosted timing |
-| Qualify the complete hosted surface and cached elapsed time | CI | In progress |
-| Review the exact candidate, land and verify the merge revision | Owning PR | Pending |
+| Probe combined native compilation and profile trade-offs | Calibration | Complete |
+| Qualify the complete hosted surface and cached elapsed time | CI | Complete |
+| Prepare the candidate and retain delivery evidence | Owning PR | Complete for product qualification; final review, merge and post-merge evidence belong to the PR |
 
 The committed `d2b359e82eab876a313eed6c6985ea4c041a74fa` native-Lab stage passed
 the batched release build, both existing native smokes and its interface journey
@@ -46,7 +48,6 @@ UI setup after the icon interaction check passed. Add it to every UI lane and
 retain the runtime-log scan. That failed stage cannot populate its archive;
 successful lanes may populate their provisional PR-scoped dependency archives.
 
-Next action: qualify the complete warm workflow after replacing fixed native startup sleeps with bounded window readiness, then repeat it unchanged before final review.
 
 The partially warm repaired run 37866800165 passed checks (3m36s), native Lab
 (3m55s), production (3m19s) and UI (2m55s); native-other and Record Desk were
@@ -75,3 +76,21 @@ now share the receipt-aware helper while retaining their respective 40, 45
 and 24 action limits and 60/60/50 ms settling intervals. The helper observes
 the final allowed action. The focused icon journey and all caller-bound
 regressions passed locally.
+
+## Qualified outcome
+
+The complete changed-source warm workflow on
+`3049309088429a224a2e58d9cf12986a682e6651` passed in **4m34s**. An unchanged
+fresh-runner repeat passed in **4m47s**. Both are
+[run 37870954298](https://github.com/robchristie/polyorama/actions/runs/37870954298),
+attempts 1 and 2. The metric spans `run_started_at` through terminal `verify`
+completion and includes scheduling, setup, qualification, uploads and post
+steps. The documentation job is deliberately skipped on this full route.
+All seven archives restored exactly; all four observed interface journeys
+matched their clean checked-out revision. The worst observed complete cached
+workflow is below five minutes. Hosted queue/service variance and future
+workload changes remain outside this small qualification cohort.
+
+The owning PR retains independent exact-head review, final candidate CI, squash
+identity, separate post-merge CI and main-scope warm restoration. This completed
+product state does not assert that those delivery gates have already completed.
