@@ -68,3 +68,10 @@ its runtime log still showed graphics startup. The selected repair waits up to
 exits, and keeps all existing interaction/persistence assertions. Gallery uses
 the same helper. Readiness regressions cover delayed visibility, timeout and
 application exit.
+
+Run 37870185539 exposed the same queued-Tab condition in the retained icon
+workflow's separate fixed-delay traversal. Icon, navigation and Record Desk
+now share the receipt-aware helper while retaining their respective 40, 45
+and 24 action limits and 60/60/50 ms settling intervals. The helper observes
+the final allowed action. The focused icon journey and all caller-bound
+regressions passed locally.

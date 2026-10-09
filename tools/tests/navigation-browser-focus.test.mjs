@@ -101,3 +101,13 @@ test('missing receipt fails without another key or a settling delay', async () =
   assert.equal(state.dispatches, 1);
   assert.deepEqual(state.waits, []);
 });
+
+test('caller traversal bounds retain final-action observation and pacing', async () => {
+  for (const [maxTabs, settleMs] of [[24, 50], [40, 60]]) {
+    const { state, callbacks } = fixture(maxTabs);
+    await focusNavigationDestination('tasks', { ...callbacks, maxTabs, settleMs });
+    assert.equal(state.dispatches, maxTabs);
+    assert.deepEqual(state.waits, Array(maxTabs).fill(settleMs));
+    assert.equal(state.observations, maxTabs + 1);
+  }
+});
