@@ -1,6 +1,6 @@
 # CI feedback time
 
-Status: complete
+Status: active
 
 Delivery: [PR #56](https://github.com/robchristie/polyorama/pull/56)
 
@@ -37,7 +37,7 @@ test-skipping rule.
 | Preserve the canonical check inventory and split executable stages | Verifier | Complete |
 | Normalise runner toolchains and give parallel jobs appropriate caches | Workflow | Complete |
 | Probe combined native compilation and profile trade-offs | Calibration | Complete |
-| Qualify the complete hosted surface and cached elapsed time | CI | Complete |
+| Qualify the complete hosted surface and cached elapsed time | CI | In progress |
 | Prepare the candidate and retain delivery evidence | Owning PR | Complete for product qualification; final review, merge and post-merge evidence belong to the PR |
 
 The committed `d2b359e82eab876a313eed6c6985ea4c041a74fa` native-Lab stage passed
@@ -88,9 +88,21 @@ completion and includes scheduling, setup, qualification, uploads and post
 steps. The documentation job is deliberately skipped on this full route.
 All seven archives restored exactly; all four observed interface journeys
 matched their clean checked-out revision. The worst observed complete cached
-workflow is below five minutes. Hosted queue/service variance and future
+workflow in this initial two-attempt cohort is below five minutes. Hosted queue/service variance and future
 workload changes remain outside this small qualification cohort.
 
 The owning PR retains independent exact-head review, final candidate CI, squash
 identity, separate post-merge CI and main-scope warm restoration. This completed
 product state does not assert that those delivery gates have already completed.
+
+## Reopened performance qualification
+
+Final candidate `da96f649867815556b46e22c31b7033770a6be40` received an
+independent code-review PASS and passed all checks in run 37872275789, but the
+complete warm workflow took **5m09s**. It is held for performance repair. The
+browser lane took 4m43s; its four Gallery smokes account for approximately
+47 seconds. Add an eighth Gallery browser lane, retaining the public build-web
+behaviour and moving those smokes intact. Reuse the exact UI Gallery builder
+and its compatible archive; UI remains the sole successful-main writer.
+
+Next action: qualify the eight-stage workflow and repeat it unchanged, then obtain a new exact-head review and complete the PR delivery gates.

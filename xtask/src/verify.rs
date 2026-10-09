@@ -3,11 +3,12 @@ use super::*;
 use std::time::Instant;
 
 const STAGES: &str = include_str!("../../tools/verification-stages.json");
-const NAMES: [&str; 7] = [
+const NAMES: [&str; 8] = [
     "checks",
     "native-lab",
     "native-other",
     "browser",
+    "gallery-browser",
     "production",
     "ui",
     "record-desk",
@@ -199,6 +200,23 @@ pub fn run_stage(name: &str) -> Result<()> {
             build_web()?;
             prepare_browser()?;
             run_with_environment("npm", &["run", "browser-smoke"], &evidence_environment)?;
+            if cfg!(target_os = "linux") {
+                run_with_environment(
+                    "bash",
+                    &[
+                        "tools/application-interface-smoke.sh",
+                        "--apps",
+                        "lab",
+                        "--hosts",
+                        "browser",
+                    ],
+                    &interface_environment,
+                )?;
+            }
+        }
+        "gallery-browser" => {
+            build_gallery_web()?;
+            prepare_browser()?;
             run_with_environment(
                 "npm",
                 &["run", "gallery-browser-smoke"],
@@ -219,19 +237,6 @@ pub fn run_stage(name: &str) -> Result<()> {
                 &["tools/status-chip-browser-smoke.sh"],
                 &evidence_environment,
             )?;
-            if cfg!(target_os = "linux") {
-                run_with_environment(
-                    "bash",
-                    &[
-                        "tools/application-interface-smoke.sh",
-                        "--apps",
-                        "lab",
-                        "--hosts",
-                        "browser",
-                    ],
-                    &interface_environment,
-                )?;
-            }
         }
         "production" => {
             prepare_browser()?;
@@ -261,32 +266,7 @@ pub fn run_stage(name: &str) -> Result<()> {
             )?;
         }
         "ui" => {
-            fs::copy(
-                "tools/browser-startup.js",
-                "apps/polyorama-gallery/web/browser-startup.js",
-            )?;
-            ensure_wasm_bindgen_version("0.2.127")?;
-            run(
-                "cargo",
-                &[
-                    "build",
-                    "--release",
-                    "--target",
-                    "wasm32-unknown-unknown",
-                    "-p",
-                    "polyorama-gallery",
-                ],
-            )?;
-            run(
-                "wasm-bindgen",
-                &[
-                    "--target",
-                    "web",
-                    "--out-dir",
-                    "apps/polyorama-gallery/web/pkg",
-                    "target/wasm32-unknown-unknown/release/polyorama_gallery.wasm",
-                ],
-            )?;
+            build_gallery_web()?;
             prepare_browser()?;
             ui::verify(Path::new("."), &evidence.join("ui-snapshots"))?;
         }
@@ -324,6 +304,36 @@ pub fn run_stage(name: &str) -> Result<()> {
     Ok(())
 }
 
+fn build_gallery_web() -> Result<()> {
+    fs::copy(
+        "tools/browser-startup.js",
+        "apps/polyorama-gallery/web/browser-startup.js",
+    )?;
+    ensure_wasm_bindgen_version("0.2.127")?;
+    run(
+        "cargo",
+        &[
+            "build",
+            "--release",
+            "--target",
+            "wasm32-unknown-unknown",
+            "-p",
+            "polyorama-gallery",
+        ],
+    )?;
+    run(
+        "wasm-bindgen",
+        &[
+            "--target",
+            "web",
+            "--out-dir",
+            "apps/polyorama-gallery/web/pkg",
+            "target/wasm32-unknown-unknown/release/polyorama_gallery.wasm",
+        ],
+    )?;
+    Ok(())
+}
+
 fn prepare_browser() -> Result<()> {
     if cfg!(target_os = "linux") {
         run("bash", &["tools/bootstrap-linux-ui.sh"])?;
@@ -354,6 +364,7 @@ mod tests {
                 "native-lab",
                 "native-other",
                 "browser",
+                "gallery-browser",
                 "production",
                 "ui",
                 "record-desk"

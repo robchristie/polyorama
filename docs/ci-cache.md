@@ -1,6 +1,6 @@
 # CI verification and cache ownership
 
-The required `verify` check aggregates seven parallel qualification stages. The
+The required `verify` check aggregates eight parallel qualification stages. The
 closed inventory in `tools/verification-stages.json` is shared with
 `cargo xtask verify`, which runs the same stages sequentially locally. A stage
 can be reproduced with `cargo xtask verify-stage <name>`.
@@ -10,7 +10,8 @@ can be reproduced with `cargo xtask verify-stage <name>`.
 | `checks` | Tool regressions, plans/tokens, formatting, native/WASM lint, workspace tests, rendered API documentation and selected doctests, native/WASM example compilation, architecture, no-default-feature UI tests and browser-tool regressions |
 | `native-lab` | Lab library/binary and minimal example in one release invocation; Lab and minimal native smokes; Lab/native interface journey |
 | `native-other` | Every remaining workspace release library/binary; Gallery, icon, navigation and status-chip native smokes |
-| `browser` | Development Lab/Gallery/Worker/Viewer release WASM and bindgen packages; existing browser smokes; Lab/browser interface journey |
+| `browser` | Development Lab/Gallery/Worker/Viewer release WASM and bindgen packages; Lab browser smoke; Lab/browser interface journey |
+| `gallery-browser` | Shared UI Gallery release WASM/bindgen builder; Gallery, icon, navigation and status-chip browser smokes |
 | `production` | Separate production release WASM build, packaging and response-header validation, startup smoke and the prescribed startup benchmark |
 | `ui` | Gallery release WASM/bindgen package and every deterministic fixture/baseline check |
 | `record-desk` | Independent workspace boundary/fmt/native and WASM lint/tests/release builds, both smokes and both interface journeys |
@@ -22,7 +23,7 @@ workspace and dependency boundary. Product release settings remain ThinLTO with
 one codegen unit; parallel qualification does not substitute a faster profile.
 
 `tools/verify.py` remains the Git-derived scope guard. Only a successful docs
-classification may select documentation verification instead of the seven
+classification may select documentation verification instead of the eight
 stages. The final job runs even after failure and cancellation; it requires the
 selected route to succeed and rejects missing, failed, cancelled or unexpected
 job results. Full qualification also checks the observed four app/host interface
@@ -41,9 +42,12 @@ capture and idle assertions and the existing action limits remain required.
 ## Rust dependencies
 
 `Swatinem/rust-cache@v2` owns the Cargo registry and dependency build artefacts.
-Each stage has its own key and caches only target directories created by its
-commands; only Record Desk includes the independent consumer target. The docs
-route can restore the checks-stage cache. The production stage's recursive
+Each build workload has its own key and caches only target directories created
+by its commands; only Record Desk includes the independent consumer target. The docs
+route can restore the checks-stage cache. `gallery-browser` restores the UI
+archive and is never a writer: both lanes invoke the exact same Gallery Cargo
+and bindgen builder, and the Gallery smokes add no Cargo builds. UI owns that
+shared successful-main archive. The production stage's recursive
 `target` cache includes `target/browser-cargo`. Cleanup removes workspace-crate
 and incremental output; every restored build still runs Cargo freshness checks.
 A hit never skips compilation, testing, packaging or runtime qualification.
