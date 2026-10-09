@@ -106,3 +106,11 @@ behaviour and moving those smokes intact. Reuse the exact UI Gallery builder
 and its compatible archive; UI remains the sole successful-main writer.
 
 Next action: qualify the eight-stage workflow and repeat it unchanged, then obtain a new exact-head review and complete the PR delivery gates.
+
+The unchanged eight-stage repeat retained a Results target receipt whose row
+height changed from 21 to 20 points after the harness moved the pointer into
+the accepted target. The frozen-geometry assertion correctly failed before
+clicking. Pointer positioning now participates in the existing settling
+window; target identity and all geometry remain exact at final dispatch, with
+one physical click and the unchanged 200 ms stability/3500 ms budget.
+Regressions cover hover-induced pose changes and slow pointer preparation.
