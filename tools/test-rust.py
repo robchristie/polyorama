@@ -12,7 +12,9 @@ REPORTS = Path(".tools/runtime/verification-evidence/nextest")
 SELECTIONS = {
     "workspace": ["--workspace"],
     "ui-no-default": ["-p", "polyorama-ui-egui", "--no-default-features"],
+    "record-desk": ["--locked"],
 }
+WORKSPACES = {"record-desk": Path("consumers/record-desk")}
 
 
 def clear_reports(root: Path, selections=SELECTIONS) -> None:
@@ -24,7 +26,8 @@ def clear_reports(root: Path, selections=SELECTIONS) -> None:
 def run(selection: str, root: Path = ROOT) -> None:
     arguments = SELECTIONS[selection]
     clear_reports(root, [selection])
-    temporary = root / ".tools/runtime/verification-tmp"
+    # Keep Unix socket paths below platform limits in longer linked worktrees.
+    temporary = root / ".tools/t"
     temporary.mkdir(parents=True, exist_ok=True)
     environment = {**os.environ, "TMPDIR": str(temporary)}
     commands = (
@@ -34,15 +37,18 @@ def run(selection: str, root: Path = ROOT) -> None:
     )
     for command in commands:
         print("+ " + " ".join(command), flush=True)
-        subprocess.run(command, cwd=root, env=environment, check=True)
+        subprocess.run(command, cwd=root / WORKSPACES.get(selection, Path(".")),
+                       env=environment, check=True)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("selection", choices=["prepare", *SELECTIONS])
+    parser.add_argument("selection", choices=["prepare", "prepare-record-desk", *SELECTIONS])
     args = parser.parse_args()
     if args.selection == "prepare":
         clear_reports(ROOT)
+    elif args.selection == "prepare-record-desk":
+        clear_reports(ROOT, ["record-desk"])
     else:
         run(args.selection)
 

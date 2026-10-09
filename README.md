@@ -219,6 +219,7 @@ For focused development checks:
 ```sh
 python3 tools/test-rust.py workspace
 python3 tools/test-rust.py ui-no-default
+python3 tools/test-rust.py record-desk
 cargo xtask architecture
 cargo xtask tokens check
 cargo xtask ui list --output-dir .tools/runtime/ui-list

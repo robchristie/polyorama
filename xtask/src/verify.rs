@@ -56,7 +56,7 @@ pub fn run_stage(name: &str) -> Result<()> {
     let interface_environment = [("POLYORAMA_EVIDENCE_DIR", interface.as_path())];
     match name {
         "checks" => {
-            // Clear both configurations before setup or compilation can fail.
+            // Clear owned configurations before setup or compilation can fail.
             run("python3", &["tools/test-rust.py", "prepare"])?;
             run(
                 "python3",

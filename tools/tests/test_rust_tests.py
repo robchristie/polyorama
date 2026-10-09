@@ -27,20 +27,24 @@ import os
 from pathlib import Path
 import sys
 arguments = sys.argv[1:]
-with Path('calls.jsonl').open('a') as calls:
+root = Path(os.environ['HARNESS_ROOT'])
+with (root / 'calls.jsonl').open('a') as calls:
     calls.write(json.dumps(arguments) + '\\n')
+with (root / 'cwd.jsonl').open('a') as calls:
+    calls.write(json.dumps(str(Path.cwd())) + '\\n')
 if arguments[:2] == ['nextest', 'show-config']:
     sys.exit(int(os.environ.get('PREFLIGHT_EXIT', '0')))
 if arguments[:2] == ['nextest', 'run']:
     selection = arguments[arguments.index('--profile') + 1]
-    report = Path('.tools/runtime/verification-evidence/nextest') / selection / 'junit.xml'
+    report = root / '.tools/runtime/verification-evidence/nextest' / selection / 'junit.xml'
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text('<testsuites name="' + selection + '"/>')
     sys.exit(int(os.environ.get('TEST_EXIT', '0')))
 sys.exit(int(os.environ.get('DOC_EXIT', '0')))
 """)
         cargo.chmod(0o755)
-        environment = {**os.environ, "PATH": str(binary) + os.pathsep + os.environ["PATH"]}
+        environment = {**os.environ, "PATH": str(binary) + os.pathsep + os.environ["PATH"],
+                       "HARNESS_ROOT": str(self.root)}
         self.environment = patch.dict(os.environ, environment, clear=True)
         self.environment.start()
         self.addCleanup(self.environment.stop)
@@ -66,8 +70,8 @@ sys.exit(int(os.environ.get('DOC_EXIT', '0')))
             ["test", "--doc", "-p", "polyorama-ui-egui", "--no-default-features"],
         ])
 
-    def test_prepare_removes_only_the_two_owned_reports(self):
-        for selection in ("workspace", "ui-no-default", "other"):
+    def test_prepare_removes_only_the_three_owned_reports(self):
+        for selection in ("workspace", "ui-no-default", "record-desk", "other"):
             self.report(selection).parent.mkdir(parents=True, exist_ok=True)
             self.report(selection).write_text("old report")
         unrelated = self.report("workspace").parent / "diagnostic.txt"
@@ -75,6 +79,7 @@ sys.exit(int(os.environ.get('DOC_EXIT', '0')))
         rust_tests.clear_reports(self.root)
         self.assertFalse(self.report("workspace").exists())
         self.assertFalse(self.report("ui-no-default").exists())
+        self.assertFalse(self.report("record-desk").exists())
         self.assertEqual(self.report("other").read_text(), "old report")
         self.assertEqual(unrelated.read_text(), "keep")
 
@@ -102,6 +107,24 @@ sys.exit(int(os.environ.get('DOC_EXIT', '0')))
             with self.assertRaises(subprocess.CalledProcessError) as failure:
                 rust_tests.run("ui-no-default", self.root)
         self.assertEqual(failure.exception.returncode, 101)
+        self.assertTrue(self.report("workspace").exists())
+        self.assertTrue(self.report("ui-no-default").exists())
+
+    def test_consumer_uses_its_own_locked_workspace_and_distinct_report(self):
+        consumer = self.root / "consumers/record-desk"
+        consumer.mkdir(parents=True)
+        rust_tests.run("workspace", self.root)
+        rust_tests.run("ui-no-default", self.root)
+        rust_tests.run("record-desk", self.root)
+        self.assertEqual(self.calls()[-3:], [
+            ["nextest", "show-config", "version"],
+            ["nextest", "run", "--profile", "record-desk", "--locked"],
+            ["test", "--doc", "--locked"],
+        ])
+        self.assertEqual([json.loads(line) for line in (self.root / "cwd.jsonl").read_text().splitlines()][-3:],
+                         [str(consumer)] * 3)
+        rust_tests.clear_reports(self.root, ["record-desk"])
+        self.assertFalse(self.report("record-desk").exists())
         self.assertTrue(self.report("workspace").exists())
         self.assertTrue(self.report("ui-no-default").exists())
 
