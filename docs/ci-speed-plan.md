@@ -1,6 +1,6 @@
 # CI feedback time
 
-Status: active
+Status: complete
 
 Delivery: [PR #56](https://github.com/robchristie/polyorama/pull/56)
 
@@ -37,7 +37,7 @@ test-skipping rule.
 | Preserve the canonical check inventory and split executable stages | Verifier | Complete |
 | Normalise runner toolchains and give parallel jobs appropriate caches | Workflow | Complete |
 | Probe combined native compilation and profile trade-offs | Calibration | Complete |
-| Qualify the complete hosted surface and cached elapsed time | CI | In progress |
+| Qualify the complete hosted surface and cached elapsed time | CI | Complete |
 | Prepare the candidate and retain delivery evidence | Owning PR | Complete for product qualification; final review, merge and post-merge evidence belong to the PR |
 
 The committed `d2b359e82eab876a313eed6c6985ea4c041a74fa` native-Lab stage passed
@@ -105,7 +105,6 @@ browser lane took 4m43s; its four Gallery smokes account for approximately
 behaviour and moving those smokes intact. Reuse the exact UI Gallery builder
 and its compatible archive; UI remains the sole successful-main writer.
 
-Next action: qualify the eight-stage workflow and repeat it unchanged, then obtain a new exact-head review and complete the PR delivery gates.
 
 The unchanged eight-stage repeat retained a Results target receipt whose row
 height changed from 21 to 20 points after the harness moved the pointer into
@@ -114,3 +113,20 @@ clicking. Pointer positioning now participates in the existing settling
 window; target identity and all geometry remain exact at final dispatch, with
 one physical click and the unchanged 200 ms stability/3500 ms budget.
 Regressions cover hover-induced pose changes and slow pointer preparation.
+
+## Final eight-stage qualification
+
+The repaired eight-stage source
+`edd16a292349713e70d9a9cff6925761eb35370e` passed the complete changed-source
+warm workflow in **4m28s** and its unchanged fresh-runner repeat in **4m43s**
+([run 37874654782](https://github.com/robchristie/polyorama/actions/runs/37874654782),
+attempts 1 and 2). Both include scheduling, setup, all eight qualification
+stages, uploads/post steps and terminal `verify`. All required checks passed.
+The Gallery browser lane reused the exact compatible UI archive, with no
+external dependency compilation and no additional cache writer.
+
+Retain the eight-stage arrangement, receipt-aware physical input, pointer
+settling before geometry freezing and bounded native readiness. Release
+profiles and the complete assurance surface remain unchanged. Final reviewed
+head CI, live merge checks, separate merge-revision CI and main-scope warm
+restoration remain attributable delivery evidence owned by the PR.
